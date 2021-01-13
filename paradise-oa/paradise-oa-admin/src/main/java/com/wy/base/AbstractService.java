@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wy.database.annotation.Pid;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
 import com.wy.database.annotation.Unique;
@@ -28,6 +29,7 @@ import com.wy.excel.ExcelModelUtils;
 import com.wy.result.Result;
 import com.wy.result.ResultException;
 import com.wy.utils.ListUtils;
+import com.wy.utils.MapUtils;
 import com.wy.utils.StrUtils;
 
 /**
@@ -255,7 +257,8 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 			return null;
 		}
 		Map<ID, List<T>> buildMaps = buildMaps(datas);
-		List<T> trees = getLeaf(id, self == null ? false : self.booleanValue(), buildMaps, params);
+		self = self == null ? false : self.booleanValue();
+		List<T> trees = self ? getLeaf(datas, id, self) : buildMaps.get(id);
 		getLeaf(trees, buildMaps);
 		return trees;
 	}
@@ -268,18 +271,22 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	 */
 	@Override
 	public List<T> getLeaf(Map<String, Object> params) {
+		if (MapUtils.isBlank(params)) {
+			return this.getEntitys(null).getData();
+		}
 		T param = JSON.parseObject(JSON.toJSONString(params), clazz);
 		Result<List<T>> entitys = this.getEntitys(param);
 		return entitys.getData();
 	}
 
 	/**
-	 * 根据id将数据进行匹配,可重写
-	 * 
-	 * @param datas 全部数据
-	 * @return 匹配结果
+	 * 方法重复 FIXME
+	 * @param datas
+	 * @param id
+	 * @param self
+	 * @return
 	 */
-	public Map<ID, List<T>> buildMaps(List<T> datas) {
+	public List<T> getLeaf(List<T> datas, ID id, boolean self) {
 		Field[] declaredFields = clazz.getDeclaredFields();
 		if (ArrayUtils.isEmpty(declaredFields)) {
 			throw new ResultException("this class does not have nothing");
@@ -297,17 +304,15 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 		if (StrUtils.isBlank(priName)) {
 			throw new ResultException("this class does not have primary key");
 		}
-		Map<ID, List<T>> result = new HashMap<>(datas.size());
+		List<T> result = new ArrayList<>(datas.size());
 		for (T t : datas) {
 			priField.setAccessible(true);
 			try {
-				ID object = (ID) priField.get(t);
-				List<T> children = result.get(object);
-				if (ListUtils.isBlank(children)) {
-					children = new ArrayList<>();
-					result.put(object, children);
+				ID priVal = (ID) priField.get(t);
+				if ((priVal instanceof Number && priVal == id)
+						|| (priVal.getClass() == String.class && priVal.equals(id))) {
+					result.add(t);
 				}
-				children.add(t);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
@@ -316,19 +321,70 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	}
 
 	/**
-	 * 获得本级数据或下级数据,获取下级数据需要重写本方法
+	 * 根据id将数据进行匹配,可重写
 	 * 
-	 * @param id 本级编号
-	 * @param self self 是否查询本级数据,true获取,false直接获取下级,默认false
-	 * @param holeDatas 全部符合的数据
-	 * @param params 其他基本类型参数
-	 * @return 符合条件的数据
+	 * @param datas 全部数据
+	 * @return 匹配结果
 	 */
-	public List<T> getLeaf(ID id, boolean self, Map<ID, List<T>> holeDatas, Map<String, Object> params) {
-		if (self) {
-			return holeDatas.get(id);
+	public Map<ID, List<T>> buildMaps(List<T> datas) {
+		Field[] declaredFields = clazz.getDeclaredFields();
+		if (ArrayUtils.isEmpty(declaredFields)) {
+			throw new ResultException("this class does not have nothing");
 		}
-		return null;
+		String priName = "";
+		Field priField = null;
+		String pidName = "";
+		Field pidField = null;
+		for (Field field : declaredFields) {
+			field.setAccessible(true);
+			if (field.isAnnotationPresent(Pri.class)) {
+				priName = field.getName();
+				priField = field;
+			}
+			if (field.isAnnotationPresent(Pid.class)) {
+				pidName = field.getName();
+				pidField = field;
+			}
+			if (StrUtils.isNotBlank(priName) && StrUtils.isNotBlank(pidName)) {
+				break;
+			}
+		}
+		if (StrUtils.isBlank(priName) || StrUtils.isBlank(pidName)) {
+			throw new ResultException("this class does not have primary key or does not have pid");
+		}
+		Map<ID, List<T>> result = new HashMap<>(datas.size());
+		for (T t : datas) {
+			priField.setAccessible(true);
+			try {
+				ID priVal = (ID) priField.get(t);
+				List<T> priList = result.get(priVal);
+				if (ListUtils.isBlank(priList)) {
+					priList = new ArrayList<>();
+					result.put(priVal, priList);
+				}
+				ID pidVal = (ID) pidField.get(t);
+				List<T> pidList = result.get(pidVal);
+				if (ListUtils.isBlank(pidList)) {
+					pidList = new ArrayList<>();
+					result.put(pidVal, pidList);
+				}
+				for (T t1 : datas) {
+					// 将本级的本级实例或下级实例放入集合中
+					if ((priVal instanceof Number && priVal == priField.get(t1))
+							|| (priVal.getClass() == String.class && priVal.equals(priField.get(t1)))) {
+						priList.add(t1);
+					}
+					// 将本级放入上级实例的集合中
+					if ((pidVal instanceof Number && pidVal == priField.get(t1))
+							|| (pidVal.getClass() == String.class && pidVal.equals(priField.get(t1)))) {
+						pidList.add(t1);
+					}
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -347,9 +403,8 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 			}
 			Tree<T, ID> tree = (Tree<T, ID>) t;
 			if (tree.getChildNum() > 0) {
-				List<T> childs = getLeaf(tree.getTreeId(), false, params);
-				getLeaf(childs, params);
-				tree.setChildren(childs);
+				getLeaf(params.get(tree.getTreeId()), params);
+				tree.setChildren(params.get(tree.getTreeId()));
 			}
 		}
 	}
@@ -364,7 +419,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	 */
 	public List<T> getRecursionTree(ID id, Boolean self, Map<String, Object> params) {
 		List<T> trees = getRecursionLeaf(id, self == null ? false : self.booleanValue(), params);
-		getLeaf(trees, params);
+		getRecursionLeaf(trees, params);
 		return trees;
 	}
 

@@ -2,6 +2,8 @@ package com.wy.service;
 
 import java.util.List;
 
+import org.springframework.security.core.userdetails.UserDetailsService;
+
 import com.wy.base.BaseService;
 import com.wy.model.User;
 import com.wy.result.Result;
@@ -13,8 +15,8 @@ import com.wy.result.Result;
  * @date 2021-01-13 09:43:43
  * @git {@link https://github.com/mygodness100}
  */
-public interface UserService extends BaseService<User, Long> {
-	//	User login(String account, String password, String code, String uuid);
+public interface UserService extends BaseService<User, Long>, UserDetailsService {
+	// User login(String account, String password, String code, String uuid);
 
 	//
 	// boolean updateUserIcon(MultipartFile file, Integer userId);
@@ -49,14 +51,6 @@ public interface UserService extends BaseService<User, Long> {
 	 * @return 结果
 	 */
 	String selectUserRoleGroup(String username);
-
-	/**
-	 * 根据用户ID查询用户所属岗位组
-	 * 
-	 * @param userName 用户名
-	 * @return 结果
-	 */
-	String selectUserPostGroup(String username);
 
 	/**
 	 * 校验用户名称是否唯一

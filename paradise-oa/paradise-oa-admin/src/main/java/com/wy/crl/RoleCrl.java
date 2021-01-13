@@ -3,6 +3,8 @@ package com.wy.crl;
 import java.io.File;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
 import com.wy.enums.BusinessType;
-import com.wy.excel.ExcelUtils;
+import com.wy.excel.ExcelModelUtils;
 import com.wy.model.Role;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.RoleService;
-import com.wy.util.SecurityUtils;
 
 import io.swagger.annotations.Api;
 
@@ -52,9 +53,10 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@Log(title = "角色管理", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:role:export')")
 	@GetMapping("export")
-	public Result<?> export(Role role) {
+	public Result<?> export(Role role, HttpServletResponse response) {
 		List<Role> list = roleService.selectRoleList(role);
-		ExcelUtils.writeExcel(list, config.getCommon().getDownloadPath() + File.separator + "角色数据.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response,
+				config.getCommon().getDownloadPath() + File.separator + "角色数据.xlsx");
 		return Result.ok();
 	}
 
@@ -77,7 +79,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@PutMapping("/changeStatus")
 	public Result<?> changeStatus(@RequestBody Role role) {
 		roleService.checkRoleAllowed(role);
-		role.setUpdater(SecurityUtils.getUsername());
+		// role.setUpdater(SecurityUtils.getUsername());
 		return Result.result(roleService.updateRoleStatus(role) > 0);
 	}
 

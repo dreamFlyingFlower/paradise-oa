@@ -433,13 +433,12 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	 */
 	@Override
 	@Transactional
-	public int insertSelective(Role role) {
+	public Object insertSelective(Role role) {
 		if (StrUtils.isNotBlank(checkRoleNameUnique(role))) {
 			throw new ResultException("新增角色'" + role.getRoleName() + "'失败，角色名称已存在");
 		} else if (StrUtils.isNotBlank(checkRoleKeyUnique(role))) {
 			throw new ResultException("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
 		}
-		role.setCreater(SecurityUtils.getUsername());
 		// 新增角色信息
 		roleMapper.insertSelective(role);
 		return insertRoleMenu(role);
@@ -460,7 +459,6 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 		} else if (StrUtils.isNotBlank(checkRoleKeyUnique(role))) {
 			throw new ResultException("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
 		}
-		role.setUpdater(SecurityUtils.getUsername());
 		// 修改角色信息
 		roleMapper.updateByPrimaryKeySelective(role);
 		// 删除角色与菜单关联

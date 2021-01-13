@@ -7,22 +7,28 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageInfo;
+import com.wy.annotation.PermissionScope;
 import com.wy.base.AbstractService;
+import com.wy.common.Props;
+import com.wy.common.UserConstants;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.BooleanEnum;
 import com.wy.enums.TipEnum;
 import com.wy.enums.UserState;
+import com.wy.manager.AsyncTask;
 import com.wy.mapper.RoleMapper;
 import com.wy.mapper.UserMapper;
 import com.wy.mapper.UserRoleMapper;
 import com.wy.model.Role;
 import com.wy.model.User;
 import com.wy.model.UserRole;
-import com.wy.producer.ConfigService;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.result.ResultException;
@@ -33,7 +39,7 @@ import com.wy.util.spring.ServletUtils;
 import com.wy.utils.ListUtils;
 import com.wy.utils.StrUtils;
 
-import io.micrometer.core.instrument.MeterRegistry.Config;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 用户表
@@ -43,7 +49,9 @@ import io.micrometer.core.instrument.MeterRegistry.Config;
  * @git {@link https://github.com/mygodness100}
  */
 @Service("userService")
+@Slf4j
 public class UserServiceImpl extends AbstractService<User, Long> implements UserService {
+
 	@Autowired
 	private UserMapper userMapper;
 
@@ -115,16 +123,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private RoleMapper roleMapper;
 
 	@Autowired
-	private PostMapper postMapper;
-
-	@Autowired
 	private UserRoleMapper userRoleMapper;
-
-	@Autowired
-	private UserPostMapper userPostMapper;
-
-	@Autowired
-	private ConfigService configService;
 
 	@Autowired
 	private ConfigProperties config;
@@ -185,7 +184,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@PermissionScope(deptAlias = "d", userAlias = "u")
 	public Result<List<User>> selectUserList(User user) {
 		startPage(user);
-		List<User> list = userMapper.listByEntity(user);
+		List<User> list = userMapper.selectEntitys(user);
 		PageInfo<User> pageInfo = new PageInfo<>(list);
 		return Result.page(list, pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal());
 	}
@@ -221,25 +220,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	/**
-	 * 查询用户所属岗位组
-	 * 
-	 * @param userName 用户名
-	 * @return 结果
-	 */
-	@Override
-	public String selectUserPostGroup(String userName) {
-		List<Post> list = postMapper.selectPostsByUserName(userName);
-		StringBuffer idsStr = new StringBuffer();
-		for (Post post : list) {
-			idsStr.append(post.getPostName()).append(",");
-		}
-		if (StrUtils.isNotBlank(idsStr.toString())) {
-			return idsStr.substring(0, idsStr.length() - 1);
-		}
-		return idsStr.toString();
-	}
-
-	/**
 	 * 校验用户名称是否唯一
 	 * 
 	 * @param userName 用户名称
@@ -263,7 +243,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Override
 	public String checkPhoneUnique(User user) {
 		Long userId = Objects.isNull(user.getUserId()) ? -1L : user.getUserId();
-		User info = userMapper.checkPhoneUnique(user.getPhone());
+		User info = userMapper.checkPhoneUnique(user.getMobile());
 		if (Objects.nonNull(info) && info.getUserId().longValue() != userId.longValue()) {
 			return UserConstants.NOT_UNIQUE;
 		}
@@ -305,7 +285,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	@Override
 	@Transactional
-	public int insertSelective(User user) {
+	public Object insertSelective(User user) {
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
 		String password = user.getPassword();
 		if (StrUtils.isBlank(password)) {
@@ -322,8 +302,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		user.setPassword(passwordEncoder.encode(password));
 		// 新增用户信息
 		int rows = userMapper.insertSelective(user);
-		// 新增用户岗位关联
-		insertUserPost(user);
 		// 新增用户与角色管理
 		insertUserRole(user);
 		return rows;
@@ -344,20 +322,14 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		userRoleMapper.deleteUserRoleByUserId(userId);
 		// 新增用户与角色管理
 		insertUserRole(user);
-		// 删除用户与岗位关联
-		userPostMapper.deleteUserPostByUserId(userId);
-		// 新增用户与岗位管理
-		insertUserPost(user);
 		return userMapper.updateByPrimaryKeySelective(user);
 	}
 
 	@Override
 	public Object getById(Long id) {
 		User user = baseMapper.selectByPrimaryKey(id);
-		user.setRoles(roleMapper.listByEntity(new Role()));
-		user.setPosts(postMapper.listByEntity(new Post()));
+		user.setRoles(roleMapper.selectEntitys(new Role()));
 		user.setRoleIds(roleMapper.selectRoleListByUserId(id));
-		user.setPostIds(postMapper.selectPostListByUserId(id));
 		return user;
 	}
 
@@ -440,26 +412,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	/**
-	 * 新增用户岗位信息
-	 * 
-	 * @param user 用户对象
-	 */
-	public void insertUserPost(User user) {
-		List<Long> posts = user.getPostIds();
-		if (ListUtils.isNotBlank(posts)) {
-			// 新增用户与岗位管理
-			List<UserPost> list = new ArrayList<UserPost>();
-			for (Long postId : posts) {
-				UserPost up = UserPost.builder().userId(user.getUserId()).postId(postId).build();
-				list.add(up);
-			}
-			if (list.size() > 0) {
-				userPostMapper.batchUserPost(list);
-			}
-		}
-	}
-
-	/**
 	 * 通过用户ID删除用户
 	 * 
 	 * @param userId 用户ID
@@ -469,8 +421,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	public int delete(Long userId) {
 		// 删除用户与角色关联
 		userRoleMapper.deleteUserRoleByUserId(userId);
-		// 删除用户与岗位表
-		userPostMapper.deleteUserPostByUserId(userId);
 		return userMapper.deleteByPrimaryKey(userId);
 	}
 
@@ -505,19 +455,16 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		int failureNum = 0;
 		StringBuilder successMsg = new StringBuilder();
 		StringBuilder failureMsg = new StringBuilder();
-		Config userConfig = configService.selectConfigByKey("sys.user.initPassword");
 		for (User user : userList) {
 			try {
 				// 验证是否存在这个用户
 				User u = userMapper.selectByUsername(user.getUsername());
 				if (Objects.isNull(u)) {
-					user.setPassword(SecurityUtils.encryptPassword(userConfig.getConfigValue()));
-					user.setCreater(operName);
+					user.setPassword(SecurityUtils.encryptPassword(u.getPassword()));
 					this.insertSelective(user);
 					successNum++;
 					successMsg.append("<br/>" + successNum + "、账号 " + user.getUsername() + " 导入成功");
 				} else if (isUpdateSupport) {
-					user.setUpdater(operName);
 					this.insertSelective(user);
 					successNum++;
 					successMsg.append("<br/>" + successNum + "、账号 " + user.getUsername() + " 更新成功");

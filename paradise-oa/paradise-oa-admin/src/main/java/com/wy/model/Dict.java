@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.wy.base.AbstractModel;
+import com.wy.database.annotation.Pid;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
 import com.wy.database.annotation.Unique;
@@ -81,6 +82,7 @@ public class Dict extends AbstractModel {
 	@ApiModelProperty("上级字典编号")
 	@ExcelColumn("父级字典编号")
 	@NotNull(message = "父级字典编号不能为空")
+	@Pid
 	private Long pid;
 
 	/**

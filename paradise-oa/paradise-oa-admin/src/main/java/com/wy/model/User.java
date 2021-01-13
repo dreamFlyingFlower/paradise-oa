@@ -3,6 +3,7 @@ package com.wy.model;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -185,6 +186,18 @@ public class User extends AbstractModel implements UserDetails {
 	 */
 	@ApiModelProperty("用户角色对象")
 	private List<Role> roles;
+	
+	/**
+	 * 角色编号集合
+	 */
+	@ApiModelProperty("角色编号集合")
+	private List<Long> roleIds;
+
+	/**
+	 * 权限集合
+	 */
+	@ApiModelProperty("权限集合")
+	private Set<String> permissions;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

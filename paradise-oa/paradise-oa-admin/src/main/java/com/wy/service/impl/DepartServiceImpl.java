@@ -14,10 +14,8 @@ import com.wy.base.Tree;
 import com.wy.common.UserConstants;
 import com.wy.mapper.DepartMapper;
 import com.wy.model.Depart;
-import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.DepartService;
-import com.wy.util.SecurityUtils;
 import com.wy.utils.StrUtils;
 
 /**
@@ -32,9 +30,6 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 
 	@Autowired
 	private DepartMapper departMapper;
-
-	@Autowired
-	private ConfigProperties config;
 
 	/**
 	 * @apiNote 查询本级菜单信息或直接下级菜单信息 FIXME
@@ -64,7 +59,7 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 		List<Depart> deptTrees = buildDeptTree(depts);
 		return deptTrees.stream().map(Tree::new).collect(Collectors.toList());
 	}
-	
+
 	/**
 	 * 构建前端所需要树结构
 	 * 
@@ -144,18 +139,6 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 	}
 
 	/**
-	 * 修改该部门的父级部门状态
-	 * 
-	 * @param dept 当前部门
-	 */
-	private void updateParentDeptStatus(Depart depart) {
-		String updateBy = depart.getUpdater();
-		depart = departMapper.selectByPrimaryKey(depart.getDepartId());
-		depart.setUpdater(updateBy);
-		departMapper.updateDeptStatus(depart);
-	}
-
-	/**
 	 * 修改子元素关系
 	 * 
 	 * @param deptId 被修改的部门ID
@@ -164,9 +147,6 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 	 */
 	public void updateDeptChildren(Long deptId, String newAncestors, String oldAncestors) {
 		List<Depart> children = departMapper.selectChildrenDeptById(deptId);
-		for (Depart child : children) {
-			child.setAncestors(child.getAncestors().replace(oldAncestors, newAncestors));
-		}
 		if (children.size() > 0) {
 			departMapper.updateDeptChildren(children);
 		}
@@ -199,7 +179,7 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 		Iterator<Depart> it = list.iterator();
 		while (it.hasNext()) {
 			Depart n = it.next();
-			if (Objects.nonNull(n.getParentId()) && n.getParentId().longValue() == t.getDepartId().longValue()) {
+			if (Objects.nonNull(n.getPid()) && n.getPid().longValue() == t.getDepartId().longValue()) {
 				tlist.add(n);
 			}
 		}
@@ -220,17 +200,10 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 	 * @return 结果
 	 */
 	@Override
-	public int insertSelective(Depart depart) {
+	public Object insertSelective(Depart depart) {
 		if (StrUtils.isNotBlank(checkDeptNameUnique(depart))) {
-			throw new ResultException("新增部门'" + depart.getDepartName() + "'失败，部门名称已存在");
+			throw new ResultException("新增部门'" + depart.getDepartName() + "'失败,部门名称已存在");
 		}
-		depart.setCreater(SecurityUtils.getUsername());
-		Depart parent = departMapper.selectByPrimaryKey(depart.getParentId());
-		// 如果父节点不为正常状态,则不允许新增子节点
-		if (config.getState().getDepartNormarl() != parent.getState()) {
-			throw new ResultException("部门停用,不允许新增");
-		}
-		depart.setAncestors(parent.getAncestors() + "," + depart.getParentId());
 		return baseMapper.insertSelective(depart);
 	}
 
@@ -267,20 +240,7 @@ public class DepartServiceImpl extends AbstractService<Depart, Long> implements 
 		} else if (depart.getPid().equals(depart.getDepartId())) {
 			throw new ResultException("修改部门'" + depart.getDepartName() + "'失败，上级部门不能是自己");
 		}
-		depart.setUpdater(SecurityUtils.getUsername());
-		Depart newParent = departMapper.selectByPrimaryKey(depart.getPid());
-		Depart oldParent = departMapper.selectByPrimaryKey(depart.getDepartId());
-		if (Objects.nonNull(newParent) && Objects.nonNull(oldParent)) {
-			String newAncestors = newParent.getAncestors() + "," + newParent.getDepartId();
-			String oldAncestors = oldParent.getAncestors();
-			depart.setAncestors(newAncestors);
-			updateDeptChildren(depart.getDepartId(), newAncestors, oldAncestors);
-		}
 		int result = departMapper.updateByPrimaryKeySelective(depart);
-		if (config.getState().getDepartNormarl() == depart.getState()) {
-			// 如果该部门是启用状态，则启用该部门的所有上级部门
-			updateParentDeptStatus(depart);
-		}
 		return result;
 	}
 }

@@ -1,8 +1,14 @@
 package com.wy.model;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import com.wy.base.AbstractModel;
+import com.wy.database.annotation.Pid;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
+import com.wy.valid.ValidEdit;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -35,18 +41,22 @@ public class Menu extends AbstractModel {
 	 */
 	@ApiModelProperty("菜单编号")
 	@Pri
+	@NotNull(groups = ValidEdit.class)
 	private Long menuId;
 
 	/**
 	 * 菜单名称
 	 */
 	@ApiModelProperty("菜单名称")
+	@NotBlank
 	private String menuName;
 
 	/**
 	 * 上级菜单编号
 	 */
 	@ApiModelProperty("上级菜单编号")
+	@NotNull
+	@Pid
 	private Long pid;
 
 	/**

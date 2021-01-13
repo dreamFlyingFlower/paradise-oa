@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -22,14 +24,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSON;
 import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
+import com.wy.config.security.TokenService;
 import com.wy.enums.BusinessType;
-import com.wy.excel.ExcelUtils;
+import com.wy.excel.ExcelModelUtils;
 import com.wy.model.Menu;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.MenuService;
-import com.wy.service.RoleService;
 import com.wy.service.UserService;
 import com.wy.util.FileUploadUtils;
 import com.wy.util.SecurityUtils;
@@ -53,12 +55,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 
 	@Autowired
 	private UserService userService;
-
-	@Autowired
-	private RoleService roleService;
-
-	@Autowired
-	private PostService postService;
 
 	@Autowired
 	private TokenService tokenService;
@@ -127,9 +123,10 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@Log(title = "用户管理", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:user:export')")
 	@GetMapping("export")
-	public Result<?> export(User user) {
+	public Result<?> export(User user, HttpServletResponse response) {
 		List<User> list = userService.selectUserList(user).getData();
-		ExcelUtils.writeExcel(list, config.getCommon().getDownloadPath() + File.separator + "用户数据.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response,
+				config.getCommon().getDownloadPath() + File.separator + "用户数据.xlsx");
 		return Result.ok();
 	}
 
@@ -137,7 +134,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@PreAuthorize("@ss.hasPermi('system:user:import')")
 	@PostMapping("importData")
 	public Result<?> importData(MultipartFile file, boolean updateSupport) throws Exception {
-		List<Map<String, Object>> userList = ExcelUtils.readExcel(file.getInputStream());
+		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
 		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
 		String operName = loginUser.getUsername();
 		String message = userService.importUser(JSON.parseArray(JSON.toJSONString(userList), User.class), updateSupport,
@@ -158,9 +155,8 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@Log(title = "用户管理", businessType = BusinessType.INSERT)
 	@PostMapping
 	public Result<?> add(@Validated @RequestBody User user) {
-		user.setCreater(SecurityUtils.getUsername());
 		user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
-		return Result.result(userService.insertSelective(user) > 0);
+		return Result.result(userService.insertSelective(user));
 	}
 
 	/**
@@ -172,7 +168,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	public Result<?> resetPwd(@RequestBody User user) {
 		userService.checkUserAllowed(user);
 		user.setPassword(SecurityUtils.encryptPassword(user.getPassword()));
-		user.setUpdater(SecurityUtils.getUsername());
 		return Result.result(userService.resetPwd(user) > 0);
 	}
 
@@ -184,7 +179,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@PutMapping("/changeStatus")
 	public Result<?> changeStatus(@RequestBody User user) {
 		userService.checkUserAllowed(user);
-		user.setUpdater(SecurityUtils.getUsername());
+		// user.setUpdater(SecurityUtils.getUsername());
 		return Result.result(userService.updateUserStatus(user) > 0);
 	}
 
@@ -196,15 +191,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	// return Result.result(userService.updateUserIcon(file, userId));
 	// }
 
-	@Autowired
-	private UserService userService;
-
-	@Autowired
-	private TokenService tokenService;
-
-	@Autowired
-	private ConfigProperties config;
-
 	/**
 	 * 个人信息
 	 */
@@ -214,7 +200,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		Map<String, Object> map = new HashMap<>();
 		map.put("user", user);
 		map.put("roleGroup", userService.selectUserRoleGroup(user.getUsername()));
-		map.put("postGroup", userService.selectUserPostGroup(user.getUsername()));
 		return Result.ok(map);
 	}
 
@@ -227,8 +212,8 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		if (userService.updateUserProfile(user) > 0) {
 			User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
 			// 更新缓存用户信息
-			loginUser.setNickname(user.getNickname());
-			loginUser.setPhone(user.getPhone());
+			// loginUser.setNickname(user.getNickname());
+			loginUser.setMobile(user.getMobile());
 			loginUser.setEmail(user.getEmail());
 			loginUser.setSex(user.getSex());
 			tokenService.setLoginUser(loginUser);

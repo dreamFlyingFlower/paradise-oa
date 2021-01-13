@@ -14,18 +14,18 @@ import com.wy.utils.StrUtils;
 
 /**
  * 自定义权限实现 FIXME
+ * 
  * @author ParadiseWY
  * @date 2020年4月5日 下午12:51:37
  */
 @Service("ss")
 public class PermissionService {
+
 	/** 所有权限标识 */
 	private static final String ALL_PERMISSION = "*:*:*";
 
 	/** 管理员角色权限标识 */
-	private static final String SUPER_ADMIN = "admin";
-
-	private static final String ROLE_DELIMETER = ",";
+	private static final int SUPER_ADMIN = 0;
 
 	private static final String PERMISSION_DELIMETER = ",";
 
@@ -88,17 +88,14 @@ public class PermissionService {
 	 * @param role 角色字符串
 	 * @return 用户是否具备某角色
 	 */
-	public boolean hasRole(String role) {
-		if (StrUtils.isBlank(role)) {
-			return false;
-		}
+	public boolean hasRole(int role) {
 		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
 		if (Objects.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getRoles())) {
 			return false;
 		}
 		for (Role sysRole : loginUser.getRoles()) {
-			String roleKey = sysRole.getRoleKey();
-			if (SUPER_ADMIN.contains(roleKey) || roleKey.contains(role.trim())) {
+			int roleKey = sysRole.getRoleType();
+			if (SUPER_ADMIN == roleKey || roleKey == role) {
 				return true;
 			}
 		}
@@ -111,7 +108,7 @@ public class PermissionService {
 	 * @param role 角色名称
 	 * @return 用户是否不具备某角色
 	 */
-	public boolean lacksRole(String role) {
+	public boolean lacksRole(int role) {
 		return hasRole(role) != true;
 	}
 
@@ -121,18 +118,13 @@ public class PermissionService {
 	 * @param roles 以 ROLE_NAMES_DELIMETER 为分隔符的角色列表
 	 * @return 用户是否具有以下任意一个角色
 	 */
-	public boolean hasAnyRoles(String roles) {
-		if (StrUtils.isBlank(roles)) {
-			return false;
-		}
+	public boolean hasAnyRoles(int roles) {
 		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
 		if (Objects.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getRoles())) {
 			return false;
 		}
-		for (String role : roles.split(ROLE_DELIMETER)) {
-			if (hasRole(role)) {
-				return true;
-			}
+		if (hasRole(roles)) {
+			return true;
 		}
 		return false;
 	}
