@@ -10,5 +10,6 @@
 	<modules>
 		<module>paradise-oa-admin</module>
 		<module>paradise-oa-common</module>
+		<module>paradise-oa-system</module>
 	</modules>
 </project>

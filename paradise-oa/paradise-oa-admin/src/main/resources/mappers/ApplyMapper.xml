@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.mapper.ApplyMapper">
+  <resultMap id="BaseResultMap" type="com.wy.model.Apply">
+    <id column="apply_id" jdbcType="BIGINT" property="applyId" />
+    <result column="apply_date" jdbcType="DATE" property="applyDate" />
+    <result column="starttime" jdbcType="TIMESTAMP" property="starttime" />
+    <result column="finishtime" jdbcType="TIMESTAMP" property="finishtime" />
+    <result column="apply_type" jdbcType="INTEGER" property="applyType" />
+    <result column="reason" jdbcType="VARCHAR" property="reason" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="approve_id" jdbcType="BIGINT" property="approveId" />
+    <result column="approve_name" jdbcType="VARCHAR" property="approveName" />
+    <result column="approve_date" jdbcType="DATE" property="approveDate" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    apply_id, apply_date, starttime, finishtime, apply_type, reason, state, user_id, 
+    username, approve_id, approve_name, approve_date, remark
+  </sql>
+  <select id="selectByExample" parameterType="com.wy.model.ApplyExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_apply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_apply
+    where apply_id = #{applyId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_apply
+    where apply_id = #{applyId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.wy.model.ApplyExample">
+    delete from tb_apply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="apply_id" keyProperty="applyId" parameterType="com.wy.model.Apply" useGeneratedKeys="true">
+    insert into tb_apply (apply_date, starttime, finishtime, 
+      apply_type, reason, state, 
+      user_id, username, approve_id, 
+      approve_name, approve_date, remark
+      )
+    values (#{applyDate,jdbcType=DATE}, #{starttime,jdbcType=TIMESTAMP}, #{finishtime,jdbcType=TIMESTAMP}, 
+      #{applyType,jdbcType=INTEGER}, #{reason,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+      #{userId,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{approveId,jdbcType=BIGINT}, 
+      #{approveName,jdbcType=VARCHAR}, #{approveDate,jdbcType=DATE}, #{remark,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="apply_id" keyProperty="applyId" parameterType="com.wy.model.Apply" useGeneratedKeys="true">
+    insert into tb_apply
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="applyDate != null">
+        apply_date,
+      </if>
+      <if test="starttime != null">
+        starttime,
+      </if>
+      <if test="finishtime != null">
+        finishtime,
+      </if>
+      <if test="applyType != null">
+        apply_type,
+      </if>
+      <if test="reason != null">
+        reason,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="approveId != null">
+        approve_id,
+      </if>
+      <if test="approveName != null">
+        approve_name,
+      </if>
+      <if test="approveDate != null">
+        approve_date,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="applyDate != null">
+        #{applyDate,jdbcType=DATE},
+      </if>
+      <if test="starttime != null">
+        #{starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishtime != null">
+        #{finishtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyType != null">
+        #{applyType,jdbcType=INTEGER},
+      </if>
+      <if test="reason != null">
+        #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="approveId != null">
+        #{approveId,jdbcType=BIGINT},
+      </if>
+      <if test="approveName != null">
+        #{approveName,jdbcType=VARCHAR},
+      </if>
+      <if test="approveDate != null">
+        #{approveDate,jdbcType=DATE},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.wy.model.ApplyExample" resultType="java.lang.Long">
+    select count(*) from tb_apply
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_apply
+    <set>
+      <if test="record.applyId != null">
+        apply_id = #{record.applyId,jdbcType=BIGINT},
+      </if>
+      <if test="record.applyDate != null">
+        apply_date = #{record.applyDate,jdbcType=DATE},
+      </if>
+      <if test="record.starttime != null">
+        starttime = #{record.starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.finishtime != null">
+        finishtime = #{record.finishtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.applyType != null">
+        apply_type = #{record.applyType,jdbcType=INTEGER},
+      </if>
+      <if test="record.reason != null">
+        reason = #{record.reason,jdbcType=VARCHAR},
+      </if>
+      <if test="record.state != null">
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.username != null">
+        username = #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.approveId != null">
+        approve_id = #{record.approveId,jdbcType=BIGINT},
+      </if>
+      <if test="record.approveName != null">
+        approve_name = #{record.approveName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.approveDate != null">
+        approve_date = #{record.approveDate,jdbcType=DATE},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_apply
+    set apply_id = #{record.applyId,jdbcType=BIGINT},
+      apply_date = #{record.applyDate,jdbcType=DATE},
+      starttime = #{record.starttime,jdbcType=TIMESTAMP},
+      finishtime = #{record.finishtime,jdbcType=TIMESTAMP},
+      apply_type = #{record.applyType,jdbcType=INTEGER},
+      reason = #{record.reason,jdbcType=VARCHAR},
+      state = #{record.state,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      username = #{record.username,jdbcType=VARCHAR},
+      approve_id = #{record.approveId,jdbcType=BIGINT},
+      approve_name = #{record.approveName,jdbcType=VARCHAR},
+      approve_date = #{record.approveDate,jdbcType=DATE},
+      remark = #{record.remark,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wy.model.Apply">
+    update tb_apply
+    <set>
+      <if test="applyDate != null">
+        apply_date = #{applyDate,jdbcType=DATE},
+      </if>
+      <if test="starttime != null">
+        starttime = #{starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishtime != null">
+        finishtime = #{finishtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyType != null">
+        apply_type = #{applyType,jdbcType=INTEGER},
+      </if>
+      <if test="reason != null">
+        reason = #{reason,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="approveId != null">
+        approve_id = #{approveId,jdbcType=BIGINT},
+      </if>
+      <if test="approveName != null">
+        approve_name = #{approveName,jdbcType=VARCHAR},
+      </if>
+      <if test="approveDate != null">
+        approve_date = #{approveDate,jdbcType=DATE},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where apply_id = #{applyId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wy.model.Apply">
+    update tb_apply
+    set apply_date = #{applyDate,jdbcType=DATE},
+      starttime = #{starttime,jdbcType=TIMESTAMP},
+      finishtime = #{finishtime,jdbcType=TIMESTAMP},
+      apply_type = #{applyType,jdbcType=INTEGER},
+      reason = #{reason,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=BIGINT},
+      username = #{username,jdbcType=VARCHAR},
+      approve_id = #{approveId,jdbcType=BIGINT},
+      approve_name = #{approveName,jdbcType=VARCHAR},
+      approve_date = #{approveDate,jdbcType=DATE},
+      remark = #{remark,jdbcType=VARCHAR}
+    where apply_id = #{applyId,jdbcType=BIGINT}
+  </update>
+  <insert id="inserts" parameterType="list">
+    insert into tb_apply (apply_id,apply_date,starttime,finishtime,apply_type,reason,state,user_id,username,approve_id,approve_name,approve_date,remark)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.applyDate,jdbcType=DATE},#{item.starttime,jdbcType=TIMESTAMP},#{item.finishtime,jdbcType=TIMESTAMP},#{item.applyType,jdbcType=INTEGER},#{item.reason,jdbcType=VARCHAR},<choose><when test="item.state!= null">state = #{item.state,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose>#{item.userId,jdbcType=BIGINT},#{item.username,jdbcType=VARCHAR},#{item.approveId,jdbcType=BIGINT},#{item.approveName,jdbcType=VARCHAR},#{item.approveDate,jdbcType=DATE},#{item.remark,jdbcType=VARCHAR})</foreach>
+  </insert>
+  <delete id="deleteByPrimaryKeys" parameterType="list">
+    delete from  tb_apply where apply_id in <foreach open="(" close=")" collection="list" item="applyId" separator=",">#{applyId,jdbcType=BIGINT}</foreach>
+  </delete>
+  <delete id="deleteAll">
+    delete from  tb_apply 
+  </delete>
+  <select id="selectEntitys" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from tb_apply<where><if test = "applyId != null "> and apply_id = #{applyId,jdbcType=BIGINT} </if><if test = "applyDate != null "> and apply_date = #{applyDate,jdbcType=DATE} </if><if test = "starttime != null "> and starttime = #{starttime,jdbcType=TIMESTAMP} </if><if test = "finishtime != null "> and finishtime = #{finishtime,jdbcType=TIMESTAMP} </if><if test = "applyType != null "> and apply_type = #{applyType,jdbcType=INTEGER} </if><if test = "reason != null "> and reason = #{reason,jdbcType=VARCHAR} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "username != null "> and username = #{username,jdbcType=VARCHAR} </if><if test = "approveId != null "> and approve_id = #{approveId,jdbcType=BIGINT} </if><if test = "approveName != null "> and approve_name = #{approveName,jdbcType=VARCHAR} </if><if test = "approveDate != null "> and approve_date = #{approveDate,jdbcType=DATE} </if><if test = "remark != null "> and remark = #{remark,jdbcType=VARCHAR} </if></where>
+  </select>
+  <select id="selectLists" resultType="map">
+    select <include refid="Base_Column_List" /> from tb_apply<where><if test = "applyId != null "> and apply_id = #{applyId,jdbcType=BIGINT} </if><if test = "applyDate != null "> and apply_date = #{applyDate,jdbcType=DATE} </if><if test = "starttime != null "> and starttime = #{starttime,jdbcType=TIMESTAMP} </if><if test = "finishtime != null "> and finishtime = #{finishtime,jdbcType=TIMESTAMP} </if><if test = "applyType != null "> and apply_type = #{applyType,jdbcType=INTEGER} </if><if test = "reason != null "> and reason = #{reason,jdbcType=VARCHAR} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "username != null "> and username = #{username,jdbcType=VARCHAR} </if><if test = "approveId != null "> and approve_id = #{approveId,jdbcType=BIGINT} </if><if test = "approveName != null "> and approve_name = #{approveName,jdbcType=VARCHAR} </if><if test = "approveDate != null "> and approve_date = #{approveDate,jdbcType=DATE} </if><if test = "remark != null "> and remark = #{remark,jdbcType=VARCHAR} </if></where>
+  </select>
+  <select id="countByEntity" resultType="java.lang.Long">
+    select count(*) from tb_apply<where><if test = "applyId != null ">and apply_id = #{applyId,jdbcType=BIGINT} </if><if test = "applyDate != null ">and apply_date = #{applyDate,jdbcType=DATE} </if><if test = "starttime != null ">and starttime = #{starttime,jdbcType=TIMESTAMP} </if><if test = "finishtime != null ">and finishtime = #{finishtime,jdbcType=TIMESTAMP} </if><if test = "applyType != null ">and apply_type = #{applyType,jdbcType=INTEGER} </if><if test = "reason != null ">and reason = #{reason,jdbcType=VARCHAR} </if><if test = "state != null ">and state = #{state,jdbcType=INTEGER} </if><if test = "userId != null ">and user_id = #{userId,jdbcType=BIGINT} </if><if test = "username != null ">and username = #{username,jdbcType=VARCHAR} </if><if test = "approveId != null ">and approve_id = #{approveId,jdbcType=BIGINT} </if><if test = "approveName != null ">and approve_name = #{approveName,jdbcType=VARCHAR} </if><if test = "approveDate != null ">and approve_date = #{approveDate,jdbcType=DATE} </if><if test = "remark != null ">and remark = #{remark,jdbcType=VARCHAR} </if></where>
+  </select>
+  <select id="getMaxValue" resultType="java.lang.Long">
+    select <choose><when test="'applyId' == _parameter.column">max(apply_id)</when><when test="'applyType' == _parameter.column">max(apply_type)</when><when test="'state' == _parameter.column">max(state)</when><when test="'userId' == _parameter.column">max(user_id)</when><when test="'approveId' == _parameter.column">max(approve_id)</when><otherwise>max(0)</otherwise>  </choose>  from tb_apply
+  </select>
+  <select id="getMaxTime" resultType="java.util.Date">
+    select <choose><when test="applyDate == ${column}">max(applyDate)</when><when test="starttime == ${column}">max(starttime)</when><when test="finishtime == ${column}">max(finishtime)</when><when test="approveDate == ${column}">max(approveDate)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from tb_apply
+  </select>
+</mapper>

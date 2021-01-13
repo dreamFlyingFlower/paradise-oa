@@ -43,14 +43,12 @@ public interface QueryService<T,ID> {
 	List<T> getTree(ID id, Boolean self, Map<String, Object> params);
 
 	/**
-	 * 该方法根据上级编号查询本级数据或下级数据
+	 * 根据条件将数据库中符合的数据一次全部查出来
 	 * 
-	 * @param id 条件编号
-	 * @param self 是否查询本级数据,true获取,false直接获取下级,默认false
 	 * @param params 其他基本类型参数
 	 * @return 多行结果集
 	 */
-	List<T> getLeaf(ID id, boolean parent, Map<String, Object> params);
+	List<T> getLeaf(Map<String, Object> params);
 
 	/**
 	 * 分页/不分页查询实体类中数据,实体类中非null以及非""字段值才可作为查询条件,条件只能是等于

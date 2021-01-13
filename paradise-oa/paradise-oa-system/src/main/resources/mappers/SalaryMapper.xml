@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.mapper.SalaryMapper">
+  <resultMap id="BaseResultMap" type="com.wy.model.Salary">
+    <id column="salary_id" jdbcType="BIGINT" property="salaryId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="basic" jdbcType="DOUBLE" property="basic" />
+    <result column="check_id" jdbcType="BIGINT" property="checkId" />
+    <result column="check_name" jdbcType="VARCHAR" property="checkName" />
+    <result column="month" jdbcType="VARCHAR" property="month" />
+    <result column="other" jdbcType="DOUBLE" property="other" />
+    <result column="salary" jdbcType="DOUBLE" property="salary" />
+    <result column="craetetime" jdbcType="TIMESTAMP" property="craetetime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    salary_id, user_id, username, basic, check_id, check_name, month, other, salary, 
+    craetetime
+  </sql>
+  <select id="selectByExample" parameterType="com.wy.model.SalaryExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ts_salary
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ts_salary
+    where salary_id = #{salaryId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from ts_salary
+    where salary_id = #{salaryId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.wy.model.SalaryExample">
+    delete from ts_salary
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="salary_id" keyProperty="salaryId" parameterType="com.wy.model.Salary" useGeneratedKeys="true">
+    insert into ts_salary (user_id, username, basic, 
+      check_id, check_name, month, 
+      other, salary, craetetime
+      )
+    values (#{userId,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{basic,jdbcType=DOUBLE}, 
+      #{checkId,jdbcType=BIGINT}, #{checkName,jdbcType=VARCHAR}, #{month,jdbcType=VARCHAR}, 
+      #{other,jdbcType=DOUBLE}, #{salary,jdbcType=DOUBLE}, #{craetetime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="salary_id" keyProperty="salaryId" parameterType="com.wy.model.Salary" useGeneratedKeys="true">
+    insert into ts_salary
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="basic != null">
+        basic,
+      </if>
+      <if test="checkId != null">
+        check_id,
+      </if>
+      <if test="checkName != null">
+        check_name,
+      </if>
+      <if test="month != null">
+        month,
+      </if>
+      <if test="other != null">
+        other,
+      </if>
+      <if test="salary != null">
+        salary,
+      </if>
+      <if test="craetetime != null">
+        craetetime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="basic != null">
+        #{basic,jdbcType=DOUBLE},
+      </if>
+      <if test="checkId != null">
+        #{checkId,jdbcType=BIGINT},
+      </if>
+      <if test="checkName != null">
+        #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="month != null">
+        #{month,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        #{other,jdbcType=DOUBLE},
+      </if>
+      <if test="salary != null">
+        #{salary,jdbcType=DOUBLE},
+      </if>
+      <if test="craetetime != null">
+        #{craetetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.wy.model.SalaryExample" resultType="java.lang.Long">
+    select count(*) from ts_salary
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update ts_salary
+    <set>
+      <if test="record.salaryId != null">
+        salary_id = #{record.salaryId,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.username != null">
+        username = #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.basic != null">
+        basic = #{record.basic,jdbcType=DOUBLE},
+      </if>
+      <if test="record.checkId != null">
+        check_id = #{record.checkId,jdbcType=BIGINT},
+      </if>
+      <if test="record.checkName != null">
+        check_name = #{record.checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.month != null">
+        month = #{record.month,jdbcType=VARCHAR},
+      </if>
+      <if test="record.other != null">
+        other = #{record.other,jdbcType=DOUBLE},
+      </if>
+      <if test="record.salary != null">
+        salary = #{record.salary,jdbcType=DOUBLE},
+      </if>
+      <if test="record.craetetime != null">
+        craetetime = #{record.craetetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update ts_salary
+    set salary_id = #{record.salaryId,jdbcType=BIGINT},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      username = #{record.username,jdbcType=VARCHAR},
+      basic = #{record.basic,jdbcType=DOUBLE},
+      check_id = #{record.checkId,jdbcType=BIGINT},
+      check_name = #{record.checkName,jdbcType=VARCHAR},
+      month = #{record.month,jdbcType=VARCHAR},
+      other = #{record.other,jdbcType=DOUBLE},
+      salary = #{record.salary,jdbcType=DOUBLE},
+      craetetime = #{record.craetetime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wy.model.Salary">
+    update ts_salary
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="basic != null">
+        basic = #{basic,jdbcType=DOUBLE},
+      </if>
+      <if test="checkId != null">
+        check_id = #{checkId,jdbcType=BIGINT},
+      </if>
+      <if test="checkName != null">
+        check_name = #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="month != null">
+        month = #{month,jdbcType=VARCHAR},
+      </if>
+      <if test="other != null">
+        other = #{other,jdbcType=DOUBLE},
+      </if>
+      <if test="salary != null">
+        salary = #{salary,jdbcType=DOUBLE},
+      </if>
+      <if test="craetetime != null">
+        craetetime = #{craetetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where salary_id = #{salaryId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wy.model.Salary">
+    update ts_salary
+    set user_id = #{userId,jdbcType=BIGINT},
+      username = #{username,jdbcType=VARCHAR},
+      basic = #{basic,jdbcType=DOUBLE},
+      check_id = #{checkId,jdbcType=BIGINT},
+      check_name = #{checkName,jdbcType=VARCHAR},
+      month = #{month,jdbcType=VARCHAR},
+      other = #{other,jdbcType=DOUBLE},
+      salary = #{salary,jdbcType=DOUBLE},
+      craetetime = #{craetetime,jdbcType=TIMESTAMP}
+    where salary_id = #{salaryId,jdbcType=BIGINT}
+  </update>
+  <insert id="inserts" parameterType="list">
+    insert into ts_salary (salary_id,user_id,username,basic,check_id,check_name,month,other,salary,craetetime)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.userId,jdbcType=BIGINT},#{item.username,jdbcType=VARCHAR},<choose><when test="item.basic!= null">basic = #{item.basic,jdbcType=DOUBLE},</when><otherwise>0.00,</otherwise></choose>#{item.checkId,jdbcType=BIGINT},#{item.checkName,jdbcType=VARCHAR},#{item.month,jdbcType=VARCHAR},<choose><when test="item.other!= null">other = #{item.other,jdbcType=DOUBLE},</when><otherwise>0.00,</otherwise></choose><choose><when test="item.salary!= null">salary = #{item.salary,jdbcType=DOUBLE},</when><otherwise>0.00,</otherwise></choose><choose><when test="item.craetetime!= null">craetetime = #{item.craetetime,jdbcType=TIMESTAMP}</when><otherwise>CURRENT_TIMESTAMP</otherwise></choose>)</foreach>
+  </insert>
+  <delete id="deleteByPrimaryKeys" parameterType="list">
+    delete from  ts_salary where salary_id in <foreach open="(" close=")" collection="list" item="salaryId" separator=",">#{salaryId,jdbcType=BIGINT}</foreach>
+  </delete>
+  <delete id="deleteAll">
+    delete from  ts_salary 
+  </delete>
+  <select id="selectEntitys" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from ts_salary<where><if test = "salaryId != null "> and salary_id = #{salaryId,jdbcType=BIGINT} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "username != null "> and username = #{username,jdbcType=VARCHAR} </if><if test = "basic != null "> and basic = #{basic,jdbcType=DOUBLE} </if><if test = "checkId != null "> and check_id = #{checkId,jdbcType=BIGINT} </if><if test = "checkName != null "> and check_name = #{checkName,jdbcType=VARCHAR} </if><if test = "month != null "> and month = #{month,jdbcType=VARCHAR} </if><if test = "other != null "> and other = #{other,jdbcType=DOUBLE} </if><if test = "salary != null "> and salary = #{salary,jdbcType=DOUBLE} </if><if test = "craetetime != null "> and craetetime = #{craetetime,jdbcType=TIMESTAMP} </if></where>
+  </select>
+  <select id="selectLists" resultType="map">
+    select <include refid="Base_Column_List" /> from ts_salary<where><if test = "salaryId != null "> and salary_id = #{salaryId,jdbcType=BIGINT} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "username != null "> and username = #{username,jdbcType=VARCHAR} </if><if test = "basic != null "> and basic = #{basic,jdbcType=DOUBLE} </if><if test = "checkId != null "> and check_id = #{checkId,jdbcType=BIGINT} </if><if test = "checkName != null "> and check_name = #{checkName,jdbcType=VARCHAR} </if><if test = "month != null "> and month = #{month,jdbcType=VARCHAR} </if><if test = "other != null "> and other = #{other,jdbcType=DOUBLE} </if><if test = "salary != null "> and salary = #{salary,jdbcType=DOUBLE} </if><if test = "craetetime != null "> and craetetime = #{craetetime,jdbcType=TIMESTAMP} </if></where>
+  </select>
+  <select id="countByEntity" resultType="java.lang.Long">
+    select count(*) from ts_salary<where><if test = "salaryId != null ">and salary_id = #{salaryId,jdbcType=BIGINT} </if><if test = "userId != null ">and user_id = #{userId,jdbcType=BIGINT} </if><if test = "username != null ">and username = #{username,jdbcType=VARCHAR} </if><if test = "basic != null ">and basic = #{basic,jdbcType=DOUBLE} </if><if test = "checkId != null ">and check_id = #{checkId,jdbcType=BIGINT} </if><if test = "checkName != null ">and check_name = #{checkName,jdbcType=VARCHAR} </if><if test = "month != null ">and month = #{month,jdbcType=VARCHAR} </if><if test = "other != null ">and other = #{other,jdbcType=DOUBLE} </if><if test = "salary != null ">and salary = #{salary,jdbcType=DOUBLE} </if><if test = "craetetime != null ">and craetetime = #{craetetime,jdbcType=TIMESTAMP} </if></where>
+  </select>
+  <select id="getMaxValue" resultType="java.lang.Long">
+    select <choose><when test="'salaryId' == _parameter.column">max(salary_id)</when><when test="'userId' == _parameter.column">max(user_id)</when><when test="'basic' == _parameter.column">max(basic)</when><when test="'checkId' == _parameter.column">max(check_id)</when><when test="'other' == _parameter.column">max(other)</when><when test="'salary' == _parameter.column">max(salary)</when><otherwise>max(0)</otherwise>  </choose>  from ts_salary
+  </select>
+  <select id="getMaxTime" resultType="java.util.Date">
+    select <choose><when test="craetetime == ${column}">max(craetetime)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from ts_salary
+  </select>
+</mapper>

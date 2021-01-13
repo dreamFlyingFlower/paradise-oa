@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.mapper.SignMapper">
+  <resultMap id="BaseResultMap" type="com.wy.model.Sign">
+    <id column="sign_id" jdbcType="BIGINT" property="signId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="starttime" jdbcType="TIMESTAMP" property="starttime" />
+    <result column="finishtime" jdbcType="TIMESTAMP" property="finishtime" />
+    <result column="leave" jdbcType="INTEGER" property="leave" />
+    <result column="late" jdbcType="INTEGER" property="late" />
+    <result column="early" jdbcType="INTEGER" property="early" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    sign_id, user_id, starttime, finishtime, leave, late, early, remark
+  </sql>
+  <select id="selectByExample" parameterType="com.wy.model.SignExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_sign
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_sign
+    where sign_id = #{signId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_sign
+    where sign_id = #{signId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.wy.model.SignExample">
+    delete from tb_sign
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="sign_id" keyProperty="signId" parameterType="com.wy.model.Sign" useGeneratedKeys="true">
+    insert into tb_sign (user_id, starttime, finishtime, 
+      leave, late, early, 
+      remark)
+    values (#{userId,jdbcType=BIGINT}, #{starttime,jdbcType=TIMESTAMP}, #{finishtime,jdbcType=TIMESTAMP}, 
+      #{leave,jdbcType=INTEGER}, #{late,jdbcType=INTEGER}, #{early,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="sign_id" keyProperty="signId" parameterType="com.wy.model.Sign" useGeneratedKeys="true">
+    insert into tb_sign
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="starttime != null">
+        starttime,
+      </if>
+      <if test="finishtime != null">
+        finishtime,
+      </if>
+      <if test="leave != null">
+        leave,
+      </if>
+      <if test="late != null">
+        late,
+      </if>
+      <if test="early != null">
+        early,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="starttime != null">
+        #{starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishtime != null">
+        #{finishtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leave != null">
+        #{leave,jdbcType=INTEGER},
+      </if>
+      <if test="late != null">
+        #{late,jdbcType=INTEGER},
+      </if>
+      <if test="early != null">
+        #{early,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.wy.model.SignExample" resultType="java.lang.Long">
+    select count(*) from tb_sign
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_sign
+    <set>
+      <if test="record.signId != null">
+        sign_id = #{record.signId,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+      <if test="record.starttime != null">
+        starttime = #{record.starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.finishtime != null">
+        finishtime = #{record.finishtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.leave != null">
+        leave = #{record.leave,jdbcType=INTEGER},
+      </if>
+      <if test="record.late != null">
+        late = #{record.late,jdbcType=INTEGER},
+      </if>
+      <if test="record.early != null">
+        early = #{record.early,jdbcType=INTEGER},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_sign
+    set sign_id = #{record.signId,jdbcType=BIGINT},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      starttime = #{record.starttime,jdbcType=TIMESTAMP},
+      finishtime = #{record.finishtime,jdbcType=TIMESTAMP},
+      leave = #{record.leave,jdbcType=INTEGER},
+      late = #{record.late,jdbcType=INTEGER},
+      early = #{record.early,jdbcType=INTEGER},
+      remark = #{record.remark,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wy.model.Sign">
+    update tb_sign
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="starttime != null">
+        starttime = #{starttime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishtime != null">
+        finishtime = #{finishtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="leave != null">
+        leave = #{leave,jdbcType=INTEGER},
+      </if>
+      <if test="late != null">
+        late = #{late,jdbcType=INTEGER},
+      </if>
+      <if test="early != null">
+        early = #{early,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where sign_id = #{signId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wy.model.Sign">
+    update tb_sign
+    set user_id = #{userId,jdbcType=BIGINT},
+      starttime = #{starttime,jdbcType=TIMESTAMP},
+      finishtime = #{finishtime,jdbcType=TIMESTAMP},
+      leave = #{leave,jdbcType=INTEGER},
+      late = #{late,jdbcType=INTEGER},
+      early = #{early,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+    where sign_id = #{signId,jdbcType=BIGINT}
+  </update>
+  <insert id="inserts" parameterType="list">
+    insert into tb_sign (sign_id,user_id,starttime,finishtime,leave,late,early,remark)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.userId,jdbcType=BIGINT},#{item.starttime,jdbcType=TIMESTAMP},#{item.finishtime,jdbcType=TIMESTAMP},<choose><when test="item.leave!= null">leave = #{item.leave,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.late!= null">late = #{item.late,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.early!= null">early = #{item.early,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose>#{item.remark,jdbcType=VARCHAR})</foreach>
+  </insert>
+  <delete id="deleteByPrimaryKeys" parameterType="list">
+    delete from  tb_sign where sign_id in <foreach open="(" close=")" collection="list" item="signId" separator=",">#{signId,jdbcType=BIGINT}</foreach>
+  </delete>
+  <delete id="deleteAll">
+    delete from  tb_sign 
+  </delete>
+  <select id="selectEntitys" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from tb_sign<where><if test = "signId != null "> and sign_id = #{signId,jdbcType=BIGINT} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "starttime != null "> and starttime = #{starttime,jdbcType=TIMESTAMP} </if><if test = "finishtime != null "> and finishtime = #{finishtime,jdbcType=TIMESTAMP} </if><if test = "leave != null "> and leave = #{leave,jdbcType=INTEGER} </if><if test = "late != null "> and late = #{late,jdbcType=INTEGER} </if><if test = "early != null "> and early = #{early,jdbcType=INTEGER} </if><if test = "remark != null "> and remark = #{remark,jdbcType=VARCHAR} </if></where>
+  </select>
+  <select id="selectLists" resultType="map">
+    select <include refid="Base_Column_List" /> from tb_sign<where><if test = "signId != null "> and sign_id = #{signId,jdbcType=BIGINT} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "starttime != null "> and starttime = #{starttime,jdbcType=TIMESTAMP} </if><if test = "finishtime != null "> and finishtime = #{finishtime,jdbcType=TIMESTAMP} </if><if test = "leave != null "> and leave = #{leave,jdbcType=INTEGER} </if><if test = "late != null "> and late = #{late,jdbcType=INTEGER} </if><if test = "early != null "> and early = #{early,jdbcType=INTEGER} </if><if test = "remark != null "> and remark = #{remark,jdbcType=VARCHAR} </if></where>
+  </select>
+  <select id="countByEntity" resultType="java.lang.Long">
+    select count(*) from tb_sign<where><if test = "signId != null ">and sign_id = #{signId,jdbcType=BIGINT} </if><if test = "userId != null ">and user_id = #{userId,jdbcType=BIGINT} </if><if test = "starttime != null ">and starttime = #{starttime,jdbcType=TIMESTAMP} </if><if test = "finishtime != null ">and finishtime = #{finishtime,jdbcType=TIMESTAMP} </if><if test = "leave != null ">and leave = #{leave,jdbcType=INTEGER} </if><if test = "late != null ">and late = #{late,jdbcType=INTEGER} </if><if test = "early != null ">and early = #{early,jdbcType=INTEGER} </if><if test = "remark != null ">and remark = #{remark,jdbcType=VARCHAR} </if></where>
+  </select>
+  <select id="getMaxValue" resultType="java.lang.Long">
+    select <choose><when test="'signId' == _parameter.column">max(sign_id)</when><when test="'userId' == _parameter.column">max(user_id)</when><when test="'leave' == _parameter.column">max(leave)</when><when test="'late' == _parameter.column">max(late)</when><when test="'early' == _parameter.column">max(early)</when><otherwise>max(0)</otherwise>  </choose>  from tb_sign
+  </select>
+  <select id="getMaxTime" resultType="java.util.Date">
+    select <choose><when test="starttime == ${column}">max(starttime)</when><when test="finishtime == ${column}">max(finishtime)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from tb_sign
+  </select>
+</mapper>

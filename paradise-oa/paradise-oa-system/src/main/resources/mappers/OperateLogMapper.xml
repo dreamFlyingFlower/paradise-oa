@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wy.mapper.OperateLogMapper">
+  <resultMap id="BaseResultMap" type="com.wy.model.OperateLog">
+    <id column="operate_id" jdbcType="BIGINT" property="operateId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="business_type" jdbcType="INTEGER" property="businessType" />
+    <result column="method" jdbcType="VARCHAR" property="method" />
+    <result column="request_method" jdbcType="VARCHAR" property="requestMethod" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="operater_id" jdbcType="BIGINT" property="operaterId" />
+    <result column="operate_name" jdbcType="VARCHAR" property="operateName" />
+    <result column="operate_ip" jdbcType="VARCHAR" property="operateIp" />
+    <result column="operate_url" jdbcType="VARCHAR" property="operateUrl" />
+    <result column="operate_param" jdbcType="VARCHAR" property="operateParam" />
+    <result column="error_msg" jdbcType="VARCHAR" property="errorMsg" />
+    <result column="state" jdbcType="INTEGER" property="state" />
+    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    operate_id, title, business_type, method, request_method, operate_type, operater_id, 
+    operate_name, operate_ip, operate_url, operate_param, error_msg, state, createtime
+  </sql>
+  <select id="selectByExample" parameterType="com.wy.model.OperateLogExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_operate_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_operate_log
+    where operate_id = #{operateId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tb_operate_log
+    where operate_id = #{operateId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.wy.model.OperateLogExample">
+    delete from tb_operate_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="operate_id" keyProperty="operateId" parameterType="com.wy.model.OperateLog" useGeneratedKeys="true">
+    insert into tb_operate_log (title, business_type, method, 
+      request_method, operate_type, operater_id, 
+      operate_name, operate_ip, operate_url, 
+      operate_param, error_msg, state, 
+      createtime)
+    values (#{title,jdbcType=VARCHAR}, #{businessType,jdbcType=INTEGER}, #{method,jdbcType=VARCHAR}, 
+      #{requestMethod,jdbcType=VARCHAR}, #{operateType,jdbcType=INTEGER}, #{operaterId,jdbcType=BIGINT}, 
+      #{operateName,jdbcType=VARCHAR}, #{operateIp,jdbcType=VARCHAR}, #{operateUrl,jdbcType=VARCHAR}, 
+      #{operateParam,jdbcType=VARCHAR}, #{errorMsg,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+      #{createtime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="operate_id" keyProperty="operateId" parameterType="com.wy.model.OperateLog" useGeneratedKeys="true">
+    insert into tb_operate_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="title != null">
+        title,
+      </if>
+      <if test="businessType != null">
+        business_type,
+      </if>
+      <if test="method != null">
+        method,
+      </if>
+      <if test="requestMethod != null">
+        request_method,
+      </if>
+      <if test="operateType != null">
+        operate_type,
+      </if>
+      <if test="operaterId != null">
+        operater_id,
+      </if>
+      <if test="operateName != null">
+        operate_name,
+      </if>
+      <if test="operateIp != null">
+        operate_ip,
+      </if>
+      <if test="operateUrl != null">
+        operate_url,
+      </if>
+      <if test="operateParam != null">
+        operate_param,
+      </if>
+      <if test="errorMsg != null">
+        error_msg,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="createtime != null">
+        createtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null">
+        #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="method != null">
+        #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="requestMethod != null">
+        #{requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="operateType != null">
+        #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="operaterId != null">
+        #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="operateName != null">
+        #{operateName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateIp != null">
+        #{operateIp,jdbcType=VARCHAR},
+      </if>
+      <if test="operateUrl != null">
+        #{operateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="operateParam != null">
+        #{operateParam,jdbcType=VARCHAR},
+      </if>
+      <if test="errorMsg != null">
+        #{errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null">
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.wy.model.OperateLogExample" resultType="java.lang.Long">
+    select count(*) from tb_operate_log
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_operate_log
+    <set>
+      <if test="record.operateId != null">
+        operate_id = #{record.operateId,jdbcType=BIGINT},
+      </if>
+      <if test="record.title != null">
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessType != null">
+        business_type = #{record.businessType,jdbcType=INTEGER},
+      </if>
+      <if test="record.method != null">
+        method = #{record.method,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestMethod != null">
+        request_method = #{record.requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateType != null">
+        operate_type = #{record.operateType,jdbcType=INTEGER},
+      </if>
+      <if test="record.operaterId != null">
+        operater_id = #{record.operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="record.operateName != null">
+        operate_name = #{record.operateName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateIp != null">
+        operate_ip = #{record.operateIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateUrl != null">
+        operate_url = #{record.operateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operateParam != null">
+        operate_param = #{record.operateParam,jdbcType=VARCHAR},
+      </if>
+      <if test="record.errorMsg != null">
+        error_msg = #{record.errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="record.state != null">
+        state = #{record.state,jdbcType=INTEGER},
+      </if>
+      <if test="record.createtime != null">
+        createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_operate_log
+    set operate_id = #{record.operateId,jdbcType=BIGINT},
+      title = #{record.title,jdbcType=VARCHAR},
+      business_type = #{record.businessType,jdbcType=INTEGER},
+      method = #{record.method,jdbcType=VARCHAR},
+      request_method = #{record.requestMethod,jdbcType=VARCHAR},
+      operate_type = #{record.operateType,jdbcType=INTEGER},
+      operater_id = #{record.operaterId,jdbcType=BIGINT},
+      operate_name = #{record.operateName,jdbcType=VARCHAR},
+      operate_ip = #{record.operateIp,jdbcType=VARCHAR},
+      operate_url = #{record.operateUrl,jdbcType=VARCHAR},
+      operate_param = #{record.operateParam,jdbcType=VARCHAR},
+      error_msg = #{record.errorMsg,jdbcType=VARCHAR},
+      state = #{record.state,jdbcType=INTEGER},
+      createtime = #{record.createtime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.wy.model.OperateLog">
+    update tb_operate_log
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null">
+        business_type = #{businessType,jdbcType=INTEGER},
+      </if>
+      <if test="method != null">
+        method = #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="requestMethod != null">
+        request_method = #{requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="operateType != null">
+        operate_type = #{operateType,jdbcType=INTEGER},
+      </if>
+      <if test="operaterId != null">
+        operater_id = #{operaterId,jdbcType=BIGINT},
+      </if>
+      <if test="operateName != null">
+        operate_name = #{operateName,jdbcType=VARCHAR},
+      </if>
+      <if test="operateIp != null">
+        operate_ip = #{operateIp,jdbcType=VARCHAR},
+      </if>
+      <if test="operateUrl != null">
+        operate_url = #{operateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="operateParam != null">
+        operate_param = #{operateParam,jdbcType=VARCHAR},
+      </if>
+      <if test="errorMsg != null">
+        error_msg = #{errorMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createtime != null">
+        createtime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where operate_id = #{operateId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.wy.model.OperateLog">
+    update tb_operate_log
+    set title = #{title,jdbcType=VARCHAR},
+      business_type = #{businessType,jdbcType=INTEGER},
+      method = #{method,jdbcType=VARCHAR},
+      request_method = #{requestMethod,jdbcType=VARCHAR},
+      operate_type = #{operateType,jdbcType=INTEGER},
+      operater_id = #{operaterId,jdbcType=BIGINT},
+      operate_name = #{operateName,jdbcType=VARCHAR},
+      operate_ip = #{operateIp,jdbcType=VARCHAR},
+      operate_url = #{operateUrl,jdbcType=VARCHAR},
+      operate_param = #{operateParam,jdbcType=VARCHAR},
+      error_msg = #{errorMsg,jdbcType=VARCHAR},
+      state = #{state,jdbcType=INTEGER},
+      createtime = #{createtime,jdbcType=TIMESTAMP}
+    where operate_id = #{operateId,jdbcType=BIGINT}
+  </update>
+  <insert id="inserts" parameterType="list">
+    insert into tb_operate_log (operate_id,title,business_type,method,request_method,operate_type,operater_id,operate_name,operate_ip,operate_url,operate_param,error_msg,state,createtime)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.title,jdbcType=VARCHAR},<choose><when test="item.businessType!= null">business_type = #{item.businessType,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose>#{item.method,jdbcType=VARCHAR},#{item.requestMethod,jdbcType=VARCHAR},<choose><when test="item.operateType!= null">operate_type = #{item.operateType,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose>#{item.operaterId,jdbcType=BIGINT},#{item.operateName,jdbcType=VARCHAR},#{item.operateIp,jdbcType=VARCHAR},#{item.operateUrl,jdbcType=VARCHAR},#{item.operateParam,jdbcType=VARCHAR},#{item.errorMsg,jdbcType=VARCHAR},<choose><when test="item.state!= null">state = #{item.state,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose><choose><when test="item.createtime!= null">createtime = #{item.createtime,jdbcType=TIMESTAMP}</when><otherwise>CURRENT_TIMESTAMP</otherwise></choose>)</foreach>
+  </insert>
+  <delete id="deleteByPrimaryKeys" parameterType="list">
+    delete from  tb_operate_log where operate_id in <foreach open="(" close=")" collection="list" item="operateId" separator=",">#{operateId,jdbcType=BIGINT}</foreach>
+  </delete>
+  <delete id="deleteAll">
+    delete from  tb_operate_log 
+  </delete>
+  <select id="selectEntitys" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from tb_operate_log<where><if test = "operateId != null "> and operate_id = #{operateId,jdbcType=BIGINT} </if><if test = "title != null "> and title = #{title,jdbcType=VARCHAR} </if><if test = "businessType != null "> and business_type = #{businessType,jdbcType=INTEGER} </if><if test = "method != null "> and method = #{method,jdbcType=VARCHAR} </if><if test = "requestMethod != null "> and request_method = #{requestMethod,jdbcType=VARCHAR} </if><if test = "operateType != null "> and operate_type = #{operateType,jdbcType=INTEGER} </if><if test = "operaterId != null "> and operater_id = #{operaterId,jdbcType=BIGINT} </if><if test = "operateName != null "> and operate_name = #{operateName,jdbcType=VARCHAR} </if><if test = "operateIp != null "> and operate_ip = #{operateIp,jdbcType=VARCHAR} </if><if test = "operateUrl != null "> and operate_url = #{operateUrl,jdbcType=VARCHAR} </if><if test = "operateParam != null "> and operate_param = #{operateParam,jdbcType=VARCHAR} </if><if test = "errorMsg != null "> and error_msg = #{errorMsg,jdbcType=VARCHAR} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+  </select>
+  <select id="selectLists" resultType="map">
+    select <include refid="Base_Column_List" /> from tb_operate_log<where><if test = "operateId != null "> and operate_id = #{operateId,jdbcType=BIGINT} </if><if test = "title != null "> and title = #{title,jdbcType=VARCHAR} </if><if test = "businessType != null "> and business_type = #{businessType,jdbcType=INTEGER} </if><if test = "method != null "> and method = #{method,jdbcType=VARCHAR} </if><if test = "requestMethod != null "> and request_method = #{requestMethod,jdbcType=VARCHAR} </if><if test = "operateType != null "> and operate_type = #{operateType,jdbcType=INTEGER} </if><if test = "operaterId != null "> and operater_id = #{operaterId,jdbcType=BIGINT} </if><if test = "operateName != null "> and operate_name = #{operateName,jdbcType=VARCHAR} </if><if test = "operateIp != null "> and operate_ip = #{operateIp,jdbcType=VARCHAR} </if><if test = "operateUrl != null "> and operate_url = #{operateUrl,jdbcType=VARCHAR} </if><if test = "operateParam != null "> and operate_param = #{operateParam,jdbcType=VARCHAR} </if><if test = "errorMsg != null "> and error_msg = #{errorMsg,jdbcType=VARCHAR} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+  </select>
+  <select id="countByEntity" resultType="java.lang.Long">
+    select count(*) from tb_operate_log<where><if test = "operateId != null ">and operate_id = #{operateId,jdbcType=BIGINT} </if><if test = "title != null ">and title = #{title,jdbcType=VARCHAR} </if><if test = "businessType != null ">and business_type = #{businessType,jdbcType=INTEGER} </if><if test = "method != null ">and method = #{method,jdbcType=VARCHAR} </if><if test = "requestMethod != null ">and request_method = #{requestMethod,jdbcType=VARCHAR} </if><if test = "operateType != null ">and operate_type = #{operateType,jdbcType=INTEGER} </if><if test = "operaterId != null ">and operater_id = #{operaterId,jdbcType=BIGINT} </if><if test = "operateName != null ">and operate_name = #{operateName,jdbcType=VARCHAR} </if><if test = "operateIp != null ">and operate_ip = #{operateIp,jdbcType=VARCHAR} </if><if test = "operateUrl != null ">and operate_url = #{operateUrl,jdbcType=VARCHAR} </if><if test = "operateParam != null ">and operate_param = #{operateParam,jdbcType=VARCHAR} </if><if test = "errorMsg != null ">and error_msg = #{errorMsg,jdbcType=VARCHAR} </if><if test = "state != null ">and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null ">and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+  </select>
+  <select id="getMaxValue" resultType="java.lang.Long">
+    select <choose><when test="'operateId' == _parameter.column">max(operate_id)</when><when test="'businessType' == _parameter.column">max(business_type)</when><when test="'operateType' == _parameter.column">max(operate_type)</when><when test="'operaterId' == _parameter.column">max(operater_id)</when><when test="'state' == _parameter.column">max(state)</when><otherwise>max(0)</otherwise>  </choose>  from tb_operate_log
+  </select>
+  <select id="getMaxTime" resultType="java.util.Date">
+    select <choose><when test="createtime == ${column}">max(createtime)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from tb_operate_log
+  </select>
+</mapper>

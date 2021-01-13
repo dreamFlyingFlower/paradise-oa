@@ -3,6 +3,7 @@ package com.wy.base;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
 import com.wy.database.annotation.Unique;
 import com.wy.excel.ExcelModelUtils;
@@ -37,11 +40,12 @@ import com.wy.utils.StrUtils;
  * @git {@link https://github.com/mygodness100}
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractService<T,ID> implements BaseService<T,ID> {
+public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 
 	@Autowired
-	public BaseMapper<T,ID> baseMapper;
+	public BaseMapper<T, ID> baseMapper;
 
+	/** 有线程安全问题 FIXME */
 	public Class<T> clazz;
 
 	/**
@@ -237,7 +241,8 @@ public abstract class AbstractService<T,ID> implements BaseService<T,ID> {
 	}
 
 	/**
-	 * @apiNote 递归查询表中树形结构,需要重写getChildren方法.
+	 * 一次性查询表中所有数据处理后形成树形结构数据,不适合特别大的数据,若数据超大,可使用{@link #getRecursionTree}
+	 * 
 	 * @param id 查询条件
 	 * @param self 是否查询本级数据,true获取,false直接获取下级,默认false
 	 * @param params 其他基本类型参数
@@ -245,7 +250,120 @@ public abstract class AbstractService<T,ID> implements BaseService<T,ID> {
 	 */
 	@Override
 	public List<T> getTree(ID id, Boolean self, Map<String, Object> params) {
-		List<T> trees = getLeaf(id, self == null ? false : self.booleanValue(), params);
+		List<T> datas = getLeaf(params);
+		if (ListUtils.isBlank(datas)) {
+			return null;
+		}
+		Map<ID, List<T>> buildMaps = buildMaps(datas);
+		List<T> trees = getLeaf(id, self == null ? false : self.booleanValue(), buildMaps, params);
+		getLeaf(trees, buildMaps);
+		return trees;
+	}
+
+	/**
+	 * 根据条件将数据库中符合的数据一次全部查出来,可重写
+	 * 
+	 * @param params 其他基本类型参数
+	 * @return 树形结果集
+	 */
+	@Override
+	public List<T> getLeaf(Map<String, Object> params) {
+		T param = JSON.parseObject(JSON.toJSONString(params), clazz);
+		Result<List<T>> entitys = this.getEntitys(param);
+		return entitys.getData();
+	}
+
+	/**
+	 * 根据id将数据进行匹配,可重写
+	 * 
+	 * @param datas 全部数据
+	 * @return 匹配结果
+	 */
+	public Map<ID, List<T>> buildMaps(List<T> datas) {
+		Field[] declaredFields = clazz.getDeclaredFields();
+		if (ArrayUtils.isEmpty(declaredFields)) {
+			throw new ResultException("this class does not have nothing");
+		}
+		String priName = "";
+		Field priField = null;
+		for (Field field : declaredFields) {
+			field.setAccessible(true);
+			if (field.isAnnotationPresent(Pri.class)) {
+				priName = field.getName();
+				priField = field;
+				break;
+			}
+		}
+		if (StrUtils.isBlank(priName)) {
+			throw new ResultException("this class does not have primary key");
+		}
+		Map<ID, List<T>> result = new HashMap<>(datas.size());
+		for (T t : datas) {
+			priField.setAccessible(true);
+			try {
+				ID object = (ID) priField.get(t);
+				List<T> children = result.get(object);
+				if (ListUtils.isBlank(children)) {
+					children = new ArrayList<>();
+					result.put(object, children);
+				}
+				children.add(t);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 获得本级数据或下级数据,获取下级数据需要重写本方法
+	 * 
+	 * @param id 本级编号
+	 * @param self self 是否查询本级数据,true获取,false直接获取下级,默认false
+	 * @param holeDatas 全部符合的数据
+	 * @param params 其他基本类型参数
+	 * @return 符合条件的数据
+	 */
+	public List<T> getLeaf(ID id, boolean self, Map<ID, List<T>> holeDatas, Map<String, Object> params) {
+		if (self) {
+			return holeDatas.get(id);
+		}
+		return null;
+	}
+
+	/**
+	 * 递归获得符合的数据
+	 * 
+	 * @param trees 最终数据
+	 * @param params 全部符合的数据
+	 */
+	public void getLeaf(List<T> trees, Map<ID, List<T>> params) {
+		if (ListUtils.isBlank(trees)) {
+			return;
+		}
+		for (T t : trees) {
+			if (!(t instanceof Tree)) {
+				throw new ResultException("this class does not extends Tree");
+			}
+			Tree<T, ID> tree = (Tree<T, ID>) t;
+			if (tree.getChildNum() > 0) {
+				List<T> childs = getLeaf(tree.getTreeId(), false, params);
+				getLeaf(childs, params);
+				tree.setChildren(childs);
+			}
+		}
+	}
+
+	/**
+	 * 递归查询表中树形结构,需要重写getChildren方法.
+	 * 
+	 * @param id 查询条件
+	 * @param self 是否查询本级数据,true获取,false直接获取下级,默认false
+	 * @param params 其他基本类型参数
+	 * @return 树形结果集
+	 */
+	public List<T> getRecursionTree(ID id, Boolean self, Map<String, Object> params) {
+		List<T> trees = getRecursionLeaf(id, self == null ? false : self.booleanValue(), params);
 		getLeaf(trees, params);
 		return trees;
 	}
@@ -261,12 +379,11 @@ public abstract class AbstractService<T,ID> implements BaseService<T,ID> {
 	 * @param params 其他基本类型参数
 	 * @return 树形结果集
 	 */
-	@Override
-	public List<T> getLeaf(ID id, boolean self, Map<String, Object> params) {
+	public List<T> getRecursionLeaf(ID id, boolean self, Map<String, Object> params) {
 		return null;
 	}
 
-	public void getLeaf(List<T> trees, Map<String, Object> params) {
+	public void getRecursionLeaf(List<T> trees, Map<String, Object> params) {
 		if (ListUtils.isBlank(trees)) {
 			return;
 		}
@@ -274,10 +391,10 @@ public abstract class AbstractService<T,ID> implements BaseService<T,ID> {
 			if (!(t instanceof Tree)) {
 				throw new ResultException("this class does not extends Tree");
 			}
-			Tree<T,ID> tree = (Tree<T,ID>) t;
+			Tree<T, ID> tree = (Tree<T, ID>) t;
 			if (tree.getChildNum() > 0) {
-				List<T> childs = getLeaf(tree.getTreeId(), false, params);
-				getLeaf(childs, params);
+				List<T> childs = getRecursionLeaf(tree.getTreeId(), false, params);
+				getRecursionLeaf(childs, params);
 				tree.setChildren(childs);
 			}
 		}
