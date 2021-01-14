@@ -182,11 +182,17 @@ public class User extends AbstractModel implements UserDetails {
 	private String token;
 
 	/**
+	 * 用户存入token到redis中的时间
+	 */
+	@ApiModelProperty("用户存入token到redis中的时间")
+	private Date loginTime;
+
+	/**
 	 * 用户角色对象
 	 */
 	@ApiModelProperty("用户角色对象")
 	private List<Role> roles;
-	
+
 	/**
 	 * 角色编号集合
 	 */

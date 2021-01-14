@@ -38,7 +38,7 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	@PreAuthorize("@ss.hasPermi('system:menu:list')")
 	@GetMapping("treeselect/{userId}")
 	public Result<?> treeselect(@PathVariable Long userId) {
-		return Result.ok(menuService.selectMenuTreeByUserId(userId));
+		return Result.ok(menuService.getTreeByUserId(userId));
 	}
 
 	/**

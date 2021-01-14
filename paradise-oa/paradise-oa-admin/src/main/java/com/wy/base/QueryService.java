@@ -15,7 +15,7 @@ import com.wy.result.Result;
  * @param <K>
  * @date 2020年5月20日 上午11:58:32
  */
-public interface QueryService<T,ID> {
+public interface QueryService<T, ID> {
 
 	/**
 	 * @apiNote 判断表中是否有重复的值,只查询非null字段,需要每个xml中都手写countByEntity方法
@@ -46,9 +46,9 @@ public interface QueryService<T,ID> {
 	 * 根据条件将数据库中符合的数据一次全部查出来
 	 * 
 	 * @param params 其他基本类型参数
-	 * @return 多行结果集
+	 * @return 主键编号和数据的对应集合
 	 */
-	List<T> getLeaf(Map<String, Object> params);
+	Map<ID, List<T>> getLeaf(Map<String, Object> params);
 
 	/**
 	 * 分页/不分页查询实体类中数据,实体类中非null以及非""字段值才可作为查询条件,条件只能是等于

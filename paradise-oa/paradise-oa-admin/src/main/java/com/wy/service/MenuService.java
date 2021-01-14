@@ -18,20 +18,20 @@ import com.wy.model.vo.RouterVo;
 public interface MenuService extends BaseService<Menu, Long> {
 
 	/**
+	 * 根据上级菜单编号获得本身以及直接下级菜单列表
+	 * 
+	 * @param id 本级菜单编号
+	 * @return 本级菜单和直接下次菜单列表
+	 */
+	List<Menu> getSelfChildren(Long id);
+
+	/**
 	 * 根据用户查询系统菜单列表
 	 * 
 	 * @param userId 用户ID
 	 * @return 菜单列表
 	 */
-	List<Menu> selectMenuList(Long userId);
-
-	/**
-	 * 根据用户ID查询权限
-	 * 
-	 * @param userId 用户ID
-	 * @return 权限列表
-	 */
-	Set<String> selectMenuPermsByUserId(Long userId);
+	List<Menu> getByUserId(Long userId);
 
 	/**
 	 * 根据用户ID查询菜单树信息
@@ -39,7 +39,15 @@ public interface MenuService extends BaseService<Menu, Long> {
 	 * @param userId 用户ID
 	 * @return 菜单列表
 	 */
-	List<Menu> selectMenuTreeByUserId(Long userId);
+	List<Menu> getTreeByUserId(Long userId);
+
+	/**
+	 * 根据用户ID查询权限
+	 * 
+	 * @param userId 用户ID
+	 * @return 权限列表
+	 */
+	Set<String> getPermsByUserId(Long userId);
 
 	/**
 	 * 根据角色ID查询菜单树信息
@@ -58,14 +66,6 @@ public interface MenuService extends BaseService<Menu, Long> {
 	List<RouterVo> buildMenus(List<Menu> menus);
 
 	/**
-	 * 构建前端所需要树结构
-	 * 
-	 * @param menus 菜单列表
-	 * @return 树结构列表
-	 */
-	List<Menu> buildMenuTree(List<Menu> menus);
-
-	/**
 	 * 获取角色数据权限
 	 * 
 	 * @param user 用户信息
@@ -80,12 +80,4 @@ public interface MenuService extends BaseService<Menu, Long> {
 	 * @return 菜单权限信息
 	 */
 	Set<String> getMenuPermission(Long userId);
-
-	/**
-	 * 根据上级菜单编号获得本身以及直接下级菜单列表
-	 * 
-	 * @param id 本级菜单编号
-	 * @return 本级菜单和直接下次菜单列表
-	 */
-	List<Menu> getSelfChildren(Long id);
 }

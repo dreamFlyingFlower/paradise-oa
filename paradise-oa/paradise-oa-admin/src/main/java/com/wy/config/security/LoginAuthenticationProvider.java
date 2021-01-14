@@ -58,8 +58,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 			throw new BadCredentialsException("密码不正确");
 		}
 		// 设置token
-		String token = tokenService.createToken(user);
-		user.setToken(token);
+		tokenService.createToken(user);
 		// 这里还可以加一些其他信息的判断,比如用户账号已停用等判断,这里为了方便我接下去的判断
 		Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
 		// 构建返回的用户登录成功的token

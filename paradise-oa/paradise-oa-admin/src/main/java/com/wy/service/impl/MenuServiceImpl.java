@@ -1,9 +1,7 @@
 package com.wy.service.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -63,14 +61,8 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 		return menuMapper.selectByExample(example);
 	}
 
-	/**
-	 * 根据用户查询系统菜单列表
-	 * 
-	 * @param userId 用户ID
-	 * @return 菜单列表
-	 */
 	@Override
-	public List<Menu> selectMenuList(Long userId) {
+	public List<Menu> getByUserId(Long userId) {
 		List<Menu> menuList = null;
 		if (roleService.ifAdminUser(userId)) {
 			menuList = menuMapper.selectEntitys(null);
@@ -81,13 +73,37 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	}
 
 	/**
+	 * 根据用户ID查询菜单
+	 * 
+	 * @param userId 用户名称
+	 * @return 菜单列表
+	 */
+	@Override
+	public List<Menu> getTreeByUserId(Long userId) {
+		List<Menu> menus = null;
+		List<Role> roles = roleService.getByUserId(userId);
+		if (roles.get(0).getRoleType() == 0) {
+			menus = menuMapper.selectEntitys(null);
+		} else {
+			menus = menuMapper.selectByUserId(userId);
+		}
+		getTreeByOther(menus);
+		return menus;
+	}
+
+	private void getTreeByOther(List<Menu> menus) {
+		Map<Long, List<Menu>> leaf = getLeaf(null);
+		getLeaf(menus, leaf);
+	}
+
+	/**
 	 * 根据用户ID查询权限
 	 * 
 	 * @param userId 用户ID
 	 * @return 权限列表
 	 */
 	@Override
-	public Set<String> selectMenuPermsByUserId(Long userId) {
+	public Set<String> getPermsByUserId(Long userId) {
 		List<String> perms = menuMapper.selectMenuPermsByUserId(userId);
 		Set<String> permsSet = new HashSet<>();
 		for (String perm : perms) {
@@ -99,24 +115,6 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	}
 
 	/**
-	 * 根据用户ID查询菜单
-	 * 
-	 * @param userId 用户名称
-	 * @return 菜单列表
-	 */
-	@Override
-	public List<Menu> selectMenuTreeByUserId(Long userId) {
-		List<Menu> menus = null;
-		List<Role> roles = roleService.getByUserId(userId);
-		if (roles.get(0).getRoleType() == 0) {
-			menus = menuMapper.selectEntitys(null);
-		} else {
-			menus = menuMapper.selectByUserId(userId);
-		}
-		return getChildPerms(menus, 0);
-	}
-
-	/**
 	 * 根据角色ID查询菜单树信息
 	 * 
 	 * @param roleId 角色编号
@@ -125,7 +123,8 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	@Override
 	public Map<String, Object> getByRoleId(Long roleId) {
 		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-		List<Menu> menus = selectMenuList(loginUser.getUserId());
+		List<Menu> menus = getByUserId(loginUser.getUserId());
+		getTreeByOther(menus);
 		List<RoleMenu> entitys = roleMenuMapper.selectEntitys(RoleMenu.builder().roleId(roleId).build());
 		Map<String, Object> res = MapUtils.getBuilder("checkedKeys", entitys.stream().filter(t -> {
 			return t.getMenuState() == 1;
@@ -135,7 +134,7 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 			return t.getMenuState() == 2;
 		}).map(t -> {
 			return t.getMenuId();
-		}).collect(Collectors.toList())).add("menus", buildMenuTreeSelect(menus)).build();
+		}).collect(Collectors.toList())).add("menus", menus).build();
 		return res;
 	}
 
@@ -166,29 +165,6 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	}
 
 	/**
-	 * 构建前端所需要树结构
-	 * 
-	 * @param menus 菜单列表
-	 * @return 树结构列表
-	 */
-	@Override
-	public List<Menu> buildMenuTree(List<Menu> menus) {
-		List<Menu> returnList = new ArrayList<Menu>();
-		for (Iterator<Menu> iterator = menus.iterator(); iterator.hasNext();) {
-			Menu t = iterator.next();
-			// 根据传入的某个父节点ID,遍历该父节点的所有子节点
-			if (t.getPid() == 0l) {
-				recursionFn(menus, t);
-				returnList.add(t);
-			}
-		}
-		if (returnList.isEmpty()) {
-			returnList = menus;
-		}
-		return returnList;
-	}
-
-	/**
 	 * 获取路由地址
 	 * 
 	 * @param menu 菜单信息
@@ -201,26 +177,6 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 			routerPath = "/" + menu.getMenuPath();
 		}
 		return routerPath;
-	}
-
-	/**
-	 * 根据父节点的ID获取所有子节点
-	 * 
-	 * @param list 分类表
-	 * @param parentId 传入的父节点ID
-	 * @return String
-	 */
-	public List<Menu> getChildPerms(List<Menu> list, int parentId) {
-		List<Menu> returnList = new ArrayList<Menu>();
-		for (Iterator<Menu> iterator = list.iterator(); iterator.hasNext();) {
-			Menu t = iterator.next();
-			// 一、根据传入的某个父节点ID,遍历该父节点的所有子节点
-			if (t.getPid() == parentId) {
-				recursionFn(list, t);
-				returnList.add(t);
-			}
-		}
-		return returnList;
 	}
 
 	@Override
@@ -253,7 +209,7 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 		if (1 == userId) {
 			perms.add("*:*:*");
 		} else {
-			perms.addAll(selectMenuPermsByUserId(userId));
+			perms.addAll(getPermsByUserId(userId));
 		}
 		return perms;
 	}

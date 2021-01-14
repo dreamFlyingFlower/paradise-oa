@@ -106,7 +106,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@GetMapping("getRouters")
 	public Result<?> getRouters() {
 		User user = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-		List<Menu> menus = menuService.selectMenuTreeByUserId(user.getUserId());
+		List<Menu> menus = menuService.getTreeByUserId(user.getUserId());
 		return Result.ok(menuService.buildMenus(menus));
 	}
 

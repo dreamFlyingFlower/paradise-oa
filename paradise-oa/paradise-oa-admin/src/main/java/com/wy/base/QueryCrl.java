@@ -19,14 +19,15 @@ import io.swagger.annotations.ApiParam;
 
 /**
  * 通用查询API
- * 
- * @author ParadiseWY
- * @date 2020年5月20日 上午11:41:11
+ *
+ * @author 飞花梦影
+ * @date 2020-05-20 11:41:11
+ * @git {@link https://github.com/mygodness100}
  */
-public abstract class QueryCrl<T,ID> {
+public abstract class QueryCrl<T, ID> {
 
 	@Autowired
-	public AbstractService<T,ID> abstractService;
+	public AbstractService<T, ID> abstractService;
 
 	/**
 	 * 查询数据库中的值是否有重复,条件必须是相等的才可以查询

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -262,81 +263,28 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 	 */
 	@Override
 	public List<T> getTree(ID id, Boolean self, Map<String, Object> params) {
-		List<T> datas = getLeaf(params);
-		if (ListUtils.isBlank(datas)) {
-			return null;
-		}
-		Map<ID, List<T>> buildMaps = buildMaps(datas);
+		// 获得主键和直接下级的map
+		Map<ID, List<T>> treeMaps = getLeaf(params);
 		self = self == null ? false : self.booleanValue();
-		List<T> trees = self ? getLeaf(datas, id, self) : buildMaps.get(id);
-		getLeaf(trees, buildMaps);
+		// 查询本级或直接下级数据
+		List<T> trees = self ? new ArrayList<>(Arrays.asList(baseMapper.selectByPrimaryKey(id))) : treeMaps.get(id);
+		// 递归查询下级数据
+		getLeaf(trees, treeMaps);
 		return trees;
-	}
-
-	/**
-	 * 根据条件将数据库中符合的数据一次全部查出来,可重写
-	 * 
-	 * @param params 其他基本类型参数
-	 * @return 树形结果集
-	 */
-	@Override
-	public List<T> getLeaf(Map<String, Object> params) {
-		if (MapUtils.isBlank(params)) {
-			return this.getEntitys(null).getData();
-		}
-		T param = JSON.parseObject(JSON.toJSONString(params), clazz);
-		Result<List<T>> entitys = this.getEntitys(param);
-		return entitys.getData();
-	}
-
-	/**
-	 * 方法重复 FIXME
-	 * @param datas
-	 * @param id
-	 * @param self
-	 * @return
-	 */
-	public List<T> getLeaf(List<T> datas, ID id, boolean self) {
-		Field[] declaredFields = clazz.getDeclaredFields();
-		if (ArrayUtils.isEmpty(declaredFields)) {
-			throw new ResultException("this class does not have nothing");
-		}
-		String priName = "";
-		Field priField = null;
-		for (Field field : declaredFields) {
-			field.setAccessible(true);
-			if (field.isAnnotationPresent(Pri.class)) {
-				priName = field.getName();
-				priField = field;
-				break;
-			}
-		}
-		if (StrUtils.isBlank(priName)) {
-			throw new ResultException("this class does not have primary key");
-		}
-		List<T> result = new ArrayList<>(datas.size());
-		for (T t : datas) {
-			priField.setAccessible(true);
-			try {
-				ID priVal = (ID) priField.get(t);
-				if ((priVal instanceof Number && priVal == id)
-						|| (priVal.getClass() == String.class && priVal.equals(id))) {
-					result.add(t);
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
-		}
-		return result;
 	}
 
 	/**
 	 * 根据id将数据进行匹配,可重写
 	 * 
-	 * @param datas 全部数据
+	 * @param params 其他基本类型参数
 	 * @return 匹配结果
 	 */
-	public Map<ID, List<T>> buildMaps(List<T> datas) {
+	@Override
+	public Map<ID, List<T>> getLeaf(Map<String, Object> params) {
+		List<T> entitys = getTreeAll(params);
+		if (ListUtils.isBlank(entitys)) {
+			return null;
+		}
 		Field[] declaredFields = clazz.getDeclaredFields();
 		if (ArrayUtils.isEmpty(declaredFields)) {
 			throw new ResultException("this class does not have nothing");
@@ -362,8 +310,8 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 		if (StrUtils.isBlank(priName) || StrUtils.isBlank(pidName)) {
 			throw new ResultException("this class does not have primary key or does not have pid");
 		}
-		Map<ID, List<T>> result = new HashMap<>(datas.size());
-		for (T t : datas) {
+		Map<ID, List<T>> result = new HashMap<>(entitys.size());
+		for (T t : entitys) {
 			priField.setAccessible(true);
 			try {
 				ID priVal = (ID) priField.get(t);
@@ -378,7 +326,7 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 					pidList = new ArrayList<>();
 					result.put(pidVal, pidList);
 				}
-				for (T t1 : datas) {
+				for (T t1 : entitys) {
 					// 将本级的本级实例或下级实例放入集合中
 					if ((priVal instanceof Number && priVal == priField.get(t1))
 							|| (priVal.getClass() == String.class && priVal.equals(priField.get(t1)))) {
@@ -395,6 +343,23 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * 获得所有符合查询条件的数据集合
+	 * 
+	 * @param params 其他基本类型参数
+	 * @return 数据集合
+	 */
+	public List<T> getTreeAll(Map<String, Object> params) {
+		List<T> entitys = null;
+		if (MapUtils.isBlank(params)) {
+			entitys = baseMapper.selectEntitys(null);
+		} else {
+			T param = JSON.parseObject(JSON.toJSONString(params), clazz);
+			entitys = baseMapper.selectEntitys(param);
+		}
+		return entitys;
 	}
 
 	/**
