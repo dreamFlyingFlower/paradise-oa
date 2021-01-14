@@ -294,6 +294,76 @@ public class MenuExample {
             return (Criteria) this;
         }
 
+        public Criteria andPnameIsNull() {
+            addCriterion("pname is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameIsNotNull() {
+            addCriterion("pname is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameEqualTo(String value) {
+            addCriterion("pname =", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameNotEqualTo(String value) {
+            addCriterion("pname <>", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameGreaterThan(String value) {
+            addCriterion("pname >", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameGreaterThanOrEqualTo(String value) {
+            addCriterion("pname >=", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameLessThan(String value) {
+            addCriterion("pname <", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameLessThanOrEqualTo(String value) {
+            addCriterion("pname <=", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameLike(String value) {
+            addCriterion("pname like", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameNotLike(String value) {
+            addCriterion("pname not like", value, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameIn(List<String> values) {
+            addCriterion("pname in", values, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameNotIn(List<String> values) {
+            addCriterion("pname not in", values, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameBetween(String value1, String value2) {
+            addCriterion("pname between", value1, value2, "pname");
+            return (Criteria) this;
+        }
+
+        public Criteria andPnameNotBetween(String value1, String value2) {
+            addCriterion("pname not between", value1, value2, "pname");
+            return (Criteria) this;
+        }
+
         public Criteria andMenuPathIsNull() {
             addCriterion("menu_path is null");
             return (Criteria) this;

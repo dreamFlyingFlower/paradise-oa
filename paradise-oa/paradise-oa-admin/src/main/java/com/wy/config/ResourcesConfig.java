@@ -28,7 +28,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		/** 本地文件上传路径 */
 		registry.addResourceHandler(config.getCommon().getResourcesPrefix() + "/**")
-				.addResourceLocations("file:" + config.getCommon().getProfile() + "/");
+				.addResourceLocations("file:" + config.getFileinfo().getProfile() + "/");
 
 		/** swagger配置 */
 		registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");

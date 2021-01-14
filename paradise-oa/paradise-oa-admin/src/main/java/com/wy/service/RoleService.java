@@ -1,7 +1,6 @@
 package com.wy.service;
 
 import java.util.List;
-import java.util.Set;
 
 import com.wy.base.BaseService;
 import com.wy.model.Role;
@@ -44,28 +43,6 @@ public interface RoleService extends BaseService<Role, Long> {
 	// * @param data 需要保存的数据,其中每条数据的isCheck为1的时候表示保存
 	// */
 	// void saveMenus(int roleId, List<Map<String, Object>> datas);
-	/**
-	 * 根据条件分页查询角色数据
-	 * 
-	 * @param role 角色信息
-	 * @return 角色数据集合信息
-	 */
-	List<Role> selectRoleList(Role role);
-
-	/**
-	 * 根据用户ID查询角色
-	 * 
-	 * @param userId 用户ID
-	 * @return 权限列表
-	 */
-	Set<String> selectRolePermissionByUserId(Long userId);
-
-	/**
-	 * 查询所有角色
-	 * 
-	 * @return 角色列表
-	 */
-	List<Role> selectRoleAll();
 
 	/**
 	 * 根据用户ID获取角色选择框列表
@@ -73,23 +50,7 @@ public interface RoleService extends BaseService<Role, Long> {
 	 * @param userId 用户ID
 	 * @return 选中角色ID列表
 	 */
-	List<Long> selectRoleListByUserId(Long userId);
-
-	/**
-	 * 校验角色名称是否唯一
-	 * 
-	 * @param role 角色信息
-	 * @return 结果
-	 */
-	String checkRoleNameUnique(Role role);
-
-	/**
-	 * 校验角色权限是否唯一
-	 * 
-	 * @param role 角色信息
-	 * @return 结果
-	 */
-	String checkRoleKeyUnique(Role role);
+	List<Role> getByUserId(Long userId);
 
 	/**
 	 * 校验角色是否允许操作
@@ -97,14 +58,6 @@ public interface RoleService extends BaseService<Role, Long> {
 	 * @param role 角色信息
 	 */
 	void checkRoleAllowed(Role role);
-
-	/**
-	 * 通过角色ID查询角色使用数量
-	 * 
-	 * @param roleId 角色ID
-	 * @return 结果
-	 */
-	int countUserRoleByRoleId(Long roleId);
 
 	/**
 	 * 修改角色状态

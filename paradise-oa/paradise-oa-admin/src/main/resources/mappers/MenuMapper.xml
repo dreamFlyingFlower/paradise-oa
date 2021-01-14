@@ -5,6 +5,7 @@
     <id column="menu_id" jdbcType="BIGINT" property="menuId" />
     <result column="menu_name" jdbcType="VARCHAR" property="menuName" />
     <result column="pid" jdbcType="BIGINT" property="pid" />
+    <result column="pname" jdbcType="VARCHAR" property="pname" />
     <result column="menu_path" jdbcType="VARCHAR" property="menuPath" />
     <result column="menu_view" jdbcType="VARCHAR" property="menuView" />
     <result column="router_name" jdbcType="VARCHAR" property="routerName" />
@@ -74,7 +75,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    menu_id, menu_name, pid, menu_path, menu_view, router_name, menu_icon, menu_i18n, 
+    menu_id, menu_name, pid, pname, menu_path, menu_view, router_name, menu_icon, menu_i18n, 
     redirect, hidden, link, sort_index
   </sql>
   <select id="selectByExample" parameterType="com.wy.model.MenuExample" resultMap="BaseResultMap">
@@ -108,14 +109,16 @@
     </if>
   </delete>
   <insert id="insert" keyColumn="menu_id" keyProperty="menuId" parameterType="com.wy.model.Menu" useGeneratedKeys="true">
-    insert into ts_menu (menu_name, pid, menu_path, 
-      menu_view, router_name, menu_icon, 
-      menu_i18n, redirect, hidden, 
-      link, sort_index)
-    values (#{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=BIGINT}, #{menuPath,jdbcType=VARCHAR}, 
-      #{menuView,jdbcType=VARCHAR}, #{routerName,jdbcType=VARCHAR}, #{menuIcon,jdbcType=VARCHAR}, 
-      #{menuI18n,jdbcType=VARCHAR}, #{redirect,jdbcType=VARCHAR}, #{hidden,jdbcType=INTEGER}, 
-      #{link,jdbcType=INTEGER}, #{sortIndex,jdbcType=INTEGER})
+    insert into ts_menu (menu_name, pid, pname, 
+      menu_path, menu_view, router_name, 
+      menu_icon, menu_i18n, redirect, 
+      hidden, link, sort_index
+      )
+    values (#{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=BIGINT}, #{pname,jdbcType=VARCHAR}, 
+      #{menuPath,jdbcType=VARCHAR}, #{menuView,jdbcType=VARCHAR}, #{routerName,jdbcType=VARCHAR}, 
+      #{menuIcon,jdbcType=VARCHAR}, #{menuI18n,jdbcType=VARCHAR}, #{redirect,jdbcType=VARCHAR}, 
+      #{hidden,jdbcType=INTEGER}, #{link,jdbcType=INTEGER}, #{sortIndex,jdbcType=INTEGER}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="menu_id" keyProperty="menuId" parameterType="com.wy.model.Menu" useGeneratedKeys="true">
     insert into ts_menu
@@ -125,6 +128,9 @@
       </if>
       <if test="pid != null">
         pid,
+      </if>
+      <if test="pname != null">
+        pname,
       </if>
       <if test="menuPath != null">
         menu_path,
@@ -160,6 +166,9 @@
       </if>
       <if test="pid != null">
         #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="pname != null">
+        #{pname,jdbcType=VARCHAR},
       </if>
       <if test="menuPath != null">
         #{menuPath,jdbcType=VARCHAR},
@@ -208,6 +217,9 @@
       <if test="record.pid != null">
         pid = #{record.pid,jdbcType=BIGINT},
       </if>
+      <if test="record.pname != null">
+        pname = #{record.pname,jdbcType=VARCHAR},
+      </if>
       <if test="record.menuPath != null">
         menu_path = #{record.menuPath,jdbcType=VARCHAR},
       </if>
@@ -245,6 +257,7 @@
     set menu_id = #{record.menuId,jdbcType=BIGINT},
       menu_name = #{record.menuName,jdbcType=VARCHAR},
       pid = #{record.pid,jdbcType=BIGINT},
+      pname = #{record.pname,jdbcType=VARCHAR},
       menu_path = #{record.menuPath,jdbcType=VARCHAR},
       menu_view = #{record.menuView,jdbcType=VARCHAR},
       router_name = #{record.routerName,jdbcType=VARCHAR},
@@ -266,6 +279,9 @@
       </if>
       <if test="pid != null">
         pid = #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="pname != null">
+        pname = #{pname,jdbcType=VARCHAR},
       </if>
       <if test="menuPath != null">
         menu_path = #{menuPath,jdbcType=VARCHAR},
@@ -301,6 +317,7 @@
     update ts_menu
     set menu_name = #{menuName,jdbcType=VARCHAR},
       pid = #{pid,jdbcType=BIGINT},
+      pname = #{pname,jdbcType=VARCHAR},
       menu_path = #{menuPath,jdbcType=VARCHAR},
       menu_view = #{menuView,jdbcType=VARCHAR},
       router_name = #{routerName,jdbcType=VARCHAR},
@@ -313,7 +330,7 @@
     where menu_id = #{menuId,jdbcType=BIGINT}
   </update>
   <insert id="inserts" parameterType="list">
-    insert into ts_menu (menu_id,menu_name,pid,menu_path,menu_view,router_name,menu_icon,menu_i18n,redirect,hidden,link,sort_index)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.menuName,jdbcType=VARCHAR},#{item.pid,jdbcType=BIGINT},#{item.menuPath,jdbcType=VARCHAR},#{item.menuView,jdbcType=VARCHAR},#{item.routerName,jdbcType=VARCHAR},#{item.menuIcon,jdbcType=VARCHAR},#{item.menuI18n,jdbcType=VARCHAR},#{item.redirect,jdbcType=VARCHAR},<choose><when test="item.hidden!= null">hidden = #{item.hidden,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.link!= null">link = #{item.link,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.sortIndex!= null">sort_index = #{item.sortIndex,jdbcType=INTEGER}</when><otherwise>1</otherwise></choose>)</foreach>
+    insert into ts_menu (menu_id,menu_name,pid,pname,menu_path,menu_view,router_name,menu_icon,menu_i18n,redirect,hidden,link,sort_index)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.menuName,jdbcType=VARCHAR},#{item.pid,jdbcType=BIGINT},#{item.pname,jdbcType=VARCHAR},#{item.menuPath,jdbcType=VARCHAR},#{item.menuView,jdbcType=VARCHAR},#{item.routerName,jdbcType=VARCHAR},#{item.menuIcon,jdbcType=VARCHAR},#{item.menuI18n,jdbcType=VARCHAR},#{item.redirect,jdbcType=VARCHAR},<choose><when test="item.hidden!= null">hidden = #{item.hidden,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.link!= null">link = #{item.link,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.sortIndex!= null">sort_index = #{item.sortIndex,jdbcType=INTEGER}</when><otherwise>1</otherwise></choose>)</foreach>
   </insert>
   <delete id="deleteByPrimaryKeys" parameterType="list">
     delete from  ts_menu where menu_id in <foreach open="(" close=")" collection="list" item="menuId" separator=",">#{menuId,jdbcType=BIGINT}</foreach>
@@ -322,13 +339,13 @@
     delete from  ts_menu 
   </delete>
   <select id="selectEntitys" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List" /> from ts_menu<where><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuName != null "> and menu_name = #{menuName,jdbcType=VARCHAR} </if><if test = "pid != null "> and pid = #{pid,jdbcType=BIGINT} </if><if test = "menuPath != null "> and menu_path = #{menuPath,jdbcType=VARCHAR} </if><if test = "menuView != null "> and menu_view = #{menuView,jdbcType=VARCHAR} </if><if test = "routerName != null "> and router_name = #{routerName,jdbcType=VARCHAR} </if><if test = "menuIcon != null "> and menu_icon = #{menuIcon,jdbcType=VARCHAR} </if><if test = "menuI18n != null "> and menu_i18n = #{menuI18n,jdbcType=VARCHAR} </if><if test = "redirect != null "> and redirect = #{redirect,jdbcType=VARCHAR} </if><if test = "hidden != null "> and hidden = #{hidden,jdbcType=INTEGER} </if><if test = "link != null "> and link = #{link,jdbcType=INTEGER} </if><if test = "sortIndex != null "> and sort_index = #{sortIndex,jdbcType=INTEGER} </if></where>
+    select <include refid="Base_Column_List" /> from ts_menu<where><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuName != null "> and menu_name = #{menuName,jdbcType=VARCHAR} </if><if test = "pid != null "> and pid = #{pid,jdbcType=BIGINT} </if><if test = "pname != null "> and pname = #{pname,jdbcType=VARCHAR} </if><if test = "menuPath != null "> and menu_path = #{menuPath,jdbcType=VARCHAR} </if><if test = "menuView != null "> and menu_view = #{menuView,jdbcType=VARCHAR} </if><if test = "routerName != null "> and router_name = #{routerName,jdbcType=VARCHAR} </if><if test = "menuIcon != null "> and menu_icon = #{menuIcon,jdbcType=VARCHAR} </if><if test = "menuI18n != null "> and menu_i18n = #{menuI18n,jdbcType=VARCHAR} </if><if test = "redirect != null "> and redirect = #{redirect,jdbcType=VARCHAR} </if><if test = "hidden != null "> and hidden = #{hidden,jdbcType=INTEGER} </if><if test = "link != null "> and link = #{link,jdbcType=INTEGER} </if><if test = "sortIndex != null "> and sort_index = #{sortIndex,jdbcType=INTEGER} </if></where>
   </select>
   <select id="selectLists" resultType="map">
-    select <include refid="Base_Column_List" /> from ts_menu<where><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuName != null "> and menu_name = #{menuName,jdbcType=VARCHAR} </if><if test = "pid != null "> and pid = #{pid,jdbcType=BIGINT} </if><if test = "menuPath != null "> and menu_path = #{menuPath,jdbcType=VARCHAR} </if><if test = "menuView != null "> and menu_view = #{menuView,jdbcType=VARCHAR} </if><if test = "routerName != null "> and router_name = #{routerName,jdbcType=VARCHAR} </if><if test = "menuIcon != null "> and menu_icon = #{menuIcon,jdbcType=VARCHAR} </if><if test = "menuI18n != null "> and menu_i18n = #{menuI18n,jdbcType=VARCHAR} </if><if test = "redirect != null "> and redirect = #{redirect,jdbcType=VARCHAR} </if><if test = "hidden != null "> and hidden = #{hidden,jdbcType=INTEGER} </if><if test = "link != null "> and link = #{link,jdbcType=INTEGER} </if><if test = "sortIndex != null "> and sort_index = #{sortIndex,jdbcType=INTEGER} </if></where>
+    select <include refid="Base_Column_List" /> from ts_menu<where><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuName != null "> and menu_name = #{menuName,jdbcType=VARCHAR} </if><if test = "pid != null "> and pid = #{pid,jdbcType=BIGINT} </if><if test = "pname != null "> and pname = #{pname,jdbcType=VARCHAR} </if><if test = "menuPath != null "> and menu_path = #{menuPath,jdbcType=VARCHAR} </if><if test = "menuView != null "> and menu_view = #{menuView,jdbcType=VARCHAR} </if><if test = "routerName != null "> and router_name = #{routerName,jdbcType=VARCHAR} </if><if test = "menuIcon != null "> and menu_icon = #{menuIcon,jdbcType=VARCHAR} </if><if test = "menuI18n != null "> and menu_i18n = #{menuI18n,jdbcType=VARCHAR} </if><if test = "redirect != null "> and redirect = #{redirect,jdbcType=VARCHAR} </if><if test = "hidden != null "> and hidden = #{hidden,jdbcType=INTEGER} </if><if test = "link != null "> and link = #{link,jdbcType=INTEGER} </if><if test = "sortIndex != null "> and sort_index = #{sortIndex,jdbcType=INTEGER} </if></where>
   </select>
   <select id="countByEntity" resultType="java.lang.Long">
-    select count(*) from ts_menu<where><if test = "menuId != null ">and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuName != null ">and menu_name = #{menuName,jdbcType=VARCHAR} </if><if test = "pid != null ">and pid = #{pid,jdbcType=BIGINT} </if><if test = "menuPath != null ">and menu_path = #{menuPath,jdbcType=VARCHAR} </if><if test = "menuView != null ">and menu_view = #{menuView,jdbcType=VARCHAR} </if><if test = "routerName != null ">and router_name = #{routerName,jdbcType=VARCHAR} </if><if test = "menuIcon != null ">and menu_icon = #{menuIcon,jdbcType=VARCHAR} </if><if test = "menuI18n != null ">and menu_i18n = #{menuI18n,jdbcType=VARCHAR} </if><if test = "redirect != null ">and redirect = #{redirect,jdbcType=VARCHAR} </if><if test = "hidden != null ">and hidden = #{hidden,jdbcType=INTEGER} </if><if test = "link != null ">and link = #{link,jdbcType=INTEGER} </if><if test = "sortIndex != null ">and sort_index = #{sortIndex,jdbcType=INTEGER} </if></where>
+    select count(*) from ts_menu<where><if test = "menuId != null ">and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuName != null ">and menu_name = #{menuName,jdbcType=VARCHAR} </if><if test = "pid != null ">and pid = #{pid,jdbcType=BIGINT} </if><if test = "pname != null ">and pname = #{pname,jdbcType=VARCHAR} </if><if test = "menuPath != null ">and menu_path = #{menuPath,jdbcType=VARCHAR} </if><if test = "menuView != null ">and menu_view = #{menuView,jdbcType=VARCHAR} </if><if test = "routerName != null ">and router_name = #{routerName,jdbcType=VARCHAR} </if><if test = "menuIcon != null ">and menu_icon = #{menuIcon,jdbcType=VARCHAR} </if><if test = "menuI18n != null ">and menu_i18n = #{menuI18n,jdbcType=VARCHAR} </if><if test = "redirect != null ">and redirect = #{redirect,jdbcType=VARCHAR} </if><if test = "hidden != null ">and hidden = #{hidden,jdbcType=INTEGER} </if><if test = "link != null ">and link = #{link,jdbcType=INTEGER} </if><if test = "sortIndex != null ">and sort_index = #{sortIndex,jdbcType=INTEGER} </if></where>
   </select>
   <select id="getMaxValue" resultType="java.lang.Long">
     select <choose><when test="'menuId' == _parameter.column">max(menu_id)</when><when test="'pid' == _parameter.column">max(pid)</when><when test="'hidden' == _parameter.column">max(hidden)</when><when test="'link' == _parameter.column">max(link)</when><when test="'sortIndex' == _parameter.column">max(sort_index)</when><otherwise>max(0)</otherwise>  </choose>  from ts_menu

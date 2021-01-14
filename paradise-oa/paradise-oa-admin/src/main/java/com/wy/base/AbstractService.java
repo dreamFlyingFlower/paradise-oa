@@ -218,6 +218,11 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 		return baseMapper.deleteAll();
 	}
 
+	/**
+	 * 更新,若实体类中有{@link Unique}标识字段,更新时需要传入该字段的原始值
+	 * 
+	 * 如:原字段为username,更新时需要传入oriUsername的值,该值必传,否则更新失败
+	 */
 	@Override
 	@Transactional
 	public int update(T t) {
@@ -225,6 +230,11 @@ public abstract class AbstractService<T, ID> implements BaseService<T, ID> {
 		return baseMapper.updateByPrimaryKey(t);
 	}
 
+	/**
+	 * 更新,若实体类中有{@link Unique}标识字段,更新时需要传入该字段的原始值
+	 * 
+	 * 如:原字段为username,更新时需要传入oriUsername的值,该值必传,否则更新失败
+	 */
 	@Override
 	@Transactional
 	public int updateSelective(T t) {

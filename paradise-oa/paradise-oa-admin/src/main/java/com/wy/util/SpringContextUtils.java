@@ -1,4 +1,4 @@
-package com.wy.util.spring;
+package com.wy.util;
 
 import java.util.Map;
 
@@ -10,18 +10,20 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- * @apiNote spring上下文工具类,可在非spring组件中使用spring组件
- * @author ParadiseWY
- * @date 2020年4月2日 下午7:37:09
+ * spring上下文工具类,可在非spring组件中使用spring组件
+ * 
+ *	@author 飞花梦影
+ *	@date 2021-01-14 15:44:03
+ * @git {@link https://github.com/mygodness100}
  */
 @Component
-public final class ContextUtils implements InitializingBean, ApplicationContextAware {
+public final class SpringContextUtils implements InitializingBean, ApplicationContextAware {
 
 	private static ApplicationContext applicationContext;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		ContextUtils.applicationContext = applicationContext;
+		SpringContextUtils.applicationContext = applicationContext;
 	}
 
 	@Override

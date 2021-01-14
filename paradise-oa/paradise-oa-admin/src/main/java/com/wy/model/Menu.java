@@ -3,7 +3,7 @@ package com.wy.model;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import com.wy.base.AbstractModel;
+import com.wy.base.Tree;
 import com.wy.database.annotation.Pid;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
@@ -32,7 +32,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Menu extends AbstractModel {
+public class Menu extends Tree<Menu, Long> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -58,6 +58,10 @@ public class Menu extends AbstractModel {
 	@NotNull
 	@Pid
 	private Long pid;
+
+	@ApiModelProperty("上级菜单名称")
+	@NotBlank
+	private String pname;
 
 	/**
 	 * 菜单跳转url,可能带参数

@@ -46,7 +46,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@GetMapping("/list")
 	public Result<?> list(Role role) {
 		// startPage(); FIXME
-		List<Role> list = roleService.selectRoleList(role);
+		List<Role> list = roleService.getEntitys(role).getData();
 		return Result.page(list);
 	}
 
@@ -54,9 +54,9 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@PreAuthorize("@ss.hasPermi('system:role:export')")
 	@GetMapping("export")
 	public Result<?> export(Role role, HttpServletResponse response) {
-		List<Role> list = roleService.selectRoleList(role);
+		List<Role> list = roleService.getEntitys(role).getData();
 		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getCommon().getDownloadPath() + File.separator + "角色数据.xlsx");
+				config.getFileinfo().getDownloadPath() + File.separator + "角色数据.xlsx");
 		return Result.ok();
 	}
 
@@ -89,7 +89,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@PreAuthorize("@ss.hasPermi('system:role:query')")
 	@GetMapping("/optionselect")
 	public Result<?> optionselect() {
-		return Result.ok(roleService.selectRoleAll());
+		return roleService.getEntitys(null);
 	}
 
 	// @ApiOperation("根据角色权限查询菜单树,不查询按钮")

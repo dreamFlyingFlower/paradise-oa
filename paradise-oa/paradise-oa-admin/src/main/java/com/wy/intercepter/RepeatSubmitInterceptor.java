@@ -12,7 +12,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import com.alibaba.fastjson.JSONObject;
 import com.wy.annotation.RepeatSubmit;
 import com.wy.result.Result;
-import com.wy.util.spring.ServletUtils;
+import com.wy.util.ServletUtils;
 
 /**
  * 防止重复提交 FIXME

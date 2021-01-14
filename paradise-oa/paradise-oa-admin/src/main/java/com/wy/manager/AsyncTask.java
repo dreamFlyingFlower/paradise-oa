@@ -10,7 +10,7 @@ import com.wy.properties.ConfigProperties;
 import com.wy.service.LoginLogService;
 import com.wy.service.OperateLogService;
 import com.wy.util.IpUtils;
-import com.wy.util.spring.ServletUtils;
+import com.wy.util.ServletUtils;
 import com.wy.utils.StrUtils;
 
 import eu.bitwalker.useragentutils.UserAgent;

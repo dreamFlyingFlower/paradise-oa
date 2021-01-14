@@ -67,7 +67,7 @@ public class DictCrl extends AbstractCrl<Dict, Long> {
 	public Result<?> export(Dict dictData, HttpServletResponse response) {
 		List<Dict> list = dictService.selectDictList(dictData).getData();
 		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getCommon().getDownloadPath() + File.separator + "字典数据.xlsx");
+				config.getFileinfo().getDownloadPath() + File.separator + "字典数据.xlsx");
 		return Result.ok();
 	}
 

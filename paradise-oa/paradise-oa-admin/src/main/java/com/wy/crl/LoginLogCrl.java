@@ -48,7 +48,7 @@ public class LoginLogCrl extends AbstractCrl<LoginLog, Long> {
 	public Result<?> export(LoginLog loginLog, HttpServletResponse response) {
 		List<LoginLog> list = loginLogService.selectLogininforList(loginLog).getData();
 		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getCommon().getDownloadPath() + File.separator + "登陆日志.xlsx");
+				config.getFileinfo().getDownloadPath() + File.separator + "登陆日志.xlsx");
 		return Result.ok();
 	}
 

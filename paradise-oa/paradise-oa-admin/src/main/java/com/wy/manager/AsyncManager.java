@@ -4,8 +4,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.wy.util.SpringContextUtils;
 import com.wy.util.Threads;
-import com.wy.util.spring.ContextUtils;
 
 /**
  * 异步任务管理器
@@ -23,7 +23,7 @@ public class AsyncManager {
 	/**
 	 * 异步操作任务调度线程池
 	 */
-	private ScheduledExecutorService executor = (ScheduledExecutorService) ContextUtils
+	private ScheduledExecutorService executor = (ScheduledExecutorService) SpringContextUtils
 			.getBean("scheduledExecutorService");
 
 	/**

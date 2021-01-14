@@ -1,5 +1,7 @@
 package com.wy.model;
 
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -75,4 +77,27 @@ public class Role extends AbstractModel {
 	private String roleDesc;
 
 	/** 非数据库字段 */
+	/**
+	 * 菜单集合
+	 */
+	@ApiModelProperty("菜单集合")
+	private List<Menu> menus;
+
+	/**
+	 * 菜单编号集合
+	 */
+	@ApiModelProperty("菜单编号集合")
+	private List<Long> menuIds;
+
+	/**
+	 * 部门集合
+	 */
+	@ApiModelProperty("部门集合")
+	private List<Depart> departs;
+
+	/**
+	 * 部门编号集合
+	 */
+	@ApiModelProperty("部门编号集合")
+	private List<Long> departIds;
 }

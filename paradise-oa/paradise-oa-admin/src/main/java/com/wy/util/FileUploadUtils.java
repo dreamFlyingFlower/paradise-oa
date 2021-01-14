@@ -12,7 +12,6 @@ import com.wy.crypto.CryptoUtils;
 import com.wy.enums.DateEnum;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
-import com.wy.util.spring.ContextUtils;
 import com.wy.utils.DateUtils;
 import com.wy.utils.StrUtils;
 
@@ -37,7 +36,8 @@ public class FileUploadUtils {
 	/**
 	 * 默认上传的地址
 	 */
-	private static String defaultBaseDir = ContextUtils.getBean(ConfigProperties.class).getCommon().getProfile();
+	private static String defaultBaseDir = SpringContextUtils.getBean(ConfigProperties.class).getFileinfo()
+			.getProfile();
 
 	private static int counter = 0;
 
@@ -138,9 +138,9 @@ public class FileUploadUtils {
 	}
 
 	private static final String getPathFileName(String uploadDir, String fileName) {
-		int dirLastIndex = ContextUtils.getBean(ConfigProperties.class).getCommon().getProfile().length() + 1;
+		int dirLastIndex = SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getProfile().length() + 1;
 		String currentDir = uploadDir.substring(dirLastIndex);
-		String pathFileName = ContextUtils.getBean(ConfigProperties.class).getCommon().getResourcesPrefix() + "/"
+		String pathFileName = SpringContextUtils.getBean(ConfigProperties.class).getCommon().getResourcesPrefix() + "/"
 				+ currentDir + "/" + fileName;
 		return pathFileName;
 	}

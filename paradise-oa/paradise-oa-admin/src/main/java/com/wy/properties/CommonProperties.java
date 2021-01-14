@@ -1,5 +1,8 @@
 package com.wy.properties;
 
+import java.util.Arrays;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,18 +38,21 @@ public class CommonProperties {
 	/** 版权年份 */
 	private String copyrightYear;
 
-	/** 上传或下载文件目录,非本系统资源目录 */
-	private String profile;
-
 	/** 是否根据ip地址获取地域,默认不获取 */
 	private boolean addressOpt = false;
 
-	/** 获取头像上传路径 */
-	private String avatarPath = profile + "avatar";
+	/** 登录可用帐号类型,与数据库字段对应,逗号隔开 */
+	private List<String> ACCOUNT_TYPE = Arrays.asList("username", "mobile", "email");
 
-	/** 获取下载路径 */
-	private String downloadPath = profile + "download";
+	/** 密码未设置时的默认密码 */
+	private String defaultPwd = "66668888";
 
-	/** 获取上传路径 */
-	private String uploadPath = profile + "upload";
+	/** 密码从前端传到后台的解密密钥,应和前端的key一样 */
+	private String secretKeyUser = "@#$%^&@#$%^#$%^!";
+
+	/** 默认菜单图标名称 */
+	private String defaultMenuIcon = "star.svg";
+
+	/** 默认用户图标 */
+	private String defaultUserIcon = "user.png";
 }

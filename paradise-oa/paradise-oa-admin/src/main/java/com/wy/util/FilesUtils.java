@@ -12,8 +12,8 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.Files;
-import com.wy.common.Props;
 import com.wy.crypto.CryptoUtils;
+import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.utils.DateUtils;
 import com.wy.utils.StrUtils;
@@ -21,6 +21,7 @@ import com.wy.utils.StrUtils;
 /**
  * 本项目所有上传文件的接口都必须是文件先上传成功,文件上传到本地, 然后将上传成功的文件数据插入到数据库表中,之后再进行其他操作,方便统一管理上传文件
  * 为方便文件备份或转移,上传的文件都以当天文件夹区分,文件命名方式为:32位uuid_yyyyMMdd
+ * 
  * @author paradiseWy
  */
 public class FilesUtils {
@@ -30,6 +31,7 @@ public class FilesUtils {
 
 	// 文件后缀名匹配
 	private static final Map<Integer, List<String>> FILE_SUFFIXMAP = new HashMap<Integer, List<String>>() {
+
 		private static final long serialVersionUID = 1L;
 
 		{
@@ -42,6 +44,7 @@ public class FilesUtils {
 
 	/**
 	 * 检查文件是否匹配,并返回文件存贮路径
+	 * 
 	 * @param suffix 后缀名,需要带上点
 	 */
 	public static int getFileType(String suffix) {
@@ -57,12 +60,14 @@ public class FilesUtils {
 
 	/**
 	 * 根据平台获得文件的本地路径,并且每天在基础文件夹下新建当天文件夹,以yyyyMMdd命名
+	 * 
 	 * @param fileName 文件名
 	 * @return 文件路径
 	 */
 	private static File getNewPath(String fileName) {
 		String[] fileNames = Files.getNameWithoutExtension(fileName).split("_");
-		File parentFolder = new File(Props.FILE_LOCAL, fileNames[1]);
+		File parentFolder = new File(SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getFileLocal(),
+				fileNames[1]);
 		if (!parentFolder.exists()) {
 			boolean success = parentFolder.mkdir();
 			if (!success) {
@@ -74,15 +79,17 @@ public class FilesUtils {
 
 	/**
 	 * 服务器访问文件地址,在sql查询中使用,防止服务器地址变更
+	 * 
 	 * @param fileName 文件名
 	 * @return 远程访问地址
 	 */
 	public static String getHttpPath(String fileName) {
-		return Props.FILE_HTTP + "/" + fileName;
+		return SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getFileHttp() + "/" + fileName;
 	}
 
 	/**
 	 * 保存文件在本地
+	 * 
 	 * @param file 需要进行存储的文件
 	 * @return 存储后的本地的文件名, 带后缀
 	 */
@@ -109,6 +116,7 @@ public class FilesUtils {
 
 	/**
 	 * 根据文件名获得文件存储的本地地址
+	 * 
 	 * @param fileName 带后缀的文件名
 	 * @return 本地地址
 	 */
@@ -118,11 +126,15 @@ public class FilesUtils {
 		if (fileNames.length < 2) {
 			throw new ResultException("the pattern of file name is error!");
 		}
-		return new File(new File(new File(Props.FILE_LOCAL), fileNames[1]), fileName);
+		return new File(
+				new File(new File(SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getFileLocal()),
+						fileNames[1]),
+				fileName);
 	}
 
 	/**
 	 * 计算音视频文件的时长
+	 * 
 	 * @param seconds 秒数
 	 * @return 正常的时分秒格式HH:mm:ss
 	 */
@@ -136,6 +148,7 @@ public class FilesUtils {
 
 	/**
 	 * 删除本地文件
+	 * 
 	 * @param localName 本地存放文件名
 	 * @return true表示删除成功, false表示失败
 	 */

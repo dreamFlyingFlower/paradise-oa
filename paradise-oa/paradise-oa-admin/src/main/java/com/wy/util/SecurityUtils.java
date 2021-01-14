@@ -4,15 +4,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.wy.common.HttpStatus;
 import com.wy.model.User;
-import com.wy.result.ResultException;
 
 /**
  * 安全服务工具类
- *
- * @author ParadiseWY
- * @date 2020年4月8日 上午12:44:04
+ * 
+ * @author 飞花梦影
+ * @date 2021-01-14 15:02:28
+ * @git {@link https://github.com/mygodness100}
  */
 public class SecurityUtils {
 
@@ -20,22 +19,14 @@ public class SecurityUtils {
 	 * 获取用户账户
 	 **/
 	public static String getUsername() {
-		try {
-			return getLoginUser().getUsername();
-		} catch (Exception e) {
-			throw new ResultException(HttpStatus.UNAUTHORIZED, "获取用户账户异常");
-		}
+		return getLoginUser().getUsername();
 	}
 
 	/**
 	 * 获取用户
 	 **/
 	public static User getLoginUser() {
-		try {
-			return (User) getAuthentication().getPrincipal();
-		} catch (Exception e) {
-			throw new ResultException(HttpStatus.UNAUTHORIZED, "获取用户账户异常");
-		}
+		return (User) getAuthentication().getPrincipal();
 	}
 
 	/**
@@ -66,15 +57,5 @@ public class SecurityUtils {
 	public static boolean matchesPassword(String rawPassword, String encodedPassword) {
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return passwordEncoder.matches(rawPassword, encodedPassword);
-	}
-
-	/**
-	 * 是否为管理员 FIXME
-	 * 
-	 * @param userId 用户ID
-	 * @return 结果
-	 */
-	public static boolean isAdmin(Long userId) {
-		return userId != null && 1L == userId;
 	}
 }

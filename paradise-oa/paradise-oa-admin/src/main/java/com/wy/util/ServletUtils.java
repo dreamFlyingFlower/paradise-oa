@@ -1,4 +1,4 @@
-package com.wy.util.spring;
+package com.wy.util;
 
 import java.io.IOException;
 

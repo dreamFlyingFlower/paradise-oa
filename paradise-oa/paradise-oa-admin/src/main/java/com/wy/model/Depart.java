@@ -7,6 +7,7 @@ import javax.validation.constraints.Size;
 import com.wy.base.AbstractModel;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
+import com.wy.database.annotation.Unique;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;
@@ -50,6 +51,7 @@ public class Depart extends AbstractModel {
 	@ApiModelProperty("部门名称")
 	@NotBlank(message = "部门名称不能为空")
 	@Size(min = 0, max = 30, message = "部门名称长度不能超过30个字符")
+	@Unique
 	private String departName;
 
 	/**

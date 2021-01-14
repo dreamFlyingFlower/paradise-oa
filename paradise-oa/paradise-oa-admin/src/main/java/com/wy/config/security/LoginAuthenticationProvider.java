@@ -12,9 +12,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.wy.common.Props;
 import com.wy.crypto.CryptoUtils;
 import com.wy.model.User;
+import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.UserService;
 
@@ -33,6 +33,9 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 	@Autowired
 	private TokenService tokenService;
 
+	@Autowired
+	private ConfigProperties config;
+
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		// 这个获取表单输入中返回的用户名,用户名必须唯一
@@ -44,7 +47,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 		}
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
 		String decodePwd = (String) authentication.getCredentials();
-		String password = CryptoUtils.AESSimpleCrypt(decodePwd, Props.SECRET_KEY_USER, false);
+		String password = CryptoUtils.AESSimpleCrypt(decodePwd, config.getCommon().getSecretKeyUser(), false);
 		password = password.substring(0, password.lastIndexOf("_"));
 		if (password.length() > 12) {
 			throw new ResultException("密码长度不能超过12位");

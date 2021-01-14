@@ -85,7 +85,7 @@ public class User extends AbstractModel implements UserDetails {
 	 * 部门编号
 	 */
 	@ApiModelProperty("部门编号")
-	private Integer departId;
+	private Long departId;
 
 	/**
 	 * 身份证号

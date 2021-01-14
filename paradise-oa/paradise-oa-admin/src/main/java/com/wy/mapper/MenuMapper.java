@@ -52,10 +52,10 @@ public interface MenuMapper extends BaseMapper<Menu, Long> {
 	/**
 	 * 根据用户查询系统菜单列表
 	 * 
-	 * @param menu 菜单信息
+	 * @param userId 用户编号
 	 * @return 菜单列表
 	 */
-	List<Menu> selectMenuListByUserId(Menu menu);
+	List<Menu> selectByUserId(Long userId);
 
 	/**
 	 * 根据用户ID查询权限
@@ -66,42 +66,10 @@ public interface MenuMapper extends BaseMapper<Menu, Long> {
 	List<String> selectMenuPermsByUserId(Long userId);
 
 	/**
-	 * 根据用户ID查询菜单
-	 * 
-	 * @return 菜单列表
-	 */
-	List<Menu> selectMenuTreeAll();
-
-	/**
-	 * 根据用户ID查询菜单
-	 * 
-	 * @param username 用户ID
-	 * @return 菜单列表
-	 */
-	List<Menu> selectMenuTreeByUserId(Long userId);
-
-	/**
 	 * 根据角色ID查询菜单树信息
 	 * 
 	 * @param roleId 角色ID
 	 * @return 选中菜单列表
 	 */
 	List<Integer> selectMenuListByRoleId(Long roleId);
-
-	/**
-	 * 是否存在菜单子节点
-	 * 
-	 * @param menuId 菜单ID
-	 * @return 结果
-	 */
-	int hasChildByMenuId(Long menuId);
-
-	/**
-	 * 校验菜单名称是否唯一
-	 * 
-	 * @param menuName 菜单名称
-	 * @param parentId 父菜单ID
-	 * @return 结果
-	 */
-	Menu checkMenuNameUnique(@Param("menuName") String menuName, @Param("parentId") Long parentId);
 }

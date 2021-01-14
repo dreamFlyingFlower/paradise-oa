@@ -1,19 +1,14 @@
 package com.wy.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.wy.annotation.PermissionScope;
 import com.wy.base.AbstractService;
-import com.wy.common.UserConstants;
 import com.wy.mapper.RoleDepartMapper;
 import com.wy.mapper.RoleMapper;
 import com.wy.mapper.RoleMenuMapper;
@@ -21,10 +16,10 @@ import com.wy.mapper.UserRoleMapper;
 import com.wy.model.Role;
 import com.wy.model.RoleDepart;
 import com.wy.model.RoleMenu;
+import com.wy.model.UserRole;
 import com.wy.result.ResultException;
 import com.wy.service.RoleService;
-import com.wy.util.SecurityUtils;
-import com.wy.utils.StrUtils;
+import com.wy.utils.ListUtils;
 
 /**
  * 角色表
@@ -39,40 +34,33 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	@Autowired
 	private RoleMapper roleMapper;
 
-	// public Result<?> getRoles(Role bean) {
-	// return roleDao.getRoles(bean);
-	// }
-	//
-	// /**
-	// * 根据用户编号判断是否为超级管理员
-	// * @param userId 用户编号
-	// * @return
-	// */
-	// public boolean ifAdminUser(int userId) {
-	// RoleOld role = getBaseDao().execute(Sqls
-	// .fetchEntity(StrUtils.formatBuilder("select b.* from ",
-	// " tr_user_role a inner join ti_role b on a.role_id = b.role_id ",
-	// " where a.user_id = @userId "))
-	// .setParam("userId", userId).setEntity(getBaseDao().getEntity(RoleOld.class)))
-	// .getObject(RoleOld.class);
-	// if (null == role) {
-	// throw new ResultException("该用户未分配角色");
-	// }
-	// return role.getRoleType() == 0;
-	// }
-	//
-	// /**
-	// * 判断是否为超级管理员
-	// * @param roleId 角色编号
-	// * @return
-	// */
-	// public boolean ifAdmin(int roleId) {
-	// RoleOld role = fetch(roleId);
-	// if (null == role) {
-	// throw new ResultException("不存在这个角色!");
-	// }
-	// return role.getRoleType() == 0;
-	// }
+	/**
+	 * 根据用户编号判断是否为超级管理员,只考虑单角色
+	 * 
+	 * @param userId 用户编号
+	 * @return true是,false否
+	 */
+	public boolean ifAdminUser(Long userId) {
+		List<Role> selectEntitys = roleMapper.selectByUserId(userId);
+		if (ListUtils.isBlank(selectEntitys)) {
+			throw new ResultException("this user does not have assign role");
+		}
+		return selectEntitys.get(0).getRoleType() == 0;
+	}
+
+	/**
+	 * 判断是否为超级管理员
+	 * 
+	 * @param roleId 角色编号
+	 * @return true是,false否
+	 */
+	public boolean ifAdmin(Long roleId) {
+		Role role = roleMapper.selectByPrimaryKey(roleId);
+		if (null == role) {
+			throw new ResultException("this role does not exist");
+		}
+		return role.getRoleType() == 0;
+	}
 	//
 	// @Override
 	// public List<Map<String, Object>> getRoleMenu(int roleId) {
@@ -323,84 +311,14 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	private RoleDepartMapper roleDeptMapper;
 
 	/**
-	 * 根据条件分页查询角色数据
-	 * 
-	 * @param role 角色信息
-	 * @return 角色数据集合信息
-	 */
-	@Override
-	@PermissionScope(deptAlias = "d")
-	public List<Role> selectRoleList(Role role) {
-		return roleMapper.selectEntitys(role);
-	}
-
-	/**
-	 * 根据用户ID查询权限
-	 * 
-	 * @param userId 用户ID
-	 * @return 权限列表
-	 */
-	@Override
-	public Set<String> selectRolePermissionByUserId(Long userId) {
-		List<Role> perms = roleMapper.selectRolePermissionByUserId(userId);
-		Set<String> permsSet = new HashSet<>();
-		for (Role perm : perms) {
-			if (Objects.nonNull(perm)) {
-				permsSet.addAll(Arrays.asList(perm.getRoleKey().trim().split(",")));
-			}
-		}
-		return permsSet;
-	}
-
-	/**
-	 * 查询所有角色
-	 * 
-	 * @return 角色列表
-	 */
-	public List<Role> selectRoleAll() {
-		return roleMapper.selectEntitys(new Role());
-	}
-
-	/**
 	 * 根据用户ID获取角色选择框列表
 	 * 
 	 * @param userId 用户ID
-	 * @return 选中角色ID列表
-	 */
-	public List<Long> selectRoleListByUserId(Long userId) {
-		return roleMapper.selectRoleListByUserId(userId);
-	}
-
-	/**
-	 * 校验角色名称是否唯一
-	 * 
-	 * @param role 角色信息
-	 * @return 结果
+	 * @return 角色列表
 	 */
 	@Override
-	public String checkRoleNameUnique(Role role) {
-		Long roleId = Objects.isNull(role.getRoleId()) ? -1L : role.getRoleId();
-		Role info = roleMapper.checkRoleNameUnique(role.getRoleName());
-		if (Objects.nonNull(info) && info.getRoleId().longValue() != roleId.longValue()) {
-			return UserConstants.NOT_UNIQUE;
-		}
-		return UserConstants.UNIQUE;
-	}
-
-	/**
-	 * 校验角色权限是否唯一
-	 * 
-	 * @param role 角色信息
-	 * @return 结果
-	 */
-	@Override
-	public String checkRoleKeyUnique(Role role) {
-		Long roleId = Objects.isNull(role.getRoleId()) ? -1L : role.getRoleId();
-		Role info = roleMapper.checkRoleKeyUnique(role.getRoleKey());
-		if (Objects.nonNull(info) && info.getRoleId().longValue() != roleId.longValue()) {
-			return UserConstants.NOT_UNIQUE;
-		}
-		return UserConstants.UNIQUE;
+	public List<Role> getByUserId(Long userId) {
+		return roleMapper.selectByUserId(userId);
 	}
 
 	/**
@@ -408,21 +326,11 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	 * 
 	 * @param role 角色信息
 	 */
+	@Override
 	public void checkRoleAllowed(Role role) {
 		if (Objects.nonNull(role.getRoleId()) && role.getRoleId() == 1) {
 			throw new ResultException("不允许操作超级管理员角色");
 		}
-	}
-
-	/**
-	 * 通过角色ID查询角色使用数量
-	 * 
-	 * @param roleId 角色ID
-	 * @return 结果
-	 */
-	@Override
-	public int countUserRoleByRoleId(Long roleId) {
-		return userRoleMapper.countUserRoleByRoleId(roleId);
 	}
 
 	/**
@@ -432,14 +340,7 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	 * @return 结果
 	 */
 	@Override
-	@Transactional
 	public Object insertSelective(Role role) {
-		if (StrUtils.isNotBlank(checkRoleNameUnique(role))) {
-			throw new ResultException("新增角色'" + role.getRoleName() + "'失败，角色名称已存在");
-		} else if (StrUtils.isNotBlank(checkRoleKeyUnique(role))) {
-			throw new ResultException("新增角色'" + role.getRoleName() + "'失败，角色权限已存在");
-		}
-		// 新增角色信息
 		roleMapper.insertSelective(role);
 		return insertRoleMenu(role);
 	}
@@ -451,14 +352,8 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	 * @return 结果
 	 */
 	@Override
-	@Transactional
 	public int updateSelective(Role role) {
 		checkRoleAllowed(role);
-		if (StrUtils.isNotBlank(checkRoleNameUnique(role))) {
-			throw new ResultException("修改角色'" + role.getRoleName() + "'失败，角色名称已存在");
-		} else if (StrUtils.isNotBlank(checkRoleKeyUnique(role))) {
-			throw new ResultException("修改角色'" + role.getRoleName() + "'失败，角色权限已存在");
-		}
 		// 修改角色信息
 		roleMapper.updateByPrimaryKeySelective(role);
 		// 删除角色与菜单关联
@@ -509,7 +404,7 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 			list.add(rm);
 		}
 		if (list.size() > 0) {
-			rows = roleMenuMapper.batchRoleMenu(list);
+			roleMenuMapper.inserts(list);
 		}
 		return rows;
 	}
@@ -523,10 +418,10 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 		int rows = 1;
 		// 新增角色与部门（数据权限）管理
 		List<RoleDepart> list = new ArrayList<RoleDepart>();
-		for (Long deptId : role.getDeptIds()) {
+		for (Long deptId : role.getDepartIds()) {
 			RoleDepart rd = new RoleDepart();
 			rd.setRoleId(role.getRoleId());
-			rd.setDeptId(deptId);
+			rd.setDepartId(deptId);
 			list.add(rd);
 		}
 		if (list.size() > 0) {
@@ -545,7 +440,7 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 		for (Long roleId : roleIds) {
 			checkRoleAllowed(Role.builder().roleId(roleId).build());
 			Role role = baseMapper.selectByPrimaryKey(roleId);
-			if (countUserRoleByRoleId(roleId) > 0) {
+			if (userRoleMapper.countByEntity(UserRole.builder().roleId(roleId).build()) > 0) {
 				throw new ResultException(String.format("%1$s已分配,不能删除", role.getRoleName()));
 			}
 		}

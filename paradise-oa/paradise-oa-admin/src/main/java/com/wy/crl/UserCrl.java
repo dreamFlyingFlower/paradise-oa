@@ -35,7 +35,7 @@ import com.wy.service.MenuService;
 import com.wy.service.UserService;
 import com.wy.util.FileUploadUtils;
 import com.wy.util.SecurityUtils;
-import com.wy.util.spring.ServletUtils;
+import com.wy.util.ServletUtils;
 import com.wy.utils.MapUtils;
 
 import io.swagger.annotations.Api;
@@ -126,7 +126,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	public Result<?> export(User user, HttpServletResponse response) {
 		List<User> list = userService.selectUserList(user).getData();
 		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getCommon().getDownloadPath() + File.separator + "用户数据.xlsx");
+				config.getFileinfo().getDownloadPath() + File.separator + "用户数据.xlsx");
 		return Result.ok();
 	}
 
@@ -254,7 +254,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	public Result<?> avatar(@RequestParam("avatarfile") MultipartFile file) throws IOException {
 		if (!file.isEmpty()) {
 			User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-			String avatar = FileUploadUtils.upload(config.getCommon().getAvatarPath(), file);
+			String avatar = FileUploadUtils.upload(config.getFileinfo().getAvatarPath(), file);
 			if (userService.updateUserAvatar(loginUser.getUsername(), avatar)) {
 				HashMap<String, String> hashMap = new HashMap<>();
 				hashMap.put("imgUrl", avatar);

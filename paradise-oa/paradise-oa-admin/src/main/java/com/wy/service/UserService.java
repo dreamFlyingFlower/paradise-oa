@@ -53,30 +53,6 @@ public interface UserService extends BaseService<User, Long>, UserDetailsService
 	String selectUserRoleGroup(String username);
 
 	/**
-	 * 校验用户名称是否唯一
-	 * 
-	 * @param userName 用户名称
-	 * @return 结果
-	 */
-	String checkUserNameUnique(String username);
-
-	/**
-	 * 校验手机号码是否唯一
-	 * 
-	 * @param user 用户信息
-	 * @return 结果
-	 */
-	String checkPhoneUnique(User user);
-
-	/**
-	 * 校验email是否唯一
-	 * 
-	 * @param user 用户信息
-	 * @return 结果
-	 */
-	String checkEmailUnique(User user);
-
-	/**
 	 * 校验用户是否允许操作
 	 * 
 	 * @param user 用户信息

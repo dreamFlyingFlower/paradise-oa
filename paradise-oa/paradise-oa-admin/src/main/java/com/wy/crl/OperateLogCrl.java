@@ -49,7 +49,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 	public Result<?> export(OperateLog operLog, HttpServletResponse response) {
 		List<OperateLog> list = operateLogService.getEntitys(operLog).getData();
 		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getCommon().getDownloadPath() + File.separator + "操作日志.xlsx");
+				config.getFileinfo().getDownloadPath() + File.separator + "操作日志.xlsx");
 		return Result.ok();
 	}
 

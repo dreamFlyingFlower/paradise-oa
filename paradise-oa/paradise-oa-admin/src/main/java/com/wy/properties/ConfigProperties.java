@@ -28,6 +28,9 @@ public class ConfigProperties {
 	/** redis缓存配置 */
 	private CacheProperties cache = new CacheProperties();
 
+	/** 文件相关配置 */
+	private FileinfoProperties fileinfo = new FileinfoProperties();
+
 	/** rabbitmq配置 */
 	private RabbitMqProperties rabbitmq = new RabbitMqProperties();
 

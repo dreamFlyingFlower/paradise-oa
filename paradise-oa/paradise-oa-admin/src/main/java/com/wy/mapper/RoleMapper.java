@@ -48,12 +48,12 @@ public interface RoleMapper extends BaseMapper<Role, Long> {
 	List<Role> selectRolePermissionByUserId(Long userId);
 
 	/**
-	 * 根据用户ID获取角色选择框列表
+	 * 根据用户编号获取角色列表
 	 * 
-	 * @param userId 用户ID
-	 * @return 选中角色ID列表
+	 * @param userId 用户编号
+	 * @return 用户角色列表
 	 */
-	List<Long> selectRoleListByUserId(Long userId);
+	List<Role> selectByUserId(Long userId);
 
 	/**
 	 * 根据用户ID查询角色

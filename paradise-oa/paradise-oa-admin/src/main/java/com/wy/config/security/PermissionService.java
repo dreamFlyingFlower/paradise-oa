@@ -9,7 +9,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.wy.model.Role;
 import com.wy.model.User;
-import com.wy.util.spring.ServletUtils;
+import com.wy.util.ServletUtils;
 import com.wy.utils.StrUtils;
 
 /**

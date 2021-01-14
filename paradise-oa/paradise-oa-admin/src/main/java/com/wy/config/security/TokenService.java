@@ -11,17 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.sun.org.apache.xml.internal.security.algorithms.SignatureAlgorithm;
 import com.wy.common.Constants;
 import com.wy.crypto.CryptoUtils;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
-import com.wy.util.IpUtils;
-import com.wy.util.spring.ServletUtils;
 
-import eu.bitwalker.useragentutils.UserAgent;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * @apiNote token验证处理 FIXME
@@ -90,7 +87,6 @@ public class TokenService {
 	public String createToken(User user) {
 		String token = CryptoUtils.UUID();
 		user.setToken(token);
-		setUserAgent(user);
 		refreshToken(user);
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(config.getCache().getUserLoginKey(), token);
@@ -104,7 +100,7 @@ public class TokenService {
 	 * @return 令牌
 	 */
 	public void verifyToken(User loginUser) {
-		long expireTime = loginUser.getExpireTime();
+		long expireTime = config.getApi().getTokenExpireTime();
 		long currentTime = System.currentTimeMillis();
 		if (expireTime - currentTime <= MILLIS_MINUTE_TEN) {
 			refreshToken(loginUser);
@@ -117,27 +113,11 @@ public class TokenService {
 	 * @param loginUser 登录信息
 	 */
 	public void refreshToken(User loginUser) {
-		loginUser.setLoginTime(System.currentTimeMillis());
 		loginUser.setExpireTime(loginUser.getLoginTime()
 				+ config.getApi().getTokenTimeUnit().toMillis(config.getApi().getTokenExpireTime()));
 		String userKey = getTokenKey(loginUser.getToken());
 		redisTemplate.opsForValue().set(userKey, loginUser, config.getApi().getTokenExpireTime(),
 				config.getApi().getTokenTimeUnit());
-	}
-
-	/**
-	 * 设置用户代理信息
-	 * 
-	 * @param loginUser 登录信息
-	 */
-	public void setUserAgent(User loginUser) {
-		UserAgent userAgent = UserAgent
-				.parseUserAgentString(ServletUtils.getHttpServletRequest().getHeader("User-Agent"));
-		String ip = IpUtils.getIpByRequest(ServletUtils.getHttpServletRequest());
-		loginUser.setIpaddr(ip);
-		loginUser.setLoginLocation(IpUtils.getAddressByIp(ip));
-		loginUser.setBrowser(userAgent.getBrowser().getName());
-		loginUser.setOs(userAgent.getOperatingSystem().getName());
 	}
 
 	/**

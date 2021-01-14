@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -14,10 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.PageInfo;
-import com.wy.annotation.PermissionScope;
 import com.wy.base.AbstractService;
-import com.wy.common.Props;
-import com.wy.common.UserConstants;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.BooleanEnum;
 import com.wy.enums.TipEnum;
@@ -35,7 +33,7 @@ import com.wy.result.ResultException;
 import com.wy.service.MenuService;
 import com.wy.service.UserService;
 import com.wy.util.SecurityUtils;
-import com.wy.util.spring.ServletUtils;
+import com.wy.util.ServletUtils;
 import com.wy.utils.ListUtils;
 import com.wy.utils.StrUtils;
 
@@ -176,12 +174,12 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	/**
-	 * @apiNote 根据条件分页查询用户列表 FIXME
+	 * 根据条件分页查询用户列表 FIXME
+	 * 
 	 * @param user 用户信息
 	 * @return 用户信息集合信息
 	 */
 	@Override
-	@PermissionScope(deptAlias = "d", userAlias = "u")
 	public Result<List<User>> selectUserList(User user) {
 		startPage(user);
 		List<User> list = userMapper.selectEntitys(user);
@@ -220,53 +218,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	/**
-	 * 校验用户名称是否唯一
-	 * 
-	 * @param userName 用户名称
-	 * @return 结果
-	 */
-	@Override
-	public String checkUserNameUnique(String userName) {
-		int count = userMapper.checkUserNameUnique(userName);
-		if (count > 0) {
-			return UserConstants.NOT_UNIQUE;
-		}
-		return UserConstants.UNIQUE;
-	}
-
-	/**
-	 * 校验用户名称是否唯一
-	 * 
-	 * @param user 用户信息
-	 * @return
-	 */
-	@Override
-	public String checkPhoneUnique(User user) {
-		Long userId = Objects.isNull(user.getUserId()) ? -1L : user.getUserId();
-		User info = userMapper.checkPhoneUnique(user.getMobile());
-		if (Objects.nonNull(info) && info.getUserId().longValue() != userId.longValue()) {
-			return UserConstants.NOT_UNIQUE;
-		}
-		return UserConstants.UNIQUE;
-	}
-
-	/**
-	 * 校验email是否唯一
-	 * 
-	 * @param user 用户信息
-	 * @return
-	 */
-	@Override
-	public String checkEmailUnique(User user) {
-		Long userId = Objects.isNull(user.getUserId()) ? -1L : user.getUserId();
-		User info = userMapper.checkEmailUnique(user.getEmail());
-		if (Objects.nonNull(info) && info.getUserId().longValue() != userId.longValue()) {
-			return UserConstants.NOT_UNIQUE;
-		}
-		return UserConstants.UNIQUE;
-	}
-
-	/**
 	 * 校验用户是否允许操作
 	 * 
 	 * @param user 用户信息
@@ -289,9 +240,9 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
 		String password = user.getPassword();
 		if (StrUtils.isBlank(password)) {
-			password = Props.DEFAULT_PWD;
+			password = config.getCommon().getDefaultPwd();
 		} else {
-			String temp_pwd = CryptoUtils.AESSimpleCrypt(password, Props.SECRET_KEY_USER, false);
+			String temp_pwd = CryptoUtils.AESSimpleCrypt(password, config.getCommon().getSecretKeyUser(), false);
 			password = temp_pwd.substring(0, temp_pwd.lastIndexOf("_"));
 			if (password.length() > 12) {
 				throw new ResultException("密码长度不能超过12位");
@@ -329,7 +280,9 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	public Object getById(Long id) {
 		User user = baseMapper.selectByPrimaryKey(id);
 		user.setRoles(roleMapper.selectEntitys(new Role()));
-		user.setRoleIds(roleMapper.selectRoleListByUserId(id));
+		user.setRoleIds(roleMapper.selectByUserId(id).stream().map(t -> {
+			return t.getRoleId();
+		}).collect(Collectors.toList()));
 		return user;
 	}
 
@@ -460,7 +413,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 				// 验证是否存在这个用户
 				User u = userMapper.selectByUsername(user.getUsername());
 				if (Objects.isNull(u)) {
-					user.setPassword(SecurityUtils.encryptPassword(u.getPassword()));
+					user.setPassword(SecurityUtils.encryptPassword(config.getCommon().getDefaultPwd()));
 					this.insertSelective(user);
 					successNum++;
 					successMsg.append("<br/>" + successNum + "、账号 " + user.getUsername() + " 导入成功");
