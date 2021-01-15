@@ -6,6 +6,9 @@ import javax.validation.ConstraintViolationException;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -70,14 +73,13 @@ public class ExceptionFilter {
 		}
 		// 必传参数为空异常
 		if (throwable instanceof MissingServletRequestParameterException) {
-			return Result.error(TipsEnum.TIP_PARAM_EMPTY.getMsg(
-					((MissingServletRequestParameterException) throwable).getParameterName()));
+			return Result.error(TipsEnum.TIP_PARAM_EMPTY
+					.getMsg(((MissingServletRequestParameterException) throwable).getParameterName()));
 		}
 		// 方法参数验证失败
 		if (throwable instanceof MethodArgumentNotValidException) {
 			StringBuilder sb = new StringBuilder();
-			BindingResult bindingResult = ((MethodArgumentNotValidException) throwable)
-					.getBindingResult();
+			BindingResult bindingResult = ((MethodArgumentNotValidException) throwable).getBindingResult();
 			// 解析原错误信息,封装后返回,此处返回非法的字段名称，原始值，错误信息
 			for (FieldError error : bindingResult.getFieldErrors()) {
 				sb.append("字段：" + error.getField() + "-" + error.getRejectedValue() + ";");
@@ -111,32 +113,25 @@ public class ExceptionFilter {
 	/**
 	 * 权限访问异常,
 	 */
-	// @ExceptionHandler(value = AuthenticationException.class)
-	// public Object
-	// AuthenticationExceptionHandler(AuthenticationException e)
-	// {
-	// return Result.resultErr(-500, "没有访问权限");
-	// }
+	@ExceptionHandler(value = AuthenticationException.class)
+	public Object AuthenticationExceptionHandler(AuthenticationException e) {
+		return Result.error(-500, "没有访问权限");
+	}
 
 	/**
 	 * 方法访问权限不足异常
 	 */
-	// @ExceptionHandler(AccessDeniedException.class)
-	// public Object
-	// AccessDeniedExceptionHandler(AccessDeniedException
-	// exception)
-	// throws Exception {
-	// return Result.resultErr(-500, "没有访问权限");
-	// }
+	@ExceptionHandler(AccessDeniedException.class)
+	public Object AccessDeniedExceptionHandler(AccessDeniedException exception) throws Exception {
+		return Result.error(-500, "没有访问权限");
+	}
 
 	/**
 	 * 非正常的权限访问异常
 	 */
-	// @ExceptionHandler(value = BadCredentialsException.class)
-	// public Object
-	// BadCredentialsExceptionHandler(BadCredentialsException e)
-	// throws Exception {
-	// return Result.resultErr(-500, "请求验证异常");
-	// }
+	@ExceptionHandler(value = BadCredentialsException.class)
+	public Object BadCredentialsExceptionHandler(BadCredentialsException e) throws Exception {
+		return Result.error(-500, "请求验证异常");
+	}
 	/*-----------------需要springboot的spring-boot-starter-security包 -----------------*/
 }

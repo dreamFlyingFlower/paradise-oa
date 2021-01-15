@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.wy.util.Threads;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 线程池配置
@@ -18,6 +18,7 @@ import com.wy.util.Threads;
  * @date 2020年4月8日 上午12:19:38
  */
 @Configuration
+@Slf4j
 public class ThreadPoolConfig {
 
 	// 核心线程池大小
@@ -55,7 +56,7 @@ public class ThreadPoolConfig {
 			@Override
 			protected void afterExecute(Runnable r, Throwable t) {
 				super.afterExecute(r, t);
-				Threads.printException(r, t);
+				log.error(t.getMessage());
 			}
 		};
 	}
