@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.wy.filter.RepeatedlyRequestWrapper;
+import com.wy.utils.JsonUtils;
 import com.wy.utils.StrUtils;
 
 /**
@@ -57,15 +59,14 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor {
 			Map<String, Object> nowDataMap = new HashMap<String, Object>();
 			nowDataMap.put(REPEAT_PARAMS, nowParams);
 			nowDataMap.put(REPEAT_TIME, System.currentTimeMillis());
-
-			// 请求地址（作为存放cache的key值）
+			// 请求地址,作为存放cache的key值
 			String url = request.getRequestURI();
-
 			Object sessionObj = redisTemplate.opsForValue().get(CACHE_REPEAT_KEY);
 			if (sessionObj != null) {
-				Map<String, Object> sessionMap = (Map<String, Object>) sessionObj;
+				Map<String, Object> sessionMap = JsonUtils
+						.parseMap(JSON.toJSONString(redisTemplate.opsForValue().get(CACHE_REPEAT_KEY)));
 				if (sessionMap.containsKey(url)) {
-					Map<String, Object> preDataMap = (Map<String, Object>) sessionMap.get(url);
+					Map<String, Object> preDataMap = JsonUtils.parseMap(JSON.toJSONString(sessionMap.get(url)));
 					if (compareParams(nowDataMap, preDataMap) && compareTime(nowDataMap, preDataMap)) {
 						return true;
 					}
