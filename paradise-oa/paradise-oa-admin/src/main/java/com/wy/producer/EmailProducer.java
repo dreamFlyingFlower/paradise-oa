@@ -5,10 +5,11 @@
 //import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.stereotype.Component;
 //
-//import com.wy.model.old.Email;
+//import com.wy.model.vo.EmailVo;
 //
 ///**
-// * @apiNote 广播模式发送生产者
+// * 广播模式发送生产者
+// * 
 // * @author ParadiseWY
 // * @date 2020/3/18 10:46
 // */
@@ -17,11 +18,11 @@
 //
 //	@Autowired
 //	private AmqpTemplate amqpTemplate;
-//	
+//
 //	@Value("${config.rabbitmq.exchange-email}")
 //	private String exchageEmail;
-//	
-//	public void sendEmail(Email email) {
+//
+//	public void sendEmail(EmailVo email) {
 //		amqpTemplate.convertAndSend(exchageEmail, "", email);
 //	}
 //}

@@ -14,6 +14,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
@@ -21,7 +22,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import com.alibaba.fastjson.JSON;
 import com.wy.annotation.Log;
 import com.wy.config.security.TokenService;
-import com.wy.enums.HttpMethod;
 import com.wy.enums.TipEnum;
 import com.wy.manager.AsyncTask;
 import com.wy.model.OperateLog;
@@ -47,7 +47,6 @@ public class LogAspect {
 	@Autowired
 	private AsyncTask asyncTask;
 
-	// 配置织入点
 	@Pointcut("@annotation(com.wy.annotation.Log)")
 	public void logPointCut() {}
 
@@ -83,18 +82,16 @@ public class LogAspect {
 			// 获取当前的用户
 			User loginUser = SpringContextUtils.getBean(TokenService.class)
 					.getLoginUser(ServletUtils.getHttpServletRequest());
-			// *========数据库日志=========*//
+			// 数据库日志
 			OperateLog operLog = new OperateLog();
 			operLog.setState(TipEnum.TIP_RESPONSE_SUCCESS.getCode());
 			// 请求的地址
 			String ip = IpUtils.getIpByRequest(ServletUtils.getHttpServletRequest());
 			operLog.setOperateIp(ip);
-
 			operLog.setOperateUrl(ServletUtils.getHttpServletRequest().getRequestURI());
 			if (loginUser != null) {
 				operLog.setOperateName(loginUser.getUsername());
 			}
-
 			if (e != null) {
 				operLog.setState(TipEnum.TIP_RESPONSE_FAIL.getCode());
 				operLog.setErrorMsg(e.getMessage().substring(0, 2000));
@@ -134,15 +131,15 @@ public class LogAspect {
 		operLog.setTitle(log.title());
 		// 设置操作人类别
 		operLog.setOperateType(log.operatorType().ordinal());
-		// 是否需要保存request，参数和值
+		// 是否需要保存request,参数和值
 		if (log.isSaveRequestData()) {
-			// 获取参数的信息，传入到数据库中。
+			// 获取参数的信息,传入到数据库中
 			setRequestValue(joinPoint, operLog);
 		}
 	}
 
 	/**
-	 * 获取请求的参数，放到log中
+	 * 获取请求的参数,放到log中
 	 * 
 	 * @param operLog 操作日志
 	 * @throws Exception 异常
@@ -160,7 +157,7 @@ public class LogAspect {
 	}
 
 	/**
-	 * 是否存在注解，如果存在就获取
+	 * 是否存在注解,如果存在就获取
 	 */
 	private Log getAnnotationLog(JoinPoint joinPoint) throws Exception {
 		Signature signature = joinPoint.getSignature();
@@ -190,10 +187,10 @@ public class LogAspect {
 	}
 
 	/**
-	 * 判断是否需要过滤的对象。
+	 * 判断是否需要过滤的对象
 	 * 
-	 * @param o 对象信息。
-	 * @return 如果是需要过滤的对象，则返回true；否则返回false。
+	 * @param o 对象信息
+	 * @return 如果是需要过滤的对象,则返回true;否则返回false
 	 */
 	public boolean isFilterObject(final Object o) {
 		return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse;

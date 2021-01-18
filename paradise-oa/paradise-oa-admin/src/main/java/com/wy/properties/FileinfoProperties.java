@@ -14,6 +14,9 @@ import lombok.Setter;
 @Setter
 public class FileinfoProperties {
 
+	/** 上传的文件名最大长度,需要根据数据库修改 */
+	private int fileNameLength = 64;
+
 	/** 上传文件本地存储地址 */
 	private String fileLocal = "E:\\repository\\gitee\\work\\SimpleOA\\src\\main\\resources\\static\\upload";
 

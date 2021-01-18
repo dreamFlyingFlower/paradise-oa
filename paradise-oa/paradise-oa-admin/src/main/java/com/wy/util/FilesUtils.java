@@ -13,23 +13,29 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.Files;
 import com.wy.crypto.CryptoUtils;
+import com.wy.enums.DateEnum;
+import com.wy.enums.TipResult;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
-import com.wy.utils.DateUtils;
+import com.wy.utils.DateTimeUtils;
 import com.wy.utils.StrUtils;
 
 /**
- * 本项目所有上传文件的接口都必须是文件先上传成功,文件上传到本地, 然后将上传成功的文件数据插入到数据库表中,之后再进行其他操作,方便统一管理上传文件
+ * 本项目所有上传文件的接口
+ * 
+ * 文件先成功上传到本地, 然后将上传成功的文件数据插入到数据库表中,之后再进行其他操作,方便统一管理上传文件
  * 为方便文件备份或转移,上传的文件都以当天文件夹区分,文件命名方式为:32位uuid_yyyyMMdd
  * 
- * @author paradiseWy
+ * @author 飞花梦影
+ * @date 2021-01-18 11:34:41
+ * @git {@link https://github.com/mygodness100}
  */
 public class FilesUtils {
 
-	// 文件名格式化字符串
+	/** 文件名格式化字符串 */
 	private static final String FILE_FORMATTER = "{0}_{1}";
 
-	// 文件后缀名匹配
+	/** 文件后缀名匹配 */
 	private static final Map<Integer, List<String>> FILE_SUFFIXMAP = new HashMap<Integer, List<String>>() {
 
 		private static final long serialVersionUID = 1L;
@@ -38,14 +44,16 @@ public class FilesUtils {
 			put(1, Arrays.asList("BMP", "PNG", "GIF", "JPG", "JPEG"));
 			put(2, Arrays.asList("MP4", "AVI", "3GP", "RM", "RMVB", "WMV"));
 			put(3, Arrays.asList("AMR", "MP3", "WMA", "WAV", "MID"));
-			put(4, Arrays.asList("TXT", "JSON", "XML"));
+			put(4, Arrays.asList("TXT", "JSON", "XML", "PDF", "DOC", "DOCX", "XLS", "XLSX", "PPT", "PPTX"));
+			put(5, Arrays.asList("RAR", "ZIP", "GZ", "BZ2", "7Z"));
 		}
 	};
 
 	/**
 	 * 检查文件是否匹配,并返回文件存贮路径
 	 * 
-	 * @param suffix 后缀名,需要带上点
+	 * @param suffix 后缀名
+	 * @return 文件类型
 	 */
 	public static int getFileType(String suffix) {
 		if (StrUtils.isNotBlank(suffix)) {
@@ -55,7 +63,7 @@ public class FilesUtils {
 				}
 			}
 		}
-		return 5;
+		return 0;
 	}
 
 	/**
@@ -95,21 +103,25 @@ public class FilesUtils {
 	 */
 	public static String saveFile(MultipartFile file) {
 		if (file == null || file.isEmpty()) {
-			throw new ResultException("未获取到文件流");
+			throw new ResultException(TipResult.UPLOAD_FILE_STREAM_NOT_FOUND);
 		}
 		String originalFilename = file.getOriginalFilename();
 		if (StrUtils.isBlank(originalFilename)) {
-			throw new ResultException("文件名不存在, 请检查");
+			throw new ResultException(TipResult.UPLOAD_FILE_NAME_NOT_EXIST);
+		}
+		if (originalFilename.length() > SpringContextUtils.getBean(ConfigProperties.class).getFileinfo()
+				.getFileNameLength()) {
+			throw new ResultException(TipResult.UPLOAD_FILE_NAME_OVER);
 		}
 		String extension = Files.getFileExtension(originalFilename);
 		String localName = MessageFormat.format(FILE_FORMATTER, CryptoUtils.UUID(),
-				DateUtils.format(new Date(), "yyyyMMdd"));
+				DateTimeUtils.format(new Date(), DateEnum.DATE_NONE.getPattern()));
 		localName = StrUtils.isBlank(extension) ? localName : MessageFormat.format("{0}.{1}", localName, extension);
 		try {
 			file.transferTo(getNewPath(localName));
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
-			throw new ResultException("文件服务器处理失败");
+			throw new ResultException(TipResult.UPLOAD_FILE_FAILED);
 		}
 		return localName;
 	}

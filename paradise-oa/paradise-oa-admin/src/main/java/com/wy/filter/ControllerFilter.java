@@ -19,7 +19,8 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @description 监听所有http请求,打印请求参数以及结果日志
+ * 监听所有http请求,打印请求参数以及结果日志
+ * 
  * @author ParadiseWY
  * @date 2019年4月11日 下午2:18:09
  */
@@ -30,10 +31,13 @@ public class ControllerFilter {
 
 	// 申明一个切点 里面是 execution表达式
 	@Pointcut("execution(public * com.wy.crl.*.*(..))")
-	private void controllerAspect() {
-	}
+	private void controllerAspect() {}
 
-	// 请求method前打印内容
+	/**
+	 * 请求method前打印内容
+	 * 
+	 * @param joinPoint 切面
+	 */
 	@Before(value = "controllerAspect()")
 	public void methodBefore(JoinPoint joinPoint) {
 		ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
@@ -55,7 +59,11 @@ public class ControllerFilter {
 		}
 	}
 
-	// 在方法执行完结后打印返回内容
+	/**
+	 * 在方法执行完结后打印返回内容
+	 * 
+	 * @param o 结果对象
+	 */
 	@AfterReturning(returning = "o", pointcut = "controllerAspect()")
 	public void methodAfterReturing(Object o) {
 		try {

@@ -21,15 +21,19 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * @description 使用swagger2自动生成文档,文档查看地址http://ip:port/swagger-ui.html#/
- * @author ParadiseWy
- * @date 2019年6月10日 下午10:22:53
+ * 使用swagger2自动生成文档,文档查看地址http://ip:port/swagger-ui.html#/
+ * 	
+ *	@author 飞花梦影
+ *	@date 2019-06-10 22:22:53
+ * @git {@link https://github.com/mygodness100}
  */
 @Configuration
 @EnableSwagger2
 public class Swagger2Config {
+
 	/**
 	 * 配置swagger2文档相关信息
+	 * 
 	 * @return 实例
 	 */
 	@Bean

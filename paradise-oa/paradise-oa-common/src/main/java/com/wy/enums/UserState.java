@@ -1,6 +1,7 @@
 package com.wy.enums;
 
 import com.wy.common.PropConverter;
+import com.wy.common.TipCode;
 
 /**
  * 用户状态
@@ -8,33 +9,32 @@ import com.wy.common.PropConverter;
  * @author ParadiseWY
  * @date 2020年4月8日 上午12:25:18
  */
-public enum UserState implements PropConverter {
+public enum UserState implements TipCode, PropConverter {
 
-	USER_BLACK(0, "黑名单"),
-	USER_NORMAL(1, "正常"),
-	USER_LEAVE(2, "放假中"),
-	USER_RESIGNING(3, "离职中"),
-	USER_DELETE(4, "逻辑删除");
+	USER_BLACK("黑名单"),
+	USER_NORMAL("正常"),
+	USER_LOCK("锁定"),
+	USER_LEAVE("休假"),
+	USER_RESIGNING("离职中"),
+	USER_RESIGNED("离职"),
+	USER_DELETE("逻辑删除");
 
-	private final int code;
+	private final String msg;
 
-	private final String info;
-
-	UserState(int code, String info) {
-		this.code = code;
-		this.info = info;
+	UserState(String msg) {
+		this.msg = msg;
 	}
 
 	public int getCode() {
-		return code;
+		return this.ordinal();
 	}
 
-	public String getInfo() {
-		return info;
+	public String getMsg() {
+		return this.msg;
 	}
 
 	@Override
 	public Object getValue() {
-		return info;
+		return msg;
 	}
 }

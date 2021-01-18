@@ -53,7 +53,7 @@ public class Fileinfo extends AbstractModel {
 	/**
 	 * 文件类型:1图片;2音频;3视频;4文本;默认5其他
 	 */
-	@ApiModelProperty("文件类型:1图片;2音频;3视频;4文本;默认5其他")
+	@ApiModelProperty("文件类型:默认0其他;1图片;2音频;3视频;4文本;5压缩文件;")
 	private Integer fileType;
 
 	/**

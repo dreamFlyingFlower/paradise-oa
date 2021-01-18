@@ -1,6 +1,7 @@
 package com.wy.util;
 
 import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,24 @@ public class ServletUtils {
 	 */
 	public static HttpServletResponse getHttpServletResponse() {
 		return getServletRequestAttributes().getResponse();
+	}
+
+	/**
+	 * 获得request中的header枚举
+	 * 
+	 * @return request中的header枚举
+	 */
+	public static Enumeration<String> getHttpServletHeader() {
+		return getHttpServletRequest().getHeaderNames();
+	}
+
+	/**
+	 * 获得request中的header指定key的value
+	 * 
+	 * @return request中的header指定key的value
+	 */
+	public static String getHttpServletHeader(String key) {
+		return getHttpServletRequest().getHeader(key);
 	}
 
 	/**
@@ -166,17 +185,14 @@ public class ServletUtils {
 		if (accept != null && accept.indexOf("application/json") != -1) {
 			return true;
 		}
-
 		String xRequestedWith = request.getHeader("X-Requested-With");
 		if (xRequestedWith != null && xRequestedWith.indexOf("XMLHttpRequest") != -1) {
 			return true;
 		}
-
 		String uri = request.getRequestURI();
 		if (StrUtils.contains(uri, ".json") || StrUtils.contains(uri, ".xml")) {
 			return true;
 		}
-
 		String ajax = request.getParameter("__ajax");
 		if (StrUtils.contains(ajax, ".json") || StrUtils.contains(ajax, ".xml")) {
 			return true;

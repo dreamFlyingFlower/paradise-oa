@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -73,7 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// 添加JWT拦截
 				.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
 				// 认证失败处理类
-//				 .exceptionHandling().authenticationEntryPoint(loginFailureHandle).and()
+				// .exceptionHandling().authenticationEntryPoint(loginFailureHandle).and()
 				.exceptionHandling().authenticationEntryPoint(new SecurityEntryPoint(null)).and()
 				// 基于token,所以不需要session
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
@@ -91,5 +92,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
 				// 自定义登出方法
 				.and().logout().logoutUrl("/user/logout").logoutSuccessHandler(logoutSuccessHandler);
+	}
+
+	@Override
+	public void configure(WebSecurity web) throws Exception {
+		web.ignoring().antMatchers(
+				config.getApi().getExcludeApis().toArray(new String[config.getApi().getExcludeApis().size()]));
 	}
 }

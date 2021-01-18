@@ -6,10 +6,11 @@ import java.util.Map;
 import org.springframework.lang.Nullable;
 
 /**
- * 请求方式,将删除 FIXME
- *
- * @author ParadiseWY
- * @date 2020年4月8日 上午12:24:36
+ * 请求方式,将删除,同springboot中的HttpMethod枚举
+ * 
+ * @author 飞花梦影
+ * @date 2020-04-08 12:24:36
+ * @git {@link https://github.com/mygodness100}
  */
 public enum HttpMethod {
 

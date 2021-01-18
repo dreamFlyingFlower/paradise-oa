@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.wy.base.AbstractModel;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Unique;
-import com.wy.enums.Sex;
+import com.wy.enums.SexEnum;
 import com.wy.enums.UserState;
 import com.wy.excel.annotation.ExcelColumn;
 import com.wy.valid.ValidEdit;
@@ -97,7 +97,7 @@ public class User extends AbstractModel implements UserDetails {
 	 * 性别,见ts_dict表SEX
 	 */
 	@ApiModelProperty("性别,见ts_dict表SEX")
-	@ExcelColumn(value = "用户性别", propConverter = Sex.class)
+	@ExcelColumn(value = "用户性别", propConverter = SexEnum.class)
 	private String sex;
 
 	/**

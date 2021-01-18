@@ -1,6 +1,7 @@
 package com.wy.filter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 import javax.servlet.FilterChain;
@@ -13,14 +14,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.wy.config.security.TokenService;
 import com.wy.model.User;
+import com.wy.properties.ConfigProperties;
 import com.wy.util.SecurityUtils;
+import com.wy.utils.ListUtils;
 
 /**
- * token过滤器,验证token有效性
+ * token过滤器,验证token有效性 FIXME 测试是否需要在websecurity中配置
  *
  * @author ParadiseWY
  * @date 2020年4月8日 上午12:28:32
@@ -31,9 +35,29 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 	@Autowired
 	private TokenService tokenService;
 
+	@Autowired
+	private ConfigProperties config;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		// 直接放过/和/csrf
+		if (request.getRequestURI().equals("/") || request.getRequestURI().equalsIgnoreCase("/csrf")) {
+			chain.doFilter(request, response);
+			return;
+		}
+		// 放过其他web请求
+		if (ListUtils.isNotBlank(config.getApi().getExcludeApis())) {
+			AntPathMatcher pathMatcher = new AntPathMatcher();
+			List<String> excludeApis = config.getApi().getExcludeApis();
+			for (String pattern : excludeApis) {
+				// 必须已经添加在WebSecurity的ignore列表中才有效
+				if (pathMatcher.match(pattern, request.getRequestURI())) {
+					chain.doFilter(request, response);
+					return;
+				}
+			}
+		}
 		User loginUser = tokenService.getLoginUser(request);
 		if (Objects.nonNull(loginUser) && Objects.isNull(SecurityUtils.getAuthentication())) {
 			tokenService.verifyToken(loginUser);

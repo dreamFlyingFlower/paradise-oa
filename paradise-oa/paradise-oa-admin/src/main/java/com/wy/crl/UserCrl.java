@@ -33,7 +33,7 @@ import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.MenuService;
 import com.wy.service.UserService;
-import com.wy.util.FileUploadUtils;
+import com.wy.util.FilesUtils;
 import com.wy.util.SecurityUtils;
 import com.wy.util.ServletUtils;
 import com.wy.utils.MapUtils;
@@ -250,11 +250,11 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * 头像上传
 	 */
 	@Log(title = "用户头像", businessType = BusinessType.UPDATE)
-	@PostMapping("/avatar")
+	@PostMapping("avatar")
 	public Result<?> avatar(@RequestParam("avatarfile") MultipartFile file) throws IOException {
 		if (!file.isEmpty()) {
 			User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-			String avatar = FileUploadUtils.upload(config.getFileinfo().getAvatarPath(), file);
+			String avatar = FilesUtils.saveFile(file);
 			if (userService.updateUserAvatar(loginUser.getUsername(), avatar)) {
 				HashMap<String, String> hashMap = new HashMap<>();
 				hashMap.put("imgUrl", avatar);
