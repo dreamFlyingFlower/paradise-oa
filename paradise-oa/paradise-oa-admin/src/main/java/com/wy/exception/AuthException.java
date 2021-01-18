@@ -2,11 +2,12 @@ package com.wy.exception;
 
 import org.springframework.security.core.AuthenticationException;
 
+import com.wy.common.TipCode;
 import com.wy.enums.TipEnum;
 
 /**
- * @apiNote 自定义安全认证请求异常
- * @apiNote 在securiy的所有请求中,必须继承AuthenticationException,否则自定义异常无法正确返回给前端
+ * 自定义安全认证请求异常,在securiy的所有请求中,必须继承AuthenticationException,否则自定义异常无法正确返回给前端
+ * 
  * @author ParadiseWY
  * @date 2020年4月2日 下午11:23:56
  */
@@ -24,8 +25,8 @@ public class AuthException extends AuthenticationException {
 		this(TipEnum.TIP_SYS_ERROR);
 	}
 
-	public AuthException(TipEnum tipEnum) {
-		this(tipEnum.getCode(), tipEnum.getMsg(), null);
+	public AuthException(TipCode tipCode) {
+		this(tipCode.getCode(), tipCode.getMsg(), null);
 	}
 
 	public AuthException(CharSequence message) {
@@ -34,6 +35,10 @@ public class AuthException extends AuthenticationException {
 
 	public AuthException(int code, CharSequence message) {
 		this(code, message, null);
+	}
+
+	public AuthException(Throwable e) {
+		this(0, e);
 	}
 
 	public AuthException(int code, Throwable ex) {

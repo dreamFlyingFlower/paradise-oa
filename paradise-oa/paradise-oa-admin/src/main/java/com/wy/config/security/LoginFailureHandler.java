@@ -17,7 +17,8 @@ import com.wy.exception.AuthException;
 import com.wy.result.Result;
 
 /**
- * @apiNote security认证失败处理,若无法正常返回自定义异常,可尝试实现AuthenticationEntryPoint接口 FIXME
+ * security认证失败处理,只能处理登录失败的情况,若是抛出了异常,由 SecurityEntryPoint 处理
+ * 
  * @author ParadiseWY
  * @date 2020年4月2日 下午11:20:13
  */

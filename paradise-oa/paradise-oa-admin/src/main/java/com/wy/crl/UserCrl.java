@@ -1,6 +1,5 @@
 package com.wy.crl;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +28,6 @@ import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
 import com.wy.model.Menu;
 import com.wy.model.User;
-import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.MenuService;
 import com.wy.service.UserService;
@@ -62,25 +60,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@Autowired
 	private MenuService menuService;
 
-	@Autowired
-	private ConfigProperties config;
-
-	/**
-	 * @apiNote 登录
-	 * @param username 用户名
-	 * @param password 密码
-	 * @param code 验证码
-	 * @param uuid 唯一标识
-	 * @return 结果
-	 */
-	// @ApiOperation("登录")
-	// @GetMapping("login")
-	// public Result<?> login(@ApiParam("用户名") String username,
-	// @ApiParam("使用AES加密后的密码") String password,
-	// @ApiParam("验证码") String code, @ApiParam("唯一标识") String uuid) {
-	// return Result.ok(userService.login(username, password, code, uuid));
-	// }
-
 	/**
 	 * @apiNote 获取用户信息
 	 * @return 用户信息
@@ -110,9 +89,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		return Result.ok(menuService.buildMenus(menus));
 	}
 
-	/**
-	 * @apiNote 获取用户列表
-	 */
 	@ApiOperation("获取用户列表")
 	@PreAuthorize("@ss.hasPermi('system:user:list')")
 	@GetMapping("list")
@@ -125,8 +101,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@GetMapping("export")
 	public Result<?> export(User user, HttpServletResponse response) {
 		List<User> list = userService.selectUserList(user).getData();
-		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getFileinfo().getDownloadPath() + File.separator + "用户数据.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response, "用户数据.xlsx");
 		return Result.ok();
 	}
 

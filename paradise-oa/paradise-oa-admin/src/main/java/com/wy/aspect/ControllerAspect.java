@@ -1,4 +1,4 @@
-package com.wy.filter;
+package com.wy.aspect;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @Component
 @Slf4j
-public class ControllerFilter {
+public class ControllerAspect {
 
 	// 申明一个切点 里面是 execution表达式
 	@Pointcut("execution(public * com.wy.crl.*.*(..))")

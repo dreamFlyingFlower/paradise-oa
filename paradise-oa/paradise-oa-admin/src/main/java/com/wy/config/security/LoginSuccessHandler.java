@@ -29,7 +29,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		// 什么都不做的话，那就直接调用父类的方法
+		// 什么都不做的话,那就直接调用父类的方法
 		// super.onAuthenticationSuccess(request, response, authentication);
 
 		// 允许跨域
@@ -38,14 +38,14 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 		response.setHeader("Access-Control-Allow-Headers",
 				"token, Accept, Origin, X-Requested-With, Content-Type, Last-Modified");
 
-		// 这里可以根据实际情况，来确定是跳转到页面或者json格式。
-		// 如果是返回json格式，那么我们这么写
+		// 这里可以根据实际情况,来确定是跳转到页面或者json格式
+		// 如果是返回json格式,那么我们这么写
 
 		Result<?> result = Result.ok("登录成功", authentication.getPrincipal());
 		response.setContentType("application/json;charset=UTF-8");
 		response.getWriter().write(objectMapper.writeValueAsString(result));
 
-		// 如果是要跳转到某个页面的，比如我们的那个whoim的则
+		// 如果是要跳转到某个页面的,比如我们的那个whoim的则
 		// new DefaultRedirectStrategy().sendRedirect(request, response, "/whoim");
 	}
 }

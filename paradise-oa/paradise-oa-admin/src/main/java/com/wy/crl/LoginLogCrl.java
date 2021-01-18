@@ -1,6 +1,5 @@
 package com.wy.crl;
 
-import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +15,6 @@ import com.wy.base.AbstractCrl;
 import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
 import com.wy.model.LoginLog;
-import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.LoginLogService;
 
@@ -37,9 +35,6 @@ public class LoginLogCrl extends AbstractCrl<LoginLog, Long> {
 	@Autowired
 	private LoginLogService loginLogService;
 
-	@Autowired
-	private ConfigProperties config;
-
 	// @PreAuthorize("@ss.hasPermi('monitor:logininfor:list')")
 
 	@Log(title = "登陆日志", businessType = BusinessType.EXPORT)
@@ -47,8 +42,7 @@ public class LoginLogCrl extends AbstractCrl<LoginLog, Long> {
 	@GetMapping("export")
 	public Result<?> export(LoginLog loginLog, HttpServletResponse response) {
 		List<LoginLog> list = loginLogService.selectLogininforList(loginLog).getData();
-		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getFileinfo().getDownloadPath() + File.separator + "登陆日志.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response, "登陆日志.xlsx");
 		return Result.ok();
 	}
 

@@ -30,7 +30,7 @@ import com.wy.utils.ListUtils;
  * @date 2020年4月8日 上午12:28:32
  */
 @Component
-public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
+public class JwtTokenFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private TokenService tokenService;
@@ -42,7 +42,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
 		// 直接放过/和/csrf
-		if (request.getRequestURI().equals("/") || request.getRequestURI().equalsIgnoreCase("/csrf")) {
+		if (request.getRequestURI().equals("/") 
+				|| request.getRequestURI().equalsIgnoreCase("/csrf")
+				|| request.getRequestURI().equalsIgnoreCase("/favicon.ico")) {
 			chain.doFilter(request, response);
 			return;
 		}
@@ -51,7 +53,6 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 			AntPathMatcher pathMatcher = new AntPathMatcher();
 			List<String> excludeApis = config.getApi().getExcludeApis();
 			for (String pattern : excludeApis) {
-				// 必须已经添加在WebSecurity的ignore列表中才有效
 				if (pathMatcher.match(pattern, request.getRequestURI())) {
 					chain.doFilter(request, response);
 					return;

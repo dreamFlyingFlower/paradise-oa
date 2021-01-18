@@ -12,11 +12,11 @@ import com.wy.utils.StrUtils;
  * @author ParadiseWY
  * @date 2020年4月6日 下午7:56:56
  */
-public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper {
+public class XssRequestWrapper extends HttpServletRequestWrapper {
 
 	private boolean includeRichText;
 
-	public XssHttpServletRequestWrapper(HttpServletRequest request, boolean includeRichText) {
+	public XssRequestWrapper(HttpServletRequest request, boolean includeRichText) {
 		super(request);
 		this.includeRichText = includeRichText;
 	}

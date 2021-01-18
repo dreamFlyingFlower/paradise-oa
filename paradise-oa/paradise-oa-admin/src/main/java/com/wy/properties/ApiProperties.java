@@ -22,6 +22,12 @@ public class ApiProperties {
 	/** 是否进行api校验,默认不校验 */
 	private boolean validApi = false;
 
+	/** 是否检查验证码 */
+	private boolean validCode = false;
+
+	/** 是否验证短信验证码 */
+	private boolean validSms = false;
+
 	/** 不需要进行校验的api列表 */
 	private List<String> excludeApis = new ArrayList<>(Arrays.asList("/login", "/user/login"));
 

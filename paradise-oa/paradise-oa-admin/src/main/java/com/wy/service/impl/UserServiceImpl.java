@@ -20,6 +20,7 @@ import com.wy.crypto.CryptoUtils;
 import com.wy.enums.BooleanEnum;
 import com.wy.enums.TipEnum;
 import com.wy.enums.UserState;
+import com.wy.exception.AuthException;
 import com.wy.manager.AsyncTask;
 import com.wy.mapper.RoleMapper;
 import com.wy.mapper.UserMapper;
@@ -76,34 +77,36 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		String code = ServletUtils.getParameter("code");
-		if (StrUtils.isBlank(code)) {
-			throw new ResultException("验证码不能为空");
+		if (config.getApi().isValidCode()) {
+			String code = ServletUtils.getParameter("code");
+			if (StrUtils.isBlank(code)) {
+				throw new AuthException("验证码不能为空");
+			}
+			String sessionCode = ServletUtils.getHttpSession().getAttribute(config.getCache().getIdentifyCodeKey())
+					.toString();
+			if (StrUtils.isBlank(sessionCode)) {
+				asyncTask.recordLogininfo(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
+						messageSource.getMessage("user.code.expire", null, Locale.getDefault()));
+				throw new ResultException("验证码过期");
+			}
+			if (!Objects.equals(code, sessionCode)) {
+				asyncTask.recordLogininfo(username, BooleanEnum.NO.ordinal(),
+						messageSource.getMessage("user.code.error", null, Locale.getDefault()));
+				throw new ResultException("验证码错误,请重新输入或刷新验证码");
+			}
+			// 验证过后删除session中的缓存
+			ServletUtils.getHttpSession().removeAttribute(config.getCache().getIdentifyCodeKey());
 		}
-		String sessionCode = ServletUtils.getHttpSession().getAttribute(config.getCache().getIdentifyCodeKey())
-				.toString();
-		if (StrUtils.isBlank(sessionCode)) {
-			asyncTask.recordLogininfo(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
-					messageSource.getMessage("user.code.expire", null, Locale.getDefault()));
-			throw new ResultException("验证码过期");
-		}
-		if (!Objects.equals(code, sessionCode)) {
-			asyncTask.recordLogininfo(username, BooleanEnum.NO.ordinal(),
-					messageSource.getMessage("user.code.error", null, Locale.getDefault()));
-			throw new ResultException("验证码错误,请重新输入或刷新验证码");
-		}
-		// 验证过后删除session中的缓存
-		ServletUtils.getHttpSession().removeAttribute(config.getCache().getIdentifyCodeKey());
-		User user = selectByUsername(username);
+		User user = userMapper.selectByUsername(username);
 		if (Objects.isNull(user)) {
 			log.info("登录用户:{}不存在.", username);
-			throw new ResultException("对不起,您的帐号:" + username + " 不存在");
+			throw new AuthException("对不起,帐号:" + username + " 不存在");
 		} else if (UserState.USER_DELETE.getCode() == user.getState()) {
 			log.info("登录用户:{}已被删除.", username);
-			throw new ResultException("对不起,您的账号:" + username + " 已被删除");
+			throw new ResultException("对不起,账号:" + username + " 已被删除");
 		} else if (UserState.USER_BLACK.getCode() == user.getState()) {
 			log.info("登录用户:{}是黑名单用户.", username);
-			throw new ResultException("对不起,您的账号:" + username + "是黑名单帐号,请联系客服");
+			throw new ResultException("对不起,账号:" + username + "是黑名单帐号,请联系客服");
 		}
 		user.setPermissions(menuService.getMenuPermission(user.getUserId()));
 		return user;

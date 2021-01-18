@@ -19,7 +19,8 @@ import com.wy.result.ResultException;
 import com.wy.service.UserService;
 
 /**
- * @apiNote 自定义登录的验证方法,从数据库中取出用户数据封装后返回
+ * 自定义登录的验证方法,从数据库中取出用户数据封装后返回
+ * 
  * @author ParadiseWY
  * @date 2020年4月2日 下午11:33:49
  */

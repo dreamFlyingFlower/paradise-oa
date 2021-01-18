@@ -20,11 +20,11 @@ import org.apache.commons.io.IOUtils;
  * @author ParadiseWY
  * @date 2020年4月8日 上午12:29:05
  */
-public class RepeatedlyRequestWrapper extends HttpServletRequestWrapper {
+public class RepeateRequestWrapper extends HttpServletRequestWrapper {
 
 	private final byte[] body;
 
-	public RepeatedlyRequestWrapper(HttpServletRequest request, ServletResponse response) throws IOException {
+	public RepeateRequestWrapper(HttpServletRequest request, ServletResponse response) throws IOException {
 		super(request);
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");

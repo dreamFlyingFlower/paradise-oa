@@ -88,7 +88,8 @@ public class ApiFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * @apiNote 处理token,间隔一定时间将redis中的过期时间重新设置
+	 * 处理token,间隔一定时间将redis中的过期时间重新设置
+	 * 
 	 * @param auth token
 	 */
 	private void restoreToken(Map<Object, Object> entity, String auth) {

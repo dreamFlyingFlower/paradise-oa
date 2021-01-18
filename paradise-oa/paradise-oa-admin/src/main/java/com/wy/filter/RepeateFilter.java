@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author ParadiseWY
  * @date 2020年4月8日 上午12:28:48
  */
-public class RepeatableFilter implements Filter {
+public class RepeateFilter implements Filter {
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -27,7 +27,7 @@ public class RepeatableFilter implements Filter {
 			throws IOException, ServletException {
 		ServletRequest requestWrapper = null;
 		if (request instanceof HttpServletRequest) {
-			requestWrapper = new RepeatedlyRequestWrapper((HttpServletRequest) request, response);
+			requestWrapper = new RepeateRequestWrapper((HttpServletRequest) request, response);
 		}
 		if (null == requestWrapper) {
 			chain.doFilter(request, response);

@@ -1,6 +1,5 @@
 package com.wy.crl;
 
-import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +17,6 @@ import com.wy.base.AbstractCrl;
 import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
 import com.wy.model.Role;
-import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.RoleService;
 
@@ -39,9 +37,6 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@Autowired
 	private RoleService roleService;
 
-	@Autowired
-	private ConfigProperties config;
-
 	@PreAuthorize("@ss.hasPermi('system:role:list')")
 	@GetMapping("/list")
 	public Result<?> list(Role role) {
@@ -55,8 +50,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	@GetMapping("export")
 	public Result<?> export(Role role, HttpServletResponse response) {
 		List<Role> list = roleService.getEntitys(role).getData();
-		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getFileinfo().getDownloadPath() + File.separator + "角色数据.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response, "角色数据.xlsx");
 		return Result.ok();
 	}
 

@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatProperties;
 import com.alibaba.druid.util.Utils;
-import com.wy.filter.RepeatableFilter;
+import com.wy.filter.RepeateFilter;
 import com.wy.filter.XssFilter;
 import com.wy.properties.ConfigProperties;
 
@@ -63,8 +63,8 @@ public class GlobalFilterConfig {
 	 */
 	@Bean
 	public FilterRegistrationBean<?> someFilterRegistration() {
-		FilterRegistrationBean<RepeatableFilter> registration = new FilterRegistrationBean<>();
-		registration.setFilter(new RepeatableFilter());
+		FilterRegistrationBean<RepeateFilter> registration = new FilterRegistrationBean<>();
+		registration.setFilter(new RepeateFilter());
 		registration.addUrlPatterns("/*");
 		registration.setName("repeatableFilter");
 		registration.setOrder(FilterRegistrationBean.LOWEST_PRECEDENCE);

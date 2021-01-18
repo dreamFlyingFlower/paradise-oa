@@ -1,6 +1,5 @@
 package com.wy.crl;
 
-import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +16,6 @@ import com.wy.base.AbstractCrl;
 import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
 import com.wy.model.OperateLog;
-import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.OperateLogService;
 
@@ -38,9 +36,6 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 	@Autowired
 	private OperateLogService operateLogService;
 
-	@Autowired
-	private ConfigProperties config;
-
 	// @PreAuthorize("@ss.hasPermi('monitor:operlog:list')")
 
 	@Log(title = "操作日志", businessType = BusinessType.EXPORT)
@@ -48,8 +43,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 	@GetMapping("/export")
 	public Result<?> export(OperateLog operLog, HttpServletResponse response) {
 		List<OperateLog> list = operateLogService.getEntitys(operLog).getData();
-		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getFileinfo().getDownloadPath() + File.separator + "操作日志.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response, "操作日志.xlsx");
 		return Result.ok();
 	}
 

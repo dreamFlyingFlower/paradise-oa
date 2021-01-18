@@ -22,16 +22,4 @@ public class FileinfoProperties {
 
 	/** 服务器访问本地文件地址;不在数据库中存储http地址,防止http变动文件访问不了 */
 	private String fileHttp = "http://192.168.1.170:12345/upload";
-
-	/** 上传或下载文件目录,非本系统资源目录 */
-	private String profile;
-
-	/** 获取头像上传路径 */
-	private String avatarPath = profile + "avatar";
-
-	/** 获取下载路径 */
-	private String downloadPath = profile + "download";
-
-	/** 获取上传路径 */
-	private String uploadPath = profile + "upload";
 }

@@ -22,6 +22,7 @@ import com.wy.util.ServletUtils;
  */
 @Component
 public abstract class RepeatSubmitInterceptor extends HandlerInterceptorAdapter {
+
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
@@ -45,8 +46,7 @@ public abstract class RepeatSubmitInterceptor extends HandlerInterceptorAdapter 
 	 * 验证是否重复提交由子类实现具体的防重复提交的规则
 	 * 
 	 * @param httpServletRequest
-	 * @return
-	 * @throws Exception
+	 * @return 是否重复提交
 	 */
 	public abstract boolean isRepeatSubmit(HttpServletRequest request);
 }

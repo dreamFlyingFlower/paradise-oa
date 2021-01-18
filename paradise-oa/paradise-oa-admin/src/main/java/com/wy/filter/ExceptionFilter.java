@@ -6,10 +6,7 @@ import javax.validation.ConstraintViolationException;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -23,6 +20,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.alibaba.fastjson.JSONException;
 import com.wy.enums.TipFormatEnum;
+import com.wy.exception.AuthException;
 import com.wy.result.Result;
 import com.wy.result.ResultException;
 
@@ -38,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ExceptionFilter {
 
-	@ExceptionHandler(Throwable.class)
+	@ExceptionHandler({ AuthException.class, AuthenticationException.class, Throwable.class })
 	public Result<?> handleException(HttpServletRequest request, Throwable throwable) {
 		throwable.printStackTrace();
 		log.error(request.getRemoteHost(), request.getRequestURL(), throwable.getMessage());
@@ -99,40 +97,4 @@ public class ExceptionFilter {
 		}
 		return Result.error(throwable.getMessage());
 	}
-
-	@ExceptionHandler(BindException.class)
-	public Result<?> bindException(BindException e) {
-		StringBuilder sb = new StringBuilder();
-		// 解析原错误信息，封装后返回，此处返回非法的字段名称，原始值，错误信息
-		for (FieldError error : e.getFieldErrors()) {
-			sb.append(error.getDefaultMessage() + ";");
-		}
-		return Result.error(sb.toString());
-	}
-
-	/*-----------------需要springboot的spring-boot-starter-security包 -----------------*/
-	/**
-	 * 权限访问异常,
-	 */
-	@ExceptionHandler(value = AuthenticationException.class)
-	public Object AuthenticationExceptionHandler(AuthenticationException e) {
-		return Result.error(-500, "没有访问权限");
-	}
-
-	/**
-	 * 方法访问权限不足异常
-	 */
-	@ExceptionHandler(AccessDeniedException.class)
-	public Object AccessDeniedExceptionHandler(AccessDeniedException exception) throws Exception {
-		return Result.error(-500, "没有访问权限");
-	}
-
-	/**
-	 * 非正常的权限访问异常
-	 */
-	@ExceptionHandler(value = BadCredentialsException.class)
-	public Object BadCredentialsExceptionHandler(BadCredentialsException e) throws Exception {
-		return Result.error(-500, "请求验证异常");
-	}
-	/*-----------------需要springboot的spring-boot-starter-security包 -----------------*/
 }

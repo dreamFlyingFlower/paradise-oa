@@ -5,13 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.wy.filter.JwtAuthenticationTokenFilter;
+import com.wy.filter.JwtTokenFilter;
 import com.wy.properties.ConfigProperties;
 
 /**
@@ -43,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	/** token认证过滤器 */
 	@Autowired
-	private JwtAuthenticationTokenFilter authenticationTokenFilter;
+	private JwtTokenFilter authenticationTokenFilter;
 
 	/** 自定义登录拦截属性 */
 	@Autowired
@@ -92,11 +91,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
 				// 自定义登出方法
 				.and().logout().logoutUrl("/user/logout").logoutSuccessHandler(logoutSuccessHandler);
-	}
-
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers(
-				config.getApi().getExcludeApis().toArray(new String[config.getApi().getExcludeApis().size()]));
 	}
 }

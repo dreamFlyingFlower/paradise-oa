@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.wy.filter.RepeatedlyRequestWrapper;
+import com.wy.filter.RepeateRequestWrapper;
 import com.wy.utils.JsonUtils;
 import com.wy.utils.StrUtils;
 
@@ -48,11 +48,11 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor {
 
 	@Override
 	public boolean isRepeatSubmit(HttpServletRequest request) {
-		RepeatedlyRequestWrapper repeatedlyRequest = (RepeatedlyRequestWrapper) request;
+		RepeateRequestWrapper repeatedlyRequest = (RepeateRequestWrapper) request;
 		try {
 			String nowParams = String.join("",
 					IOUtils.readLines(repeatedlyRequest.getInputStream(), StandardCharsets.UTF_8));
-			// body参数为空，获取Parameter的数据
+			// body参数为空,获取Parameter的数据
 			if (StrUtils.isBlank(nowParams)) {
 				nowParams = JSONObject.toJSONString(request.getParameterMap());
 			}

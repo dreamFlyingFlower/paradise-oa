@@ -1,6 +1,5 @@
 package com.wy.crl;
 
-import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +16,6 @@ import com.wy.base.AbstractCrl;
 import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
 import com.wy.model.Dict;
-import com.wy.properties.ConfigProperties;
 import com.wy.result.Result;
 import com.wy.service.DictService;
 
@@ -52,9 +50,6 @@ public class DictCrl extends AbstractCrl<Dict, Long> {
 		return Result.ok(dictService.getChildren(dicCode));
 	}
 
-	@Autowired
-	private ConfigProperties config;
-
 	@PreAuthorize("@ss.hasPermi('system:dict:list')")
 	@GetMapping("/list")
 	public Result<?> list(Dict dictData) {
@@ -66,8 +61,7 @@ public class DictCrl extends AbstractCrl<Dict, Long> {
 	@GetMapping("/export")
 	public Result<?> export(Dict dictData, HttpServletResponse response) {
 		List<Dict> list = dictService.selectDictList(dictData).getData();
-		ExcelModelUtils.getInstance().exportExcel(list, response,
-				config.getFileinfo().getDownloadPath() + File.separator + "字典数据.xlsx");
+		ExcelModelUtils.getInstance().exportExcel(list, response, "字典数据.xlsx");
 		return Result.ok();
 	}
 

@@ -40,9 +40,9 @@ public interface UserMapper extends BaseMapper<User, Long> {
 	int updateByPrimaryKey(User record);
 
 	/**
-	 * 通过用户名查询用户
+	 * 通过用户名精准查询用户信息
 	 * 
-	 * @param userName 用户名
+	 * @param username 用户名
 	 * @return 用户对象信息
 	 */
 	User selectByUsername(String username);

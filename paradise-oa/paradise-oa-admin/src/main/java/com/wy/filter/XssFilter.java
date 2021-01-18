@@ -67,7 +67,7 @@ public class XssFilter implements Filter {
 			chain.doFilter(request, response);
 			return;
 		}
-		XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper((HttpServletRequest) request,
+		XssRequestWrapper xssRequest = new XssRequestWrapper((HttpServletRequest) request,
 				includeRichText);
 		chain.doFilter(xssRequest, response);
 	}
