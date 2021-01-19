@@ -10,6 +10,7 @@ spring:
     active: dev
   jackson: 
     date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non-empty
   mvc: 
     format:
       date-time: yyyy-MM-dd HH:mm:ss

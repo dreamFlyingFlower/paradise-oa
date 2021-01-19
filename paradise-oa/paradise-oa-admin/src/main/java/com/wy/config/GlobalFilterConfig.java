@@ -62,7 +62,7 @@ public class GlobalFilterConfig {
 	 * @return 拦截器
 	 */
 	@Bean
-	public FilterRegistrationBean<?> someFilterRegistration() {
+	public FilterRegistrationBean<?> sameFilterRegistration() {
 		FilterRegistrationBean<RepeateFilter> registration = new FilterRegistrationBean<>();
 		registration.setFilter(new RepeateFilter());
 		registration.addUrlPatterns("/*");

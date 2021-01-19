@@ -36,4 +36,7 @@ public class ConfigProperties {
 
 	/** 所有拦截器参数 */
 	private FilterProperties filter = new FilterProperties();
+
+	/** token配置 */
+	private TokenProperties token = new TokenProperties();
 }

@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wy.base.AbstractService;
-import com.wy.config.security.TokenService;
+import com.wy.component.TokenService;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.BooleanEnum;
 import com.wy.enums.TipEnum;
@@ -137,7 +137,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	public int update(User t) {
 		assertModifyed(t);
 		// 修改缓存信息
-		tokenService.setLoginUser(t);
+		tokenService.refreshToken(t);
 		return super.update(t);
 	}
 
@@ -265,7 +265,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		userMapper.updateByPrimaryKeySelective(
 				User.builder().userId(loginUser.getUserId()).avatar(fileinfo.getFileUrl()).build());
 		loginUser.setAvatar(fileinfo.getFileUrl());
-		tokenService.setLoginUser(loginUser);
+		tokenService.refreshToken(loginUser);
 		// 原头像地址
 		String originalAvatar = loginUser.getAvatar();
 		// 删除本地原头像

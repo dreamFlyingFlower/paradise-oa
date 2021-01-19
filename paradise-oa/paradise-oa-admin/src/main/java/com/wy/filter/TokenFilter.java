@@ -17,20 +17,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.wy.config.security.TokenService;
+import com.wy.component.TokenService;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.util.SecurityUtils;
 import com.wy.utils.ListUtils;
 
 /**
- * token过滤器,验证token有效性 FIXME 测试是否需要在websecurity中配置
+ * token过滤器,验证token有效
  *
  * @author ParadiseWY
  * @date 2020年4月8日 上午12:28:32
  */
 @Component
-public class JwtTokenFilter extends OncePerRequestFilter {
+public class TokenFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private TokenService tokenService;
@@ -41,9 +41,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		// 不进行token拦截
+		if (!config.getFilter().isTokenEnable()) {
+			chain.doFilter(request, response);
+			return;
+		}
 		// 直接放过/和/csrf
-		if (request.getRequestURI().equals("/") 
-				|| request.getRequestURI().equalsIgnoreCase("/csrf")
+		if (request.getRequestURI().equals("/") || request.getRequestURI().equalsIgnoreCase("/csrf")
 				|| request.getRequestURI().equalsIgnoreCase("/favicon.ico")) {
 			chain.doFilter(request, response);
 			return;

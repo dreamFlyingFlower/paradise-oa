@@ -2,6 +2,7 @@ package com.wy.manager;
 
 import java.util.TimerTask;
 
+import com.wy.component.SpringContextService;
 import com.wy.model.LoginLog;
 import com.wy.model.OperateLog;
 import com.wy.properties.ConfigProperties;
@@ -9,7 +10,6 @@ import com.wy.service.LoginLogService;
 import com.wy.service.OperateLogService;
 import com.wy.util.IpUtils;
 import com.wy.util.ServletUtils;
-import com.wy.util.SpringContextUtils;
 
 import eu.bitwalker.useragentutils.UserAgent;
 
@@ -41,7 +41,7 @@ public class AsyncFactory {
 			@Override
 			public void run() {
 				String address = IpUtils.getAddressByIp(ip,
-						SpringContextUtils.getBean(ConfigProperties.class).getCommon().isAddressOpt());
+						SpringContextService.getBean(ConfigProperties.class).getCommon().isAddressOpt());
 				LoginLog logininfor = new LoginLog();
 				logininfor.setUsername(username);
 				logininfor.setLoginIp(ip);
@@ -50,7 +50,7 @@ public class AsyncFactory {
 				logininfor.setOs(userAgent.getOperatingSystem().getName());
 				logininfor.setRemark(message);
 				logininfor.setState(state);
-				SpringContextUtils.getBean(LoginLogService.class).insertSelective(logininfor);
+				SpringContextService.getBean(LoginLogService.class).insertSelective(logininfor);
 			}
 		};
 	}
@@ -68,8 +68,8 @@ public class AsyncFactory {
 			public void run() {
 				// 远程查询操作地点
 				operLog.setOperatePlace(IpUtils.getAddressByIp(operLog.getOperateIp(),
-						SpringContextUtils.getBean(ConfigProperties.class).getCommon().isAddressOpt()));
-				SpringContextUtils.getBean(OperateLogService.class).insertSelective(operLog);
+						SpringContextService.getBean(ConfigProperties.class).getCommon().isAddressOpt()));
+				SpringContextService.getBean(OperateLogService.class).insertSelective(operLog);
 			}
 		};
 	}

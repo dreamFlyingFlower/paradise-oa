@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wy.component.TokenService;
 import com.wy.enums.TipEnum;
 import com.wy.manager.AsyncTask;
 import com.wy.model.User;

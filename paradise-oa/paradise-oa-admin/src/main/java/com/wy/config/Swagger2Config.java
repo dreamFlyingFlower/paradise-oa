@@ -22,9 +22,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * 使用swagger2自动生成文档,文档查看地址http://ip:port/swagger-ui.html#/
- * 	
- *	@author 飞花梦影
- *	@date 2019-06-10 22:22:53
+ * 
+ * @author 飞花梦影
+ * @date 2019-06-10 22:22:53
  * @git {@link https://github.com/mygodness100}
  */
 @Configuration
@@ -53,7 +53,8 @@ public class Swagger2Config {
 	}
 
 	/**
-	 * @apiNote 添加摘要信息
+	 * 添加摘要信息
+	 * 
 	 * @return 摘要信息
 	 */
 	private ApiInfo apiInfo() {
@@ -61,7 +62,7 @@ public class Swagger2Config {
 	}
 
 	/**
-	 * @apiNote 安全模式,这里指定token通过Authorization头请求头传递
+	 * 安全模式,这里指定token通过Authorization头请求头传递
 	 */
 	private List<ApiKey> securitySchemes() {
 		List<ApiKey> apiKeyList = new ArrayList<ApiKey>();
@@ -70,7 +71,7 @@ public class Swagger2Config {
 	}
 
 	/**
-	 * @apiNote 安全上下文
+	 * 安全上下文
 	 */
 	private List<SecurityContext> securityContexts() {
 		List<SecurityContext> securityContexts = new ArrayList<>();
@@ -80,7 +81,7 @@ public class Swagger2Config {
 	}
 
 	/**
-	 * @apiNote 默认的安全上引用
+	 * 默认的安全上引用
 	 */
 	private List<SecurityReference> defaultAuth() {
 		AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");

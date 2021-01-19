@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wy.base.AbstractModel;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Unique;
@@ -71,6 +72,7 @@ public class User extends AbstractModel implements UserDetails {
 	 * 密码,md5加密
 	 */
 	@ApiModelProperty("密码,md5加密")
+	@JsonIgnore
 	private String password;
 
 	/**

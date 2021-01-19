@@ -14,16 +14,16 @@ public interface Constants {
 	int PAGE_SIZE = 10;
 
 	/** 验证码redis key */
-	String CAPTCHA_CODE_KEY = "key_captcha_codes:";
+	String REDIS_KEY_CAPTCHA_CODE = "key_captcha_code:";
 
 	/** 登录用户redis key */
-	String LOGIN_TOKEN_KEY = "key_login_tokens:";
+	String REDIS_KEY_TOKEN = "key_token:";
 
 	/** 验证码有效期,单位分钟 */
 	int CAPTCHA_EXPIRATION = 2;
 
 	/** 用户token */
-	String TOKEN = "token";
+	String TOKEN = "login_token";
 
 	/** 令牌前缀 */
 	String TOKEN_PREFIX = "Bearer ";

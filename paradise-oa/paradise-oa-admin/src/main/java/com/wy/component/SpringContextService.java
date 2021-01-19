@@ -1,4 +1,4 @@
-package com.wy.util;
+package com.wy.component;
 
 import java.util.Map;
 
@@ -17,13 +17,13 @@ import org.springframework.stereotype.Component;
  * @git {@link https://github.com/mygodness100}
  */
 @Component
-public final class SpringContextUtils implements InitializingBean, ApplicationContextAware {
+public final class SpringContextService implements InitializingBean, ApplicationContextAware {
 
 	private static ApplicationContext applicationContext;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		SpringContextUtils.applicationContext = applicationContext;
+		SpringContextService.applicationContext = applicationContext;
 	}
 
 	@Override

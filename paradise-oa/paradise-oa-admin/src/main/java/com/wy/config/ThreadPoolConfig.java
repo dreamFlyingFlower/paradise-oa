@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * 线程池配置
  *
  * @author ParadiseWY
- * @date 2020年4月8日 上午12:19:38
+ * @date 2020-04-08 12:19:38
  */
 @Configuration
 @Slf4j

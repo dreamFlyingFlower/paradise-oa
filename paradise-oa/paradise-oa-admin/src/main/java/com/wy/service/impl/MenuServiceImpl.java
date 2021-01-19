@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wy.base.AbstractService;
-import com.wy.config.security.TokenService;
+import com.wy.component.TokenService;
 import com.wy.mapper.MenuMapper;
 import com.wy.mapper.RoleMenuMapper;
 import com.wy.model.Menu;

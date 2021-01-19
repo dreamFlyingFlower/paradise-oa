@@ -21,14 +21,14 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import com.alibaba.fastjson.JSON;
 import com.wy.annotation.Log;
-import com.wy.config.security.TokenService;
+import com.wy.component.SpringContextService;
+import com.wy.component.TokenService;
 import com.wy.enums.TipEnum;
 import com.wy.manager.AsyncTask;
 import com.wy.model.OperateLog;
 import com.wy.model.User;
 import com.wy.util.IpUtils;
 import com.wy.util.ServletUtils;
-import com.wy.util.SpringContextUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -80,7 +80,7 @@ public class LogAspect {
 			}
 
 			// 获取当前的用户
-			User loginUser = SpringContextUtils.getBean(TokenService.class)
+			User loginUser = SpringContextService.getBean(TokenService.class)
 					.getLoginUser(ServletUtils.getHttpServletRequest());
 			// 数据库日志
 			OperateLog operLog = new OperateLog();

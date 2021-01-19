@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSON;
 import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
-import com.wy.config.security.TokenService;
+import com.wy.component.TokenService;
 import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
 import com.wy.model.Menu;
@@ -163,7 +163,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		if (userService.resetUserPwd(loginUser.getUserId(), SecurityUtils.encode(newPassword)) > 0) {
 			// 更新缓存用户密码
 			loginUser.setPassword(SecurityUtils.encode(newPassword));
-			tokenService.setLoginUser(loginUser);
+			tokenService.refreshToken(loginUser);
 			return Result.ok();
 		}
 		return Result.error("修改密码异常,请联系管理员");

@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
+import com.wy.component.TokenService;
 import com.wy.crypto.CryptoUtils;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
@@ -47,8 +48,8 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 			throw new BadCredentialsException("用户名不存在");
 		}
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
-		String decodePwd = (String) authentication.getCredentials();
-		String password = CryptoUtils.AESSimpleCrypt(decodePwd, config.getCommon().getSecretKeyUser(), false);
+		String password = (String) authentication.getCredentials();
+		password = CryptoUtils.AESSimpleCrypt(password, config.getCommon().getSecretKeyUser(), false);
 		password = password.substring(0, password.lastIndexOf("_"));
 		if (password.length() > 12) {
 			throw new ResultException("密码长度不能超过12位");
@@ -58,7 +59,9 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 			throw new BadCredentialsException("密码不正确");
 		}
 		// 设置token
-		tokenService.createToken(user);
+		if (config.getFilter().isTokenEnable()) {
+			tokenService.createToken(user);
+		}
 		// 这里还可以加一些其他信息的判断,比如用户账号已停用等判断,这里为了方便我接下去的判断
 		Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
 		// 构建返回的用户登录成功的token

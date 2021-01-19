@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import com.wy.component.TokenService;
 import com.wy.model.Role;
 import com.wy.model.User;
 import com.wy.util.ServletUtils;

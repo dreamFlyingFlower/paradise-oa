@@ -45,6 +45,10 @@ public class SecurityUtils {
 	public static String encode(String password) {
 		return new BCryptPasswordEncoder().encode(password);
 	}
+	
+	public static void main(String[] args) {
+		System.out.println(encode("123456"));
+	}
 
 	/**
 	 * 判断密码是否相同

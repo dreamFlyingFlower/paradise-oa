@@ -1,4 +1,4 @@
-package com.wy.util;
+package com.wy.component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,33 +18,32 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 /**
- * reidstemplate工具类
+ * reidst工具类
  *
  * @author ParadiseWY
- * @date 2020年4月8日 上午12:35:36
+ * @date 2020-04-08 12:35:36
  */
-@SuppressWarnings(value = { "unchecked", "rawtypes" })
 @Component
-public class RedisUtils {
+public class RedisService {
 
 	@Autowired
-	public RedisTemplate redisTemplate;
+	public RedisTemplate<Object, Object> redisTemplate;
 
 	/**
-	 * 缓存基本的对象，Integer、String、实体类等
+	 * 缓存基本对象
 	 * 
 	 * @param key 缓存的键值
 	 * @param value 缓存的值
 	 * @return 缓存的对象
 	 */
-	public <T> ValueOperations<String, T> setCacheObject(String key, T value) {
-		ValueOperations<String, T> operation = redisTemplate.opsForValue();
+	public ValueOperations<Object, Object> setObject(String key, Object value) {
+		ValueOperations<Object, Object> operation = redisTemplate.opsForValue();
 		operation.set(key, value);
 		return operation;
 	}
 
 	/**
-	 * 缓存基本的对象，Integer、String、实体类等
+	 * 缓存基本对象
 	 * 
 	 * @param key 缓存的键值
 	 * @param value 缓存的值
@@ -52,8 +51,8 @@ public class RedisUtils {
 	 * @param timeUnit 时间颗粒度
 	 * @return 缓存的对象
 	 */
-	public <T> ValueOperations<String, T> setCacheObject(String key, T value, Integer timeout, TimeUnit timeUnit) {
-		ValueOperations<String, T> operation = redisTemplate.opsForValue();
+	public ValueOperations<Object, Object> setObject(String key, Object value, Integer timeout, TimeUnit timeUnit) {
+		ValueOperations<Object, Object> operation = redisTemplate.opsForValue();
 		operation.set(key, value, timeout, timeUnit);
 		return operation;
 	}
@@ -64,8 +63,8 @@ public class RedisUtils {
 	 * @param key 缓存键值
 	 * @return 缓存键值对应的数据
 	 */
-	public <T> T getCacheObject(String key) {
-		ValueOperations<String, T> operation = redisTemplate.opsForValue();
+	public Object getObject(String key) {
+		ValueOperations<Object, Object> operation = redisTemplate.opsForValue();
 		return operation.get(key);
 	}
 
@@ -74,7 +73,7 @@ public class RedisUtils {
 	 * 
 	 * @param key
 	 */
-	public void deleteObject(String key) {
+	public void delete(String key) {
 		redisTemplate.delete(key);
 	}
 
@@ -83,7 +82,7 @@ public class RedisUtils {
 	 * 
 	 * @param collection
 	 */
-	public void deleteObject(Collection collection) {
+	public void delete(Collection<Object> collection) {
 		redisTemplate.delete(collection);
 	}
 
@@ -94,8 +93,8 @@ public class RedisUtils {
 	 * @param dataList 待缓存的List数据
 	 * @return 缓存的对象
 	 */
-	public <T> ListOperations<String, T> setCacheList(String key, List<T> dataList) {
-		ListOperations listOperation = redisTemplate.opsForList();
+	public ListOperations<Object, Object> setList(String key, List<Object> dataList) {
+		ListOperations<Object, Object> listOperation = redisTemplate.opsForList();
 		if (null != dataList) {
 			int size = dataList.size();
 			for (int i = 0; i < size; i++) {
@@ -111,11 +110,10 @@ public class RedisUtils {
 	 * @param key 缓存的键值
 	 * @return 缓存键值对应的数据
 	 */
-	public <T> List<T> getCacheList(String key) {
-		List<T> dataList = new ArrayList<T>();
-		ListOperations<String, T> listOperation = redisTemplate.opsForList();
+	public List<Object> getList(String key) {
+		List<Object> dataList = new ArrayList<Object>();
+		ListOperations<Object, Object> listOperation = redisTemplate.opsForList();
 		Long size = listOperation.size(key);
-
 		for (int i = 0; i < size; i++) {
 			dataList.add(listOperation.index(key, i));
 		}
@@ -129,9 +127,9 @@ public class RedisUtils {
 	 * @param dataSet 缓存的数据
 	 * @return 缓存数据的对象
 	 */
-	public <T> BoundSetOperations<String, T> setCacheSet(String key, Set<T> dataSet) {
-		BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
-		Iterator<T> it = dataSet.iterator();
+	public BoundSetOperations<Object, Object> setSet(String key, Set<Object> dataSet) {
+		BoundSetOperations<Object, Object> setOperation = redisTemplate.boundSetOps(key);
+		Iterator<Object> it = dataSet.iterator();
 		while (it.hasNext()) {
 			setOperation.add(it.next());
 		}
@@ -144,9 +142,9 @@ public class RedisUtils {
 	 * @param key
 	 * @return
 	 */
-	public <T> Set<T> getCacheSet(String key) {
-		Set<T> dataSet = new HashSet<T>();
-		BoundSetOperations<String, T> operation = redisTemplate.boundSetOps(key);
+	public Set<Object> getSet(String key) {
+		Set<Object> dataSet = new HashSet<Object>();
+		BoundSetOperations<Object, Object> operation = redisTemplate.boundSetOps(key);
 		dataSet = operation.members();
 		return dataSet;
 	}
@@ -158,10 +156,10 @@ public class RedisUtils {
 	 * @param dataMap
 	 * @return
 	 */
-	public <T> HashOperations<String, String, T> setCacheMap(String key, Map<String, T> dataMap) {
-		HashOperations hashOperations = redisTemplate.opsForHash();
+	public HashOperations<Object, Object, Object> setMap(String key, Map<Object, Object> dataMap) {
+		HashOperations<Object, Object, Object> hashOperations = redisTemplate.opsForHash();
 		if (null != dataMap) {
-			for (Map.Entry<String, T> entry : dataMap.entrySet()) {
+			for (Map.Entry<Object, Object> entry : dataMap.entrySet()) {
 				hashOperations.put(key, entry.getKey(), entry.getValue());
 			}
 		}
@@ -174,8 +172,8 @@ public class RedisUtils {
 	 * @param key
 	 * @return
 	 */
-	public <T> Map<String, T> getCacheMap(String key) {
-		Map<String, T> map = redisTemplate.opsForHash().entries(key);
+	public Map<Object, Object> getMap(String key) {
+		Map<Object, Object> map = redisTemplate.opsForHash().entries(key);
 		return map;
 	}
 
@@ -185,7 +183,7 @@ public class RedisUtils {
 	 * @param pattern 字符串前缀
 	 * @return 对象列表
 	 */
-	public Collection<String> keys(String pattern) {
+	public Collection<Object> keys(String pattern) {
 		return redisTemplate.keys(pattern);
 	}
 }

@@ -14,6 +14,12 @@ import lombok.Setter;
 @Setter
 public class FilterProperties {
 
+	/** 是否使用token拦截 */
+	private boolean tokenEnable = false;
+
+	/** 是否使用jwt对token等进行加密 */
+	private boolean jwtEnable = false;
+
 	/** 是否启动xss拦截,默认启用 */
 	private String xssEnabled = "true";
 

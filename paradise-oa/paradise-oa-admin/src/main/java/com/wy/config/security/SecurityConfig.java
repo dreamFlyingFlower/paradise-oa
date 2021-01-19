@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.wy.filter.JwtTokenFilter;
+import com.wy.filter.TokenFilter;
 import com.wy.properties.ConfigProperties;
 
 /**
@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	/** token认证过滤器 */
 	@Autowired
-	private JwtTokenFilter authenticationTokenFilter;
+	private TokenFilter tokenFilter;
 
 	/** 自定义登录拦截属性 */
 	@Autowired
@@ -70,8 +70,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity
 				// CRSF禁用
 				.csrf().disable().headers().frameOptions().disable().and()
-				// 添加JWT拦截
-				.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
 				// 认证失败处理类
 				// .exceptionHandling().authenticationEntryPoint(loginFailureHandle).and()
 				.exceptionHandling().authenticationEntryPoint(new SecurityEntryPoint(null)).and()
@@ -91,5 +89,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
 				// 自定义登出方法
 				.and().logout().logoutUrl("/user/logout").logoutSuccessHandler(logoutSuccessHandler);
+		// 添加token拦截
+		if (config.getFilter().isTokenEnable()) {
+			httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+		}
 	}
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.Files;
+import com.wy.component.SpringContextService;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.DateEnum;
 import com.wy.enums.FileType;
@@ -34,7 +35,7 @@ import com.wy.utils.StrUtils;
  */
 public class FilesUtils {
 
-	private static ConfigProperties config = SpringContextUtils.getBean(ConfigProperties.class);
+	private static ConfigProperties config = SpringContextService.getBean(ConfigProperties.class);
 
 	/** 文件名格式化字符串 */
 	private static final String FILE_FORMATTER = "{0}_{1}";
