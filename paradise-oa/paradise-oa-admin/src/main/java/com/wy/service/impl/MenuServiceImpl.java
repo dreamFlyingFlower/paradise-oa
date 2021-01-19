@@ -104,7 +104,7 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	 */
 	@Override
 	public Set<String> getPermsByUserId(Long userId) {
-		List<String> perms = menuMapper.selectMenuPermsByUserId(userId);
+		List<String> perms = menuMapper.selectPermsByUserId(userId);
 		Set<String> permsSet = new HashSet<>();
 		for (String perm : perms) {
 			if (StrUtils.isNotBlank(perm)) {

@@ -15,7 +15,9 @@ import com.wy.mapper.RoleMenuMapper;
 import com.wy.mapper.UserRoleMapper;
 import com.wy.model.Role;
 import com.wy.model.RoleDepart;
+import com.wy.model.RoleDepartExample;
 import com.wy.model.RoleMenu;
+import com.wy.model.RoleMenuExample;
 import com.wy.model.UserRole;
 import com.wy.result.ResultException;
 import com.wy.service.RoleService;
@@ -308,7 +310,7 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 	private UserRoleMapper userRoleMapper;
 
 	@Autowired
-	private RoleDepartMapper roleDeptMapper;
+	private RoleDepartMapper roleDepartMapper;
 
 	/**
 	 * 根据用户ID获取角色选择框列表
@@ -357,7 +359,9 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 		// 修改角色信息
 		roleMapper.updateByPrimaryKeySelective(role);
 		// 删除角色与菜单关联
-		roleMenuMapper.deleteRoleMenuByRoleId(role.getRoleId());
+		RoleMenuExample example = new RoleMenuExample();
+		example.createCriteria().andRoleIdEqualTo(role.getRoleId());
+		roleMenuMapper.deleteByExample(example);
 		return insertRoleMenu(role);
 	}
 
@@ -383,7 +387,9 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 		// 修改角色信息
 		roleMapper.updateByPrimaryKeySelective(role);
 		// 删除角色与部门关联
-		roleDeptMapper.deleteRoleDeptByRoleId(role.getRoleId());
+		RoleDepartExample example = new RoleDepartExample();
+		example.createCriteria().andRoleIdEqualTo(role.getRoleId());
+		roleDepartMapper.deleteByExample(example);
 		// 新增角色和部门信息（数据权限）
 		return insertRoleDept(role);
 	}
@@ -425,7 +431,7 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 			list.add(rd);
 		}
 		if (list.size() > 0) {
-			rows = roleDeptMapper.batchRoleDept(list);
+			roleDepartMapper.inserts(list);
 		}
 		return rows;
 	}

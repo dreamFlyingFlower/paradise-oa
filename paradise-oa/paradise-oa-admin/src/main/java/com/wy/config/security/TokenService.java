@@ -118,7 +118,7 @@ public class TokenService {
 	 */
 	public void refreshToken(User user) {
 		redisTemplate.opsForValue().set(getTokenKey(user.getUserId()), user, config.getApi().getTokenExpireTime(),
-				config.getApi().getTokenTimeUnit());
+				config.getApi().getTokenExpireUnit());
 	}
 
 	/**

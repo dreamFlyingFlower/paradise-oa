@@ -40,4 +40,12 @@ public interface DepartMapper extends BaseMapper<Depart, Long> {
 	int updateByPrimaryKeySelective(Depart record);
 
 	int updateByPrimaryKey(Depart record);
+
+	/**
+	 * 根据角色编号查询该角色所属部门
+	 * 
+	 * @param roleId 角色编号
+	 * @return 部门集合
+	 */
+	List<Depart> selectByRoleId(Long roleId);
 }

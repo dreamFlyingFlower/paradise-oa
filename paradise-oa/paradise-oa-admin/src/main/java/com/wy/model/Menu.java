@@ -98,6 +98,9 @@ public class Menu extends Tree<Menu, Long> {
 	 */
 	@ApiModelProperty("带下级页面的上级页面重定向页面")
 	private String redirect;
+	
+//	权限
+//	private String perms;
 
 	/**
 	 * 是否隐藏:默认0不隐藏;1隐藏

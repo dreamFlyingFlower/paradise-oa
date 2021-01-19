@@ -3,7 +3,6 @@ package com.wy.util;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -14,10 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.google.common.io.Files;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.DateEnum;
+import com.wy.enums.FileType;
 import com.wy.enums.TipResult;
+import com.wy.model.vo.FileinfoVo;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.utils.DateTimeUtils;
+import com.wy.utils.NumUtils;
 import com.wy.utils.StrUtils;
 
 /**
@@ -32,38 +34,56 @@ import com.wy.utils.StrUtils;
  */
 public class FilesUtils {
 
+	private static ConfigProperties config = SpringContextUtils.getBean(ConfigProperties.class);
+
 	/** 文件名格式化字符串 */
 	private static final String FILE_FORMATTER = "{0}_{1}";
 
 	/** 文件后缀名匹配 */
-	private static final Map<Integer, List<String>> FILE_SUFFIXMAP = new HashMap<Integer, List<String>>() {
+	private static final Map<FileType, List<String>> FILE_SUFFIXMAP = new HashMap<FileType, List<String>>() {
 
 		private static final long serialVersionUID = 1L;
 
 		{
-			put(1, Arrays.asList("BMP", "PNG", "GIF", "JPG", "JPEG"));
-			put(2, Arrays.asList("MP4", "AVI", "3GP", "RM", "RMVB", "WMV"));
-			put(3, Arrays.asList("AMR", "MP3", "WMA", "WAV", "MID"));
-			put(4, Arrays.asList("TXT", "JSON", "XML", "PDF", "DOC", "DOCX", "XLS", "XLSX", "PPT", "PPTX"));
-			put(5, Arrays.asList("RAR", "ZIP", "GZ", "BZ2", "7Z"));
+			put(FileType.IMAGE, config.getFileinfo().getSuffixImages());
+			put(FileType.VIDEO, config.getFileinfo().getSuffixVideos());
+			put(FileType.AUDIO, config.getFileinfo().getSuffixAudios());
+			put(FileType.TEXT, config.getFileinfo().getSuffixTexts());
+			put(FileType.COMPRESS, config.getFileinfo().getSuffixCompresss());
 		}
 	};
 
 	/**
-	 * 检查文件是否匹配,并返回文件存贮路径
+	 * 保存文件在本地
 	 * 
-	 * @param suffix 后缀名
-	 * @return 文件类型
+	 * @param file 需要进行存储的文件
+	 * @return 存储后的本地的文件名, 带后缀
 	 */
-	public static int getFileType(String suffix) {
-		if (StrUtils.isNotBlank(suffix)) {
-			for (Map.Entry<Integer, List<String>> entry : FILE_SUFFIXMAP.entrySet()) {
-				if (entry.getValue().contains(suffix.toUpperCase())) {
-					return entry.getKey();
-				}
-			}
+	public static FileinfoVo saveFile(MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			throw new ResultException(TipResult.UPLOAD_FILE_STREAM_NOT_FOUND);
 		}
-		return 0;
+		String originalFilename = file.getOriginalFilename();
+		if (StrUtils.isBlank(originalFilename)) {
+			throw new ResultException(TipResult.UPLOAD_FILE_NAME_NOT_EXIST);
+		}
+		if (originalFilename.length() > config.getFileinfo().getFileNameLength()) {
+			throw new ResultException(TipResult.UPLOAD_FILE_NAME_OVER);
+		}
+		String extension = Files.getFileExtension(originalFilename);
+		String localName = MessageFormat.format(FILE_FORMATTER, CryptoUtils.UUID(),
+				DateTimeUtils.format(new Date(), DateEnum.DATE_NONE.getPattern()));
+		localName = StrUtils.isBlank(extension) ? localName : MessageFormat.format("{0}.{1}", localName, extension);
+		FileinfoVo fileinfoVo = FileinfoVo.builder().originalName(originalFilename).fileSuffix(extension)
+				.localName(localName).build();
+		buildFileinfo(fileinfoVo, file.getSize());
+		try {
+			file.transferTo(getNewPath(localName));
+		} catch (IllegalStateException | IOException e) {
+			e.printStackTrace();
+			throw new ResultException(TipResult.UPLOAD_FILE_FAILED);
+		}
+		return fileinfoVo;
 	}
 
 	/**
@@ -74,8 +94,7 @@ public class FilesUtils {
 	 */
 	private static File getNewPath(String fileName) {
 		String[] fileNames = Files.getNameWithoutExtension(fileName).split("_");
-		File parentFolder = new File(SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getFileLocal(),
-				fileNames[1]);
+		File parentFolder = new File(config.getFileinfo().getFileLocal(), fileNames[1]);
 		if (!parentFolder.exists()) {
 			boolean success = parentFolder.mkdir();
 			if (!success) {
@@ -86,62 +105,37 @@ public class FilesUtils {
 	}
 
 	/**
-	 * 服务器访问文件地址,在sql查询中使用,防止服务器地址变更
+	 * 文件大小以及时长转换:大小从字节数组转换为M,若是音视频文件,转换为HH:mm:ss的字符串形式
 	 * 
-	 * @param fileName 文件名
-	 * @return 远程访问地址
+	 * @param fileinfoVo 文件信息
+	 * @param fileSize 文件大小,字节数组长度
 	 */
-	public static String getHttpPath(String fileName) {
-		return SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getFileHttp() + "/" + fileName;
+	public static void buildFileinfo(FileinfoVo fileinfoVo, long fileSize) {
+		// 处理文件类型
+		fileinfoVo.setFileType(getFileType(fileinfoVo.getFileSuffix()));
+		// 处理文件大小
+		if (fileSize <= 0) {
+			fileinfoVo.setFileSize(0);
+		}
+		fileinfoVo.setFileSize(NumUtils.div(fileSize, 1024 * 1024, 2));
+		// 处理文件时长 FIXME
 	}
 
 	/**
-	 * 保存文件在本地
+	 * 检查文件是否匹配,并返回文件存贮路径
 	 * 
-	 * @param file 需要进行存储的文件
-	 * @return 存储后的本地的文件名, 带后缀
+	 * @param suffix 后缀名
+	 * @return 文件类型
 	 */
-	public static String saveFile(MultipartFile file) {
-		if (file == null || file.isEmpty()) {
-			throw new ResultException(TipResult.UPLOAD_FILE_STREAM_NOT_FOUND);
+	public static FileType getFileType(String suffix) {
+		if (StrUtils.isNotBlank(suffix)) {
+			for (Map.Entry<FileType, List<String>> entry : FILE_SUFFIXMAP.entrySet()) {
+				if (entry.getValue().contains(suffix.toUpperCase())) {
+					return entry.getKey();
+				}
+			}
 		}
-		String originalFilename = file.getOriginalFilename();
-		if (StrUtils.isBlank(originalFilename)) {
-			throw new ResultException(TipResult.UPLOAD_FILE_NAME_NOT_EXIST);
-		}
-		if (originalFilename.length() > SpringContextUtils.getBean(ConfigProperties.class).getFileinfo()
-				.getFileNameLength()) {
-			throw new ResultException(TipResult.UPLOAD_FILE_NAME_OVER);
-		}
-		String extension = Files.getFileExtension(originalFilename);
-		String localName = MessageFormat.format(FILE_FORMATTER, CryptoUtils.UUID(),
-				DateTimeUtils.format(new Date(), DateEnum.DATE_NONE.getPattern()));
-		localName = StrUtils.isBlank(extension) ? localName : MessageFormat.format("{0}.{1}", localName, extension);
-		try {
-			file.transferTo(getNewPath(localName));
-		} catch (IllegalStateException | IOException e) {
-			e.printStackTrace();
-			throw new ResultException(TipResult.UPLOAD_FILE_FAILED);
-		}
-		return localName;
-	}
-
-	/**
-	 * 根据文件名获得文件存储的本地地址
-	 * 
-	 * @param fileName 带后缀的文件名
-	 * @return 本地地址
-	 */
-	public static File getLocalPath(String fileName) {
-		String localName = Files.getNameWithoutExtension(fileName);
-		String[] fileNames = localName.split("_");
-		if (fileNames.length < 2) {
-			throw new ResultException("the pattern of file name is error!");
-		}
-		return new File(
-				new File(new File(SpringContextUtils.getBean(ConfigProperties.class).getFileinfo().getFileLocal()),
-						fileNames[1]),
-				fileName);
+		return FileType.OTHER;
 	}
 
 	/**
@@ -159,9 +153,50 @@ public class FilesUtils {
 	}
 
 	/**
+	 * 根据文件名获得文件存储的本地地址
+	 * 
+	 * @param fileName 带后缀的文件名
+	 * @return 本地地址
+	 */
+	public static File getLocalPath(String fileName) {
+		String localName = Files.getNameWithoutExtension(fileName);
+		String[] fileNames = localName.split("_");
+		if (fileNames.length < 2) {
+			throw new ResultException("the pattern of file name is error!");
+		}
+		return new File(new File(new File(config.getFileinfo().getFileLocal()), fileNames[1]), fileName);
+	}
+
+	/**
+	 * 根据http地址获得本地文件的存储地址
+	 * 
+	 * @param httpUrl http地址
+	 * @return 本地地址
+	 */
+	public static File getLocalPathByHttp(String httpUrl) {
+		String fileName = httpUrl.substring(httpUrl.indexOf(".") + 1);
+		String localName = Files.getNameWithoutExtension(fileName);
+		String[] fileNames = localName.split("_");
+		if (fileNames.length < 2) {
+			throw new ResultException("the pattern of file name is error!");
+		}
+		return new File(new File(new File(config.getFileinfo().getFileLocal()), fileNames[1]), fileName);
+	}
+
+	/**
+	 * 服务器访问文件地址,在sql查询中使用,防止服务器地址变更
+	 * 
+	 * @param fileName 本地文件名
+	 * @return 远程访问地址
+	 */
+	public static String getHttpPath(String fileName) {
+		return config.getFileinfo().getFileHttp() + "/" + fileName;
+	}
+
+	/**
 	 * 删除本地文件
 	 * 
-	 * @param localName 本地存放文件名
+	 * @param localName 本地存放文件名,带后缀
 	 * @return true表示删除成功, false表示失败
 	 */
 	public static boolean delFile(String localName) {

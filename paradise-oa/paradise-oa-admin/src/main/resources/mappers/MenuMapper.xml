@@ -353,4 +353,13 @@
   <select id="getMaxTime" resultType="java.util.Date">
     select <choose><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from ts_menu
   </select>
+
+  <select id="selectByUserId" parameterType="long" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from ti_menu m
+		left join tr_role_menu rm on m.menu_id = rm.menu_id
+		left join tr_user_role ur on rm.role_id = ur.role_id
+		where m.hidden = 0 and ur.user_id = #{userId}
+		order by m.pid, m.sort_index
+	</select>
 </mapper>

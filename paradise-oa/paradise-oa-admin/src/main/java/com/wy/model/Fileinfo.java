@@ -1,8 +1,6 @@
 package com.wy.model;
 
 import com.wy.base.AbstractModel;
-import com.wy.database.annotation.Pri;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
@@ -17,7 +15,7 @@ import lombok.ToString;
  * 文件表 ts_fileinfo
  * 
  * @author 飞花梦影
- * @date 2021-01-13 09:43:43
+ * @date 2021-01-19 15:55:37
  * @git {@link https://github.com/mygodness100}
  */
 @ApiModel(description = "文件表 ts_fileinfo")
@@ -35,13 +33,12 @@ public class Fileinfo extends AbstractModel {
 	 * 文件编号
 	 */
 	@ApiModelProperty("文件编号")
-	@Pri
 	private Long fileId;
 
 	/**
-	 * 存储在本地的名称,规则是yyyyMMdd_文件后缀_32uuid
+	 * 存储在本地的名称,规则是32uuid_yyyyMMdd.文件后缀
 	 */
-	@ApiModelProperty("存储在本地的名称,规则是yyyyMMdd_文件后缀_32uuid")
+	@ApiModelProperty("存储在本地的名称,规则是32uuid_yyyyMMdd.文件后缀")
 	private String localName;
 
 	/**
@@ -51,7 +48,7 @@ public class Fileinfo extends AbstractModel {
 	private String originalName;
 
 	/**
-	 * 文件类型:1图片;2音频;3视频;4文本;默认5其他
+	 * 文件类型:默认0其他;1图片;2音频;3视频;4文本;5压缩文件;
 	 */
 	@ApiModelProperty("文件类型:默认0其他;1图片;2音频;3视频;4文本;5压缩文件;")
 	private Integer fileType;
@@ -73,6 +70,12 @@ public class Fileinfo extends AbstractModel {
 	 */
 	@ApiModelProperty("文件后缀,不需要点")
 	private String fileSuffix;
+
+	/**
+	 * 文件远程访问地址
+	 */
+	@ApiModelProperty("文件远程访问地址")
+	private String fileUrl;
 
 	/**
 	 * 上传时间

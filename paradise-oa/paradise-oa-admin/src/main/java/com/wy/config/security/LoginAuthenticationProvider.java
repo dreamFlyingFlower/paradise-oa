@@ -10,13 +10,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.wy.crypto.CryptoUtils;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.UserService;
+import com.wy.util.SecurityUtils;
 
 /**
  * 自定义登录的验证方法,从数据库中取出用户数据封装后返回
@@ -54,8 +54,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 			throw new ResultException("密码长度不能超过12位");
 		}
 		// 使用该加密方式是spring推荐,加密后的长度为60,且被加密的字符串不得超过72
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		if (!passwordEncoder.matches(password, user.getPassword())) {
+		if (!SecurityUtils.matches(password, user.getPassword())) {
 			throw new BadCredentialsException("密码不正确");
 		}
 		// 设置token

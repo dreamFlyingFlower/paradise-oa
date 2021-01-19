@@ -38,12 +38,4 @@ public interface RoleMenuMapper extends BaseMapper<RoleMenu, Long> {
 	int updateByPrimaryKeySelective(RoleMenu record);
 
 	int updateByPrimaryKey(RoleMenu record);
-
-	/**
-	 * 通过角色ID删除角色和菜单关联
-	 * 
-	 * @param roleId 角色ID
-	 * @return 结果
-	 */
-	int deleteRoleMenuByRoleId(Long roleId);
 }

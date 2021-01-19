@@ -400,4 +400,5 @@
   <select id="getMaxTime" resultType="java.util.Date">
     select <choose><when test="birthday == ${column}">max(birthday)</when><when test="createtime == ${column}">max(createtime)</when><when test="updatetime == ${column}">max(updatetime)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from ts_user
   </select>
+  
 </mapper>

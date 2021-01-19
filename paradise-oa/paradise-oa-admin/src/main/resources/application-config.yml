@@ -1,0 +1,16 @@
+config: 
+  api: 
+    exclude-apis:
+    - /user/login
+    - /swagger-ui.html/**
+    - /swagger-resources/**
+    - /webjars/**
+    - /v2/api-docs
+    - /configuration/ui
+    - /configuration/security
+    - /*.html
+    - /**/*.html
+    - /**/*.css
+    - /**/*.js
+    - /druid/**
+    - /common/**

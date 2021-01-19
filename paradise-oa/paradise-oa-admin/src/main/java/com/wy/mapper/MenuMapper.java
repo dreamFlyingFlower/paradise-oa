@@ -43,13 +43,6 @@ public interface MenuMapper extends BaseMapper<Menu, Long> {
 	int updateByPrimaryKey(Menu record);
 	
 	/**
-	 * 根据用户所有权限
-	 * 
-	 * @return 权限列表
-	 */
-	List<String> selectMenuPerms();
-
-	/**
 	 * 根据用户查询系统菜单列表
 	 * 
 	 * @param userId 用户编号
@@ -58,18 +51,11 @@ public interface MenuMapper extends BaseMapper<Menu, Long> {
 	List<Menu> selectByUserId(Long userId);
 
 	/**
-	 * 根据用户ID查询权限
+	 * 根据用户ID查询权限select distinct m.perms from ti_menu m left join tr_role_menu rm on m.menu_id = rm.menu_id
+		left join tr_user_role ur on rm.role_id = ur.role_id 	where ur.user_id = #{userId}
 	 * 
 	 * @param userId 用户ID
 	 * @return 权限列表
 	 */
-	List<String> selectMenuPermsByUserId(Long userId);
-
-	/**
-	 * 根据角色ID查询菜单树信息
-	 * 
-	 * @param roleId 角色ID
-	 * @return 选中菜单列表
-	 */
-	List<Integer> selectMenuListByRoleId(Long roleId);
+	List<String> selectPermsByUserId(Long userId);
 }

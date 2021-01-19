@@ -1,5 +1,7 @@
 package com.wy.service;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.wy.base.BaseService;
 import com.wy.model.Fileinfo;
 
@@ -11,4 +13,6 @@ import com.wy.model.Fileinfo;
  * @git {@link https://github.com/mygodness100}
  */
 public interface FileinfoService extends BaseService<Fileinfo, Long> {
+
+	Fileinfo upload(MultipartFile file);
 }

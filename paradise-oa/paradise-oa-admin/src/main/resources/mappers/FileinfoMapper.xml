@@ -9,6 +9,7 @@
     <result column="file_size" jdbcType="DECIMAL" property="fileSize" />
     <result column="file_time" jdbcType="VARCHAR" property="fileTime" />
     <result column="file_suffix" jdbcType="VARCHAR" property="fileSuffix" />
+    <result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
     <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -71,7 +72,7 @@
   </sql>
   <sql id="Base_Column_List">
     file_id, local_name, original_name, file_type, file_size, file_time, file_suffix, 
-    createtime
+    file_url, createtime
   </sql>
   <select id="selectByExample" parameterType="com.wy.model.FileinfoExample" resultMap="BaseResultMap">
     select
@@ -106,10 +107,10 @@
   <insert id="insert" keyColumn="file_id" keyProperty="fileId" parameterType="com.wy.model.Fileinfo" useGeneratedKeys="true">
     insert into ts_fileinfo (local_name, original_name, file_type, 
       file_size, file_time, file_suffix, 
-      createtime)
+      file_url, createtime)
     values (#{localName,jdbcType=VARCHAR}, #{originalName,jdbcType=VARCHAR}, #{fileType,jdbcType=TINYINT}, 
       #{fileSize,jdbcType=DECIMAL}, #{fileTime,jdbcType=VARCHAR}, #{fileSuffix,jdbcType=VARCHAR}, 
-      #{createtime,jdbcType=TIMESTAMP})
+      #{fileUrl,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" keyColumn="file_id" keyProperty="fileId" parameterType="com.wy.model.Fileinfo" useGeneratedKeys="true">
     insert into ts_fileinfo
@@ -131,6 +132,9 @@
       </if>
       <if test="fileSuffix != null">
         file_suffix,
+      </if>
+      <if test="fileUrl != null">
+        file_url,
       </if>
       <if test="createtime != null">
         createtime,
@@ -154,6 +158,9 @@
       </if>
       <if test="fileSuffix != null">
         #{fileSuffix,jdbcType=VARCHAR},
+      </if>
+      <if test="fileUrl != null">
+        #{fileUrl,jdbcType=VARCHAR},
       </if>
       <if test="createtime != null">
         #{createtime,jdbcType=TIMESTAMP},
@@ -190,6 +197,9 @@
       <if test="record.fileSuffix != null">
         file_suffix = #{record.fileSuffix,jdbcType=VARCHAR},
       </if>
+      <if test="record.fileUrl != null">
+        file_url = #{record.fileUrl,jdbcType=VARCHAR},
+      </if>
       <if test="record.createtime != null">
         createtime = #{record.createtime,jdbcType=TIMESTAMP},
       </if>
@@ -207,6 +217,7 @@
       file_size = #{record.fileSize,jdbcType=DECIMAL},
       file_time = #{record.fileTime,jdbcType=VARCHAR},
       file_suffix = #{record.fileSuffix,jdbcType=VARCHAR},
+      file_url = #{record.fileUrl,jdbcType=VARCHAR},
       createtime = #{record.createtime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -233,6 +244,9 @@
       <if test="fileSuffix != null">
         file_suffix = #{fileSuffix,jdbcType=VARCHAR},
       </if>
+      <if test="fileUrl != null">
+        file_url = #{fileUrl,jdbcType=VARCHAR},
+      </if>
       <if test="createtime != null">
         createtime = #{createtime,jdbcType=TIMESTAMP},
       </if>
@@ -247,31 +261,32 @@
       file_size = #{fileSize,jdbcType=DECIMAL},
       file_time = #{fileTime,jdbcType=VARCHAR},
       file_suffix = #{fileSuffix,jdbcType=VARCHAR},
+      file_url = #{fileUrl,jdbcType=VARCHAR},
       createtime = #{createtime,jdbcType=TIMESTAMP}
     where file_id = #{fileId,jdbcType=BIGINT}
   </update>
   <insert id="inserts" parameterType="list">
-    insert into ts_fileinfo (file_id,local_name,original_name,file_type,file_size,file_time,file_suffix,createtime)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.localName,jdbcType=VARCHAR},#{item.originalName,jdbcType=VARCHAR},<choose><when test="item.fileType!= null">file_type = #{item.fileType,jdbcType=TINYINT},</when><otherwise>5,</otherwise></choose>#{item.fileSize,jdbcType=DECIMAL},#{item.fileTime,jdbcType=VARCHAR},#{item.fileSuffix,jdbcType=VARCHAR},<choose><when test="item.createtime!= null">createtime = #{item.createtime,jdbcType=TIMESTAMP}</when><otherwise>CURRENT_TIMESTAMP</otherwise></choose>)</foreach>
+    insert into ts_fileinfo (file_id,local_name,original_name,file_type,file_size,file_time,file_suffix,file_url,createtime)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.localName,jdbcType=VARCHAR},#{item.originalName,jdbcType=VARCHAR},<choose><when test="item.fileType!= null">file_type = #{item.fileType,jdbcType=TINYINT},</when><otherwise>0,</otherwise></choose>#{item.fileSize,jdbcType=DECIMAL},#{item.fileTime,jdbcType=VARCHAR},#{item.fileSuffix,jdbcType=VARCHAR},#{item.fileUrl,jdbcType=VARCHAR},<choose><when test="item.createtime!= null">createtime = #{item.createtime,jdbcType=TIMESTAMP}</when><otherwise>CURRENT_TIMESTAMP</otherwise></choose>)</foreach>
   </insert>
   <delete id="deleteByPrimaryKeys" parameterType="list">
     delete from  ts_fileinfo where file_id in <foreach open="(" close=")" collection="list" item="fileId" separator=",">#{fileId,jdbcType=BIGINT}</foreach>
   </delete>
   <delete id="deleteAll">
-    delete from  ts_fileinfo 
+    truncate table  ts_fileinfo 
   </delete>
   <select id="selectEntitys" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List" /> from ts_fileinfo<where><if test = "fileId != null "> and file_id = #{fileId,jdbcType=BIGINT} </if><if test = "localName != null "> and local_name = #{localName,jdbcType=VARCHAR} </if><if test = "originalName != null "> and original_name = #{originalName,jdbcType=VARCHAR} </if><if test = "fileType != null "> and file_type = #{fileType,jdbcType=TINYINT} </if><if test = "fileSize != null "> and file_size = #{fileSize,jdbcType=DECIMAL} </if><if test = "fileTime != null "> and file_time = #{fileTime,jdbcType=VARCHAR} </if><if test = "fileSuffix != null "> and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+    select <include refid="Base_Column_List" /> from ts_fileinfo<where><if test = "fileId != null "> and file_id = #{fileId,jdbcType=BIGINT} </if><if test = "localName != null "> and local_name = #{localName,jdbcType=VARCHAR} </if><if test = "originalName != null "> and original_name = #{originalName,jdbcType=VARCHAR} </if><if test = "fileType != null "> and file_type = #{fileType,jdbcType=TINYINT} </if><if test = "fileSize != null "> and file_size = #{fileSize,jdbcType=DECIMAL} </if><if test = "fileTime != null "> and file_time = #{fileTime,jdbcType=VARCHAR} </if><if test = "fileSuffix != null "> and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if><if test = "fileUrl != null "> and file_url = #{fileUrl,jdbcType=VARCHAR} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
   </select>
   <select id="selectLists" resultType="map">
-    select <include refid="Base_Column_List" /> from ts_fileinfo<where><if test = "fileId != null "> and file_id = #{fileId,jdbcType=BIGINT} </if><if test = "localName != null "> and local_name = #{localName,jdbcType=VARCHAR} </if><if test = "originalName != null "> and original_name = #{originalName,jdbcType=VARCHAR} </if><if test = "fileType != null "> and file_type = #{fileType,jdbcType=TINYINT} </if><if test = "fileSize != null "> and file_size = #{fileSize,jdbcType=DECIMAL} </if><if test = "fileTime != null "> and file_time = #{fileTime,jdbcType=VARCHAR} </if><if test = "fileSuffix != null "> and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+    select <include refid="Base_Column_List" /> from ts_fileinfo<where><if test = "fileId != null "> and file_id = #{fileId,jdbcType=BIGINT} </if><if test = "localName != null "> and local_name = #{localName,jdbcType=VARCHAR} </if><if test = "originalName != null "> and original_name = #{originalName,jdbcType=VARCHAR} </if><if test = "fileType != null "> and file_type = #{fileType,jdbcType=TINYINT} </if><if test = "fileSize != null "> and file_size = #{fileSize,jdbcType=DECIMAL} </if><if test = "fileTime != null "> and file_time = #{fileTime,jdbcType=VARCHAR} </if><if test = "fileSuffix != null "> and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if><if test = "fileUrl != null "> and file_url = #{fileUrl,jdbcType=VARCHAR} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
   </select>
   <select id="countByEntity" resultType="java.lang.Long">
-    select count(*) from ts_fileinfo<where><if test = "fileId != null ">and file_id = #{fileId,jdbcType=BIGINT} </if><if test = "localName != null ">and local_name = #{localName,jdbcType=VARCHAR} </if><if test = "originalName != null ">and original_name = #{originalName,jdbcType=VARCHAR} </if><if test = "fileType != null ">and file_type = #{fileType,jdbcType=TINYINT} </if><if test = "fileSize != null ">and file_size = #{fileSize,jdbcType=DECIMAL} </if><if test = "fileTime != null ">and file_time = #{fileTime,jdbcType=VARCHAR} </if><if test = "fileSuffix != null ">and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if><if test = "createtime != null ">and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+    select count(*) from ts_fileinfo<where><if test = "fileId != null ">and file_id = #{fileId,jdbcType=BIGINT} </if><if test = "localName != null ">and local_name = #{localName,jdbcType=VARCHAR} </if><if test = "originalName != null ">and original_name = #{originalName,jdbcType=VARCHAR} </if><if test = "fileType != null ">and file_type = #{fileType,jdbcType=TINYINT} </if><if test = "fileSize != null ">and file_size = #{fileSize,jdbcType=DECIMAL} </if><if test = "fileTime != null ">and file_time = #{fileTime,jdbcType=VARCHAR} </if><if test = "fileSuffix != null ">and file_suffix = #{fileSuffix,jdbcType=VARCHAR} </if><if test = "fileUrl != null ">and file_url = #{fileUrl,jdbcType=VARCHAR} </if><if test = "createtime != null ">and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
   </select>
-  <select id="getMaxValue" resultType="java.lang.Long">
+  <select id="selectMaxValue" resultType="java.lang.Long">
     select <choose><when test="'fileId' == _parameter.column">max(file_id)</when><when test="'fileType' == _parameter.column">max(file_type)</when><when test="'fileSize' == _parameter.column">max(file_size)</when><otherwise>max(0)</otherwise>  </choose>  from ts_fileinfo
   </select>
-  <select id="getMaxTime" resultType="java.util.Date">
+  <select id="selectMaxTime" resultType="java.util.Date">
     select <choose><when test="createtime == ${column}">max(createtime)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from ts_fileinfo
   </select>
 </mapper>

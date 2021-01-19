@@ -34,7 +34,7 @@ import com.wy.utils.StrUtils;
 public class ApiFilter extends OncePerRequestFilter {
 
 	@Autowired
-	private ConfigProperties configProperties;
+	private ConfigProperties config;
 
 	@Autowired
 	private RedisTemplate<Object, Object> redisTemplate;
@@ -42,11 +42,11 @@ public class ApiFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (!configProperties.getApi().isValidApi()) {
+		if (!config.getApi().isValidApi()) {
 			filterChain.doFilter(request, response);
 		} else {
 			boolean flag = true;
-			List<String> notValidApis = configProperties.getApi().getExcludeApis();
+			List<String> notValidApis = config.getApi().getExcludeApis();
 			if (ListUtils.isNotBlank(notValidApis)) {
 				flag = notValidApis.stream().anyMatch(t -> {
 					if (request.getRequestURI().startsWith(t)) {
@@ -69,7 +69,7 @@ public class ApiFilter extends OncePerRequestFilter {
 	private void apiFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		// 从redis缓存中检验是否存在某个值,值从请求头的auth中来
-		if (configProperties.getApi().isValidApi()) {
+		if (config.getApi().isValidApi()) {
 			String auth = request.getHeader("");
 			if (StrUtils.isBlank(auth)) {
 				throw new ResultException(TipEnum.TIP_AUTH_FAIL);
@@ -95,9 +95,9 @@ public class ApiFilter extends OncePerRequestFilter {
 	private void restoreToken(Map<Object, Object> entity, String auth) {
 		// 间隔时间检查是否需要重新设置redis中的token过期时间为,默认1分钟检查一次
 		Long expireTime = redisTemplate.getExpire(auth);
-		if (System.currentTimeMillis() - expireTime > configProperties.getApi().getTokenFlushTime()) {
-			redisTemplate.restore(auth, JSON.toJSONString(entity).getBytes(),
-					configProperties.getApi().getTokenExpireTime(), configProperties.getApi().getTokenTimeUnit());
+		if (System.currentTimeMillis() - expireTime > config.getApi().getTokenFlushTime()) {
+			redisTemplate.restore(auth, JSON.toJSONString(entity).getBytes(), config.getApi().getTokenExpireTime(),
+					config.getApi().getTokenExpireUnit());
 		}
 	}
 }

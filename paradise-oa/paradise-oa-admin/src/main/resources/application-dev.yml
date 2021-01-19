@@ -53,7 +53,19 @@ spring:
           enabled: true
           merge-sql: true
           slow-sql-millis: 1000
-
-config:
-  api:
-    exclude-apis: /login,/user/login, /swagger-ui.html/**, /swagger-resources/**,/webjars/**,/v2/api-docs,/configuration/ui,/configuration/security
+#  rabbitmq:
+#    host: 192.168.1.150
+#    username: guest
+#    password: guest
+#    listener:
+#      simple:
+#        retry:
+#          enabled: true
+#          max-attempts: 5
+#      direct:
+#        retry:
+#          enabled: true
+#          max-attempts: 5
+#  activiti:
+#    history-level: full
+#    db-history-used: true

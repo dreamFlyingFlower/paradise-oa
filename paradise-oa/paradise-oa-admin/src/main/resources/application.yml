@@ -1,8 +1,25 @@
 server:
   port: 12306
+  servlet:
+    encoding:
+      force: true
+      force-request: true
+      force-response: true
 spring: 
-    profiles:
-      active: dev
+  profiles: 
+    active: dev
+  jackson: 
+    date-format: yyyy-MM-dd HH:mm:ss
+  mvc: 
+    format:
+      date-time: yyyy-MM-dd HH:mm:ss
+      date: yyyy-MM-dd
+      time: HH:mm:ss
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+        
 # 大部分配置只在单数据源有效
 mybatis:
   # mapper.xml文件

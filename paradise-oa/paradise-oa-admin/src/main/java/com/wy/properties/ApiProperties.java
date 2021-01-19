@@ -34,11 +34,11 @@ public class ApiProperties {
 	/** 需要进行校验的api列表,默认null表示全部都要拦截 */
 	private List<String> includeApis;
 
-	/** 登录token的超时时间,默认30分钟,单位秒 */
-	private int tokenExpireTime = 1800;
+	/** 登录token的超时时间,默认30分钟 */
+	private long tokenExpireTime = 30;
 
-	/** token默认过期时间的单位,秒 */
-	private TimeUnit tokenTimeUnit = TimeUnit.SECONDS;
+	/** 登录token的超时时间单位,默认分钟 */
+	private TimeUnit tokenExpireUnit = TimeUnit.MINUTES;
 
 	/** 重置token过期时间检查间隔,默认60秒,单位秒 */
 	private long tokenFlushTime = 60;

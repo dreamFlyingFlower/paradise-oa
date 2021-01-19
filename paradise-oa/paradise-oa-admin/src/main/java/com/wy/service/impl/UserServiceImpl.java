@@ -1,5 +1,6 @@
 package com.wy.service.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -13,26 +14,33 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.github.pagehelper.PageInfo;
 import com.wy.base.AbstractService;
+import com.wy.config.security.TokenService;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.BooleanEnum;
 import com.wy.enums.TipEnum;
 import com.wy.enums.UserState;
 import com.wy.exception.AuthException;
 import com.wy.manager.AsyncTask;
+import com.wy.mapper.DepartMapper;
 import com.wy.mapper.RoleMapper;
 import com.wy.mapper.UserMapper;
 import com.wy.mapper.UserRoleMapper;
+import com.wy.mapper.UserinfoMapper;
+import com.wy.model.Fileinfo;
 import com.wy.model.Role;
 import com.wy.model.User;
+import com.wy.model.UserExample;
 import com.wy.model.UserRole;
+import com.wy.model.UserRoleExample;
 import com.wy.properties.ConfigProperties;
-import com.wy.result.Result;
 import com.wy.result.ResultException;
+import com.wy.service.FileinfoService;
 import com.wy.service.MenuService;
 import com.wy.service.UserService;
+import com.wy.util.FilesUtils;
 import com.wy.util.SecurityUtils;
 import com.wy.util.ServletUtils;
 import com.wy.utils.ListUtils;
@@ -58,6 +66,12 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private RoleMapper roleMapper;
 
 	@Autowired
+	private DepartMapper departMapper;
+
+	@Autowired
+	private UserinfoMapper userinfoMapper;
+
+	@Autowired
 	private UserRoleMapper userRoleMapper;
 
 	@Autowired
@@ -71,6 +85,61 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 
 	@Autowired
 	private MessageSource messageSource;
+
+	@Autowired
+	private TokenService tokenService;
+
+	@Autowired
+	private FileinfoService fileinfoService;
+
+	/**
+	 * 通过用户名,邮件,手机号查询用户信息
+	 * 
+	 * @param username 用户名或邮件或手机号
+	 * @return 用户信息
+	 */
+	public User getByUsername(String username) {
+		UserExample example = new UserExample();
+		example.or().andUsernameEqualTo(username);
+		example.or().andEmailEqualTo(username);
+		example.or().andMobileEqualTo(username);
+		List<User> entitys = userMapper.selectByExample(example);
+		if (ListUtils.isBlank(entitys) || entitys.size() > 1) {
+			log.info("登录用户:{}不存在.", username);
+			throw new AuthException("对不起,帐号:" + username + " 不存在");
+		}
+		return entitys.get(0);
+	}
+
+	/**
+	 * 校验用户是否允许操作
+	 * 
+	 * @param user 用户信息
+	 */
+	public void assertModifyed(User user) {
+		if (ListUtils.isNotBlank(user.getRoles())) {
+			if (user.getRoles().get(0).getRoleType() == 0) {
+				throw new ResultException("不允许操作超级管理员用户");
+			}
+		} else {
+			List<Role> roles = roleMapper.selectByUserId(user.getUserId());
+			if (ListUtils.isBlank(roles)) {
+				throw new ResultException(TipEnum.TIP_USER_NOT_DISTRIBUTE_ROLE);
+			} else {
+				if (user.getRoles().get(0).getRoleType() == 0) {
+					throw new ResultException("不允许操作超级管理员用户");
+				}
+			}
+		}
+	}
+
+	@Override
+	public int update(User t) {
+		assertModifyed(t);
+		// 修改缓存信息
+		tokenService.setLoginUser(t);
+		return super.update(t);
+	}
 
 	/**
 	 * spring security登录校验,除了用户名和密码之外,其他参数从request工具中拿
@@ -97,11 +166,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 			// 验证过后删除session中的缓存
 			ServletUtils.getHttpSession().removeAttribute(config.getCache().getIdentifyCodeKey());
 		}
-		User user = userMapper.selectByUsername(username);
-		if (Objects.isNull(user)) {
-			log.info("登录用户:{}不存在.", username);
-			throw new AuthException("对不起,帐号:" + username + " 不存在");
-		} else if (UserState.USER_DELETE.getCode() == user.getState()) {
+		User user = getByUsername(username);
+		if (UserState.USER_DELETE.getCode() == user.getState()) {
 			log.info("登录用户:{}已被删除.", username);
 			throw new ResultException("对不起,账号:" + username + " 已被删除");
 		} else if (UserState.USER_BLACK.getCode() == user.getState()) {
@@ -113,58 +179,14 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	/**
-	 * 根据条件分页查询用户列表 FIXME
-	 * 
-	 * @param user 用户信息
-	 * @return 用户信息集合信息
-	 */
-	@Override
-	public Result<List<User>> selectUserList(User user) {
-		startPage(user);
-		List<User> list = userMapper.selectEntitys(user);
-		PageInfo<User> pageInfo = new PageInfo<>(list);
-		return Result.page(list, pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal());
-	}
-
-	/**
 	 * 通过用户名查询用户
 	 * 
-	 * @param userName 用户名
+	 * @param username 用户名
 	 * @return 用户对象信息
 	 */
 	@Override
 	public User selectByUsername(String username) {
-		return userMapper.selectByUsername(username);
-	}
-
-	/**
-	 * 查询用户所属角色组
-	 * 
-	 * @param userName 用户名
-	 * @return 结果
-	 */
-	@Override
-	public String selectUserRoleGroup(String userName) {
-		List<Role> list = roleMapper.selectRolesByUserName(userName);
-		StringBuffer idsStr = new StringBuffer();
-		for (Role role : list) {
-			idsStr.append(role.getRoleName()).append(",");
-		}
-		if (StrUtils.isNotBlank(idsStr.toString())) {
-			return idsStr.substring(0, idsStr.length() - 1);
-		}
-		return idsStr.toString();
-	}
-
-	/**
-	 * 校验用户是否允许操作
-	 * 
-	 * @param user 用户信息
-	 */
-	public void checkUserAllowed(User user) {
-		if (Objects.nonNull(user.getUserId()) && user.getUserId().intValue() == 1) {
-			throw new ResultException("不允许操作超级管理员用户");
-		}
+		return getByUsername(username);
 	}
 
 	/**
@@ -206,45 +228,27 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Override
 	@Transactional
 	public int updateSelective(User user) {
-		checkUserAllowed(user);
-		Long userId = user.getUserId();
+		assertModifyed(user);
 		// 删除用户与角色关联
-		userRoleMapper.deleteUserRoleByUserId(userId);
+		UserRoleExample example = new UserRoleExample();
+		example.createCriteria().andUserIdEqualTo(user.getUserId());
+		userRoleMapper.deleteByExample(example);
 		// 新增用户与角色管理
 		insertUserRole(user);
 		return userMapper.updateByPrimaryKeySelective(user);
 	}
 
 	@Override
-	public Object getById(Long id) {
-		User user = baseMapper.selectByPrimaryKey(id);
-		user.setRoles(roleMapper.selectEntitys(new Role()));
-		user.setRoleIds(roleMapper.selectByUserId(id).stream().map(t -> {
-			return t.getRoleId();
-		}).collect(Collectors.toList()));
+	public Object getById(Long userId) {
+		User user = userMapper.selectByPrimaryKey(userId);
+		user.setUserinfo(userinfoMapper.selectByPrimaryKey(userId));
+		if (!Objects.isNull(user.getDepartId())) {
+			user.setDepart(departMapper.selectByPrimaryKey(user.getDepartId()));
+		}
+		List<Role> roles = roleMapper.selectByUserId(userId);
+		user.setRoles(roles);
+		user.setRoleIds(roles.stream().map(t -> t.getRoleId()).collect(Collectors.toList()));
 		return user;
-	}
-
-	/**
-	 * 修改用户状态
-	 * 
-	 * @param user 用户信息
-	 * @return 结果
-	 */
-	@Override
-	public int updateUserStatus(User user) {
-		return userMapper.updateByPrimaryKeySelective(user);
-	}
-
-	/**
-	 * 修改用户基本信息
-	 * 
-	 * @param user 用户信息
-	 * @return 结果
-	 */
-	@Override
-	public int updateUserProfile(User user) {
-		return userMapper.updateByPrimaryKeySelective(user);
 	}
 
 	/**
@@ -254,8 +258,24 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @param avatar 头像地址
 	 * @return 结果
 	 */
-	public boolean updateUserAvatar(String userName, String avatar) {
-		return userMapper.updateUserAvatar(userName, avatar) > 0;
+	@Override
+	public User updateAvatar(MultipartFile file) {
+		User loginUser = SecurityUtils.getLoginUser();
+		Fileinfo fileinfo = fileinfoService.upload(file);
+		userMapper.updateByPrimaryKeySelective(
+				User.builder().userId(loginUser.getUserId()).avatar(fileinfo.getFileUrl()).build());
+		loginUser.setAvatar(fileinfo.getFileUrl());
+		tokenService.setLoginUser(loginUser);
+		// 原头像地址
+		String originalAvatar = loginUser.getAvatar();
+		// 删除本地原头像
+		if (StrUtils.isNotBlank(originalAvatar)) {
+			File localFile = FilesUtils.getLocalPathByHttp(fileinfo.getFileUrl());
+			if (localFile.exists() && localFile.isFile()) {
+				localFile.delete();
+			}
+		}
+		return loginUser;
 	}
 
 	/**
@@ -266,6 +286,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	@Override
 	public int resetPwd(User user) {
+		assertModifyed(user);
+		user.setPassword(SecurityUtils.encode(user.getPassword()));
 		return userMapper.updateByPrimaryKeySelective(user);
 	}
 
@@ -277,8 +299,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @return 结果
 	 */
 	@Override
-	public int resetUserPwd(String userName, String password) {
-		return userMapper.resetUserPwd(userName, password);
+	public int resetUserPwd(Long userId, String password) {
+		return userMapper.updateByPrimaryKeySelective(User.builder().userId(userId).password(password).build());
 	}
 
 	/**
@@ -298,7 +320,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 				list.add(ur);
 			}
 			if (list.size() > 0) {
-				userRoleMapper.batchUserRole(list);
+				userRoleMapper.inserts(list);
 			}
 		}
 	}
@@ -312,7 +334,9 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Override
 	public int delete(Long userId) {
 		// 删除用户与角色关联
-		userRoleMapper.deleteUserRoleByUserId(userId);
+		UserRoleExample example = new UserRoleExample();
+		example.createCriteria().andUserIdEqualTo(userId);
+		userRoleMapper.deleteByExample(example);
 		return userMapper.deleteByPrimaryKey(userId);
 	}
 
@@ -325,7 +349,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Override
 	public int deletes(List<Long> userIds) {
 		for (Long userId : userIds) {
-			checkUserAllowed(User.builder().userId(userId).build());
+			assertModifyed(User.builder().userId(userId).build());
 		}
 		return userMapper.deleteByPrimaryKeys(userIds);
 	}
@@ -350,9 +374,9 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		for (User user : userList) {
 			try {
 				// 验证是否存在这个用户
-				User u = userMapper.selectByUsername(user.getUsername());
+				User u = getByUsername(user.getUsername());
 				if (Objects.isNull(u)) {
-					user.setPassword(SecurityUtils.encryptPassword(config.getCommon().getDefaultPwd()));
+					user.setPassword(SecurityUtils.encode(config.getCommon().getDefaultPwd()));
 					this.insertSelective(user);
 					successNum++;
 					successMsg.append("<br/>" + successNum + "、账号 " + user.getUsername() + " 导入成功");
