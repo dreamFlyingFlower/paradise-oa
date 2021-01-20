@@ -51,11 +51,6 @@ public abstract class AbstractModel extends AbstractPager {
 	@BaseModelField
 	private String remark;
 
-	/** 数据权限 */
-	@ApiModelProperty("数据权限")
-	@BaseModelField
-	private String permission;
-
 	/** 请求参数 */
 	@ApiModelProperty("请求参数")
 	private Map<String, Object> params;

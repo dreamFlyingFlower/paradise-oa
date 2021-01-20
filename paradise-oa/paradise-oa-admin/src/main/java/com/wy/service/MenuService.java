@@ -2,7 +2,6 @@ package com.wy.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.wy.base.BaseService;
 import com.wy.model.Menu;
@@ -42,14 +41,6 @@ public interface MenuService extends BaseService<Menu, Long> {
 	List<Menu> getTreeByUserId(Long userId);
 
 	/**
-	 * 根据用户ID查询权限
-	 * 
-	 * @param userId 用户ID
-	 * @return 权限列表
-	 */
-	Set<String> getPermsByUserId(Long userId);
-
-	/**
 	 * 根据角色ID查询菜单树信息
 	 * 
 	 * @param roleId 角色ID
@@ -64,20 +55,4 @@ public interface MenuService extends BaseService<Menu, Long> {
 	 * @return 路由列表
 	 */
 	List<RouterVo> buildMenus(List<Menu> menus);
-
-	/**
-	 * 获取角色数据权限
-	 * 
-	 * @param user 用户信息
-	 * @return 角色权限信息
-	 */
-	Set<String> getRolePermission(Long userId);
-
-	/**
-	 * 获取菜单数据权限
-	 * 
-	 * @param userId 用户编号
-	 * @return 菜单权限信息
-	 */
-	Set<String> getMenuPermission(Long userId);
 }

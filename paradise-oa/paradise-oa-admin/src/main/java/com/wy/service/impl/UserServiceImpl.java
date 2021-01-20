@@ -27,6 +27,7 @@ import com.wy.exception.AuthException;
 import com.wy.manager.AsyncTask;
 import com.wy.mapper.DepartMapper;
 import com.wy.mapper.RoleMapper;
+import com.wy.mapper.RoleMenuMapper;
 import com.wy.mapper.UserMapper;
 import com.wy.mapper.UserRoleMapper;
 import com.wy.mapper.UserinfoMapper;
@@ -36,10 +37,10 @@ import com.wy.model.User;
 import com.wy.model.UserExample;
 import com.wy.model.UserRole;
 import com.wy.model.UserRoleExample;
+import com.wy.model.vo.PermissionVo;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.FileinfoService;
-import com.wy.service.MenuService;
 import com.wy.service.UserService;
 import com.wy.util.FilesUtils;
 import com.wy.util.SecurityUtils;
@@ -79,9 +80,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private ConfigProperties config;
 
 	@Autowired
-	private MenuService menuService;
-
-	@Autowired
 	private AsyncTask asyncTask;
 
 	@Autowired
@@ -95,6 +93,9 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 
 	@Autowired
 	private RedisService redisService;
+
+	@Autowired
+	private RoleMenuMapper roleMenuMapper;
 
 	/**
 	 * 通过用户名,邮件,手机号查询用户信息
@@ -155,7 +156,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 			return null;
 		}
 		handlerState(user);
-		user.setPermissions(menuService.getMenuPermission(user.getUserId()));
+		handlerPermission(user);
 		return user;
 	}
 
@@ -206,6 +207,16 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 			log.info("登录用户:{}为锁定状态", user.getUsername());
 			throw new AuthException("对不起,账号:" + user.getUsername() + "被锁定,请等待" + config.getCommon());
 		}
+	}
+
+	/**
+	 * 处理用户角色权限信息
+	 * 
+	 * @param user 用户信息
+	 */
+	private void handlerPermission(User user) {
+		List<PermissionVo> permissionVos = roleMenuMapper.selectPermissionByUserId(user.getUserId());
+		user.setPermissionVos(permissionVos);
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package com.wy.model.vo;
 
+import java.io.Serializable;
 import java.util.List;
 
 import io.swagger.annotations.ApiModel;
@@ -25,7 +26,9 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailVo {
+public class EmailVo implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * 接收者邮件地址

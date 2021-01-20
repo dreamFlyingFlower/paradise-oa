@@ -7,6 +7,9 @@ package com.wy.common;
  */
 public interface Constants {
 
+	/** 超级管理员角色编码 */
+	String SUPER_ADMIN = "SUPER_ADMIN";
+
 	/** 密码存入数据库的MD5加密的密钥 */
 	String SECRET_KEY_DB = "#$%^&*()$%^#$%^&";
 

@@ -12,13 +12,13 @@ import com.wy.common.PropConverter;
 public enum Permission implements PropConverter {
 
 	/** 所有权限 */
-	PERMISSION_ALL("ALL"),
-	PERMISSION_INSERT("INSERT"),
-	PERMISSION_DELETE("DELETE"),
-	PERMISSION_UPDATE("UPDATE"),
-	PERMISSION_SELECT("SELECT"),
-	PERMISSION_IMPORT("IMPORT"),
-	PERMISSION_EXPORT("EXPORT");
+	ALL("ALL"),
+	INSERT("INSERT"),
+	DELETE("DELETE"),
+	UPDATE("UPDATE"),
+	SELECT("SELECT"),
+	IMPORT("IMPORT"),
+	EXPORT("EXPORT");
 
 	private String msg;
 

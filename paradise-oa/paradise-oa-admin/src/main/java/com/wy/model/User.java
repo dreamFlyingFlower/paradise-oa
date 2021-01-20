@@ -3,7 +3,6 @@ package com.wy.model;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.Email;
@@ -22,6 +21,7 @@ import com.wy.database.annotation.Unique;
 import com.wy.enums.SexEnum;
 import com.wy.enums.UserState;
 import com.wy.excel.annotation.ExcelColumn;
+import com.wy.model.vo.PermissionVo;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;
@@ -207,7 +207,7 @@ public class User extends AbstractModel implements UserDetails {
 	 * 权限集合
 	 */
 	@ApiModelProperty("权限集合")
-	private Set<String> permissions;
+	private List<PermissionVo> permissionVos;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

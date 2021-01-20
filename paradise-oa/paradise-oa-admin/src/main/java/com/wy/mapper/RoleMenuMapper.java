@@ -1,11 +1,14 @@
 package com.wy.mapper;
 
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import com.wy.base.BaseMapper;
 import com.wy.model.RoleMenu;
 import com.wy.model.RoleMenuExample;
-import java.util.List;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import com.wy.model.vo.PermissionVo;
 
 /**
  * 角色菜单表
@@ -38,4 +41,12 @@ public interface RoleMenuMapper extends BaseMapper<RoleMenu, Long> {
 	int updateByPrimaryKeySelective(RoleMenu record);
 
 	int updateByPrimaryKey(RoleMenu record);
+
+	/**
+	 * 根据用户编号获得获得用户菜单以及菜单权限
+	 * 
+	 * @param userId 用户编号
+	 * @return 菜单以及权限列表
+	 */
+	List<PermissionVo> selectPermissionByUserId(Long userId);
 }

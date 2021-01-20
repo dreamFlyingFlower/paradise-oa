@@ -1,11 +1,8 @@
 package com.wy.service.impl;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +42,7 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	@Autowired
 	private RoleServiceImpl roleService;
 
-	public static final String PREMISSION_STRING = "perms[\"{0}\"]";
+	// public static final String PREMISSION_STRING = "perms[\"{0}\"]";
 
 	@Autowired
 	private RoleMenuMapper roleMenuMapper;
@@ -94,24 +91,6 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	private void getTreeByOther(List<Menu> menus) {
 		Map<Long, List<Menu>> leaf = getLeaf(null);
 		getLeaf(menus, leaf);
-	}
-
-	/**
-	 * 根据用户ID查询权限
-	 * 
-	 * @param userId 用户ID
-	 * @return 权限列表
-	 */
-	@Override
-	public Set<String> getPermsByUserId(Long userId) {
-		List<String> perms = menuMapper.selectPermsByUserId(userId);
-		Set<String> permsSet = new HashSet<>();
-		for (String perm : perms) {
-			if (StrUtils.isNotBlank(perm)) {
-				permsSet.addAll(Arrays.asList(perm.trim().split(",")));
-			}
-		}
-		return permsSet;
 	}
 
 	/**
@@ -194,38 +173,5 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 			row += delete(id);
 		}
 		return row;
-	}
-
-	/**
-	 * 获取菜单数据权限
-	 * 
-	 * @param user 用户信息
-	 * @return 菜单权限信息
-	 */
-	@Override
-	public Set<String> getMenuPermission(Long userId) {
-		Set<String> perms = new HashSet<String>();
-		// 管理员拥有所有权限
-		if (1 == userId) {
-			perms.add("*:*:*");
-		} else {
-			perms.addAll(getPermsByUserId(userId));
-		}
-		return perms;
-	}
-
-	/**
-	 * 获取菜单数据权限
-	 * 
-	 * @param userId 用户编号
-	 * @return 菜单权限信息
-	 */
-	public Set<String> getRolePermission(Long userId) {
-		Set<String> roles = new HashSet<String>();
-		// 管理员拥有所有权限
-		if (1 == userId) {
-			roles.add("admin");
-		}
-		return roles;
 	}
 }

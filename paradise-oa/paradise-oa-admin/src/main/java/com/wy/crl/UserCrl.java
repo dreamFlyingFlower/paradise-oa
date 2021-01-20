@@ -2,16 +2,17 @@ package com.wy.crl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +32,7 @@ import com.wy.service.MenuService;
 import com.wy.service.UserService;
 import com.wy.util.SecurityUtils;
 import com.wy.util.ServletUtils;
-import com.wy.utils.MapUtils;
+import com.wy.valid.ValidInserts;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,24 +59,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	private MenuService menuService;
 
 	/**
-	 * 获取用户信息
-	 * 
-	 * @return 用户信息
-	 */
-	@ApiOperation("获取用户信息")
-	@GetMapping("getInfo")
-	public Result<?> getInfo() {
-		User user = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-		// 角色集合
-		Set<String> roles = menuService.getRolePermission(user.getUserId());
-		// 权限集合
-		Set<String> permissions = menuService.getMenuPermission(user.getUserId());
-		Map<String, Object> map = MapUtils.getBuilder("user", user).add("roles", roles).add("permissions", permissions)
-				.build();
-		return Result.ok(map);
-	}
-
-	/**
 	 * 获取路由信息
 	 * 
 	 * @return 路由信息
@@ -88,15 +71,9 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		return Result.ok(menuService.buildMenus(menus));
 	}
 
-	// @ApiOperation("获取用户列表")
-	// @PreAuthorize("@ss.hasPermi('system:user:list')")
-	// @GetMapping("list")
-	// public Result<?> list(User user) {
-	// return userService.getEntitys(user);
-	// }
-
 	@Log(title = "用户管理", businessType = BusinessType.EXPORT)
-	@PreAuthorize("@ss.hasPermi('system:user:export')")
+	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
+	@PreAuthorize("#{permissionService.hasAuthority('ROLE_ADMIN:EXPORT')}")
 	@GetMapping("excelExport")
 	public Result<?> excelExport(User user, HttpServletResponse response) {
 		List<User> list = userService.getEntitys(user).getData();
@@ -105,7 +82,8 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	}
 
 	@Log(title = "用户管理", businessType = BusinessType.IMPORT)
-	@PreAuthorize("@ss.hasPermi('system:user:import')")
+	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
+	@PreAuthorize("#{permissionService.hasAuthority('ROLE_ADMIN:IMPORT')}")
 	@PostMapping("excelImport")
 	public Result<?> excelImport(MultipartFile file, boolean updateSupport) throws Exception {
 		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
@@ -119,31 +97,33 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	/**
 	 * 新增用户
 	 */
-	@PreAuthorize("@ss.hasPermi('system:user:add')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN'")
 	@Log(title = "用户管理", businessType = BusinessType.INSERT)
-	@PostMapping
-	public Result<?> add(@Validated @RequestBody User user) {
+	@ApiOperation("新增用户")
+	@Override
+	public Result<?> create(@Validated(ValidInserts.class) @RequestBody User user, BindingResult bind) {
+		if (bind.hasErrors()) {
+			FieldError error = bind.getFieldError();
+			assert error != null;
+			return Result.error(error.getField() + error.getDefaultMessage());
+		}
 		user.setPassword(SecurityUtils.encode(user.getPassword()));
 		return Result.result(userService.insertSelective(user));
 	}
 
 	/**
 	 * 重置密码
+	 * 
+	 * @param user 需要重置密码的用户信息
+	 * @return 成功或失败
 	 */
-	@PreAuthorize("@ss.hasPermi('system:user:edit')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN'")
 	@Log(title = "用户管理", businessType = BusinessType.UPDATE)
-	@PutMapping("resetPwd")
+	@ApiOperation("重置密码")
+	@PostMapping("resetPwd")
 	public Result<?> resetPwd(@RequestBody User user) {
 		return Result.result(userService.resetPwd(user) > 0);
 	}
-
-	// @PreAuthorize("@ss.hasPermi('system:user:edit')")
-	// @Log(title = "用户管理", businessType = BusinessType.UPDATE)
-	// @Log(title = "个人信息", businessType = BusinessType.UPDATE)
-	// @PutMapping("changeStatus")
-	// public Result<?> changeStatus(@RequestBody User user) {
-	// return Result.result(userService.updateUserStatus(user) > 0);
-	// }
 
 	/**
 	 * 修改密码
