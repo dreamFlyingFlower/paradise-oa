@@ -33,7 +33,7 @@ public enum BusinessType implements PropConverter {
 	IMPORT("导入"),
 
 	/** 清空数据 */
-	CLEAN("清空数据");
+	CLEAR("清空数据");
 
 	private String desc;
 

@@ -47,7 +47,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 		return Result.ok();
 	}
 
-	@Log(title = "操作日志", businessType = BusinessType.CLEAN)
+	@Log(title = "操作日志", businessType = BusinessType.CLEAR)
 	@PreAuthorize("@ss.hasPermi('monitor:operlog:remove')")
 	@DeleteMapping("clear")
 	public Result<?> clear() {

@@ -5,7 +5,6 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -13,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import com.wy.component.TokenService;
 import com.wy.crypto.CryptoUtils;
+import com.wy.enums.TipEnum;
+import com.wy.exception.AuthException;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
@@ -45,18 +46,18 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 		// 这里调用我们的自己写的获取用户的方法来判断用户是否存在和密码是否正确
 		User user = (User) userService.loadUserByUsername(username);
 		if (user == null) {
-			throw new BadCredentialsException("用户名不存在");
+			throw new AuthException(TipEnum.TIP_LOGIN_FAIL_USERNAME);
 		}
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
 		String password = (String) authentication.getCredentials();
-		password = CryptoUtils.AESSimpleCrypt(password, config.getCommon().getSecretKeyUser(), false);
+		password = CryptoUtils.AESSimpleCrypt(password, config.getLogin().getSecretKeyUser(), false);
 		password = password.substring(0, password.lastIndexOf("_"));
 		if (password.length() > 12) {
 			throw new ResultException("密码长度不能超过12位");
 		}
 		// 使用该加密方式是spring推荐,加密后的长度为60,且被加密的字符串不得超过72
 		if (!SecurityUtils.matches(password, user.getPassword())) {
-			throw new BadCredentialsException("密码不正确");
+			throw new AuthException(TipEnum.TIP_LOGIN_FAIL);
 		}
 		// 设置token
 		if (config.getFilter().isTokenEnable()) {

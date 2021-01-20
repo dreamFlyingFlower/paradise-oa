@@ -1,6 +1,11 @@
 package com.wy.util;
 
+import java.util.Collection;
+import java.util.Objects;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -8,6 +13,8 @@ import com.wy.config.security.LoginAuthenticationProvider;
 import com.wy.enums.TipEnum;
 import com.wy.exception.AuthException;
 import com.wy.model.User;
+import com.wy.utils.ListUtils;
+import com.wy.utils.StrUtils;
 
 /**
  * 安全服务工具类
@@ -30,13 +37,6 @@ public class SecurityUtils {
 	}
 
 	/**
-	 * 获取用户,需要和登录时存入缓存的对象相同 {@link LoginAuthenticationProvider#authenticate}
-	 */
-	public static User getLoginUser() {
-		return (User) getAuthentication().getPrincipal();
-	}
-
-	/**
 	 * 生成BCryptPasswordEncoder密码,每次加密都不同,加密后的长度为60,且被加密的字符串不得超过72
 	 * 
 	 * @param password 密码
@@ -44,10 +44,6 @@ public class SecurityUtils {
 	 */
 	public static String encode(String password) {
 		return new BCryptPasswordEncoder().encode(password);
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(encode("123456"));
 	}
 
 	/**
@@ -59,5 +55,59 @@ public class SecurityUtils {
 	 */
 	public static boolean matches(String originlPwd, String encodedPwd) {
 		return new BCryptPasswordEncoder().matches(originlPwd, encodedPwd);
+	}
+
+	/**
+	 * 获取用户,需要和登录时存入缓存的对象相同 {@link LoginAuthenticationProvider#authenticate}
+	 */
+	public static User getLoginUser() {
+		return (User) getAuthentication().getPrincipal();
+	}
+
+	/**
+	 * 修改了用户信息之后 重新存储security中用户信息
+	 * 
+	 * @param user 新的用户信息
+	 */
+	public static void setLoginUser(User user) {
+		SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user,
+				getAuthentication().getCredentials(), getAuthentication().getAuthorities()));
+	}
+
+	/**
+	 * 修改了用户密码之后 重新存储security中用户密码
+	 * 
+	 * @param password 新的密码
+	 */
+	public static void setLoginPwd(String password) {
+		SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+				getAuthentication().getPrincipal(), password, getAuthentication().getAuthorities()));
+	}
+
+	/**
+	 * 修改了用户权限之后,重新存储security中用户权限
+	 * 
+	 * @param authorities 新的用户权限
+	 */
+	public static void setLoginAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+				getAuthentication().getPrincipal(), getAuthentication().getCredentials(), authorities));
+	}
+
+	/**
+	 * 修改用户信息之后,重新存储security中的用户信息
+	 * 
+	 * @param user 用户信息,若为null,则使用原来的用户信息
+	 * @param password 用户密码,若为null,则使用原来的用户密码
+	 * @param authorities 用户权限,若为null,则使用原来的用户权限
+	 */
+	public static void setLoginUser(User user, String password, Collection<? extends GrantedAuthority> authorities) {
+		User newUser = Objects.isNull(user) ? getLoginUser() : user;
+		Object newPwd = StrUtils.isBlank(password) ? getAuthentication().getCredentials() : password;
+		Collection<? extends GrantedAuthority> newAuthorities = ListUtils.isBlank(authorities)
+				? getAuthentication().getAuthorities()
+				: authorities;
+		SecurityContextHolder.getContext()
+				.setAuthentication(new UsernamePasswordAuthenticationToken(newUser, newPwd, newAuthorities));
 	}
 }

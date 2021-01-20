@@ -11,13 +11,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 角色菜单表 tr_role_menu
+ * 角色菜单权限表 tr_role_menu
  * 
  * @author 飞花梦影
- * @date 2021-01-13 09:43:43
+ * @date 2021-01-20 16:19:14
  * @git {@link https://github.com/mygodness100}
  */
-@ApiModel(description = "角色菜单表 tr_role_menu")
+@ApiModel(description = "角色菜单权限表 tr_role_menu")
 @Getter
 @Setter
 @Builder
@@ -29,16 +29,22 @@ public class RoleMenu extends AbstractModel {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 * 角色编号
 	 */
-	@ApiModelProperty("")
+	@ApiModelProperty("角色编号")
 	private Long roleId;
 
 	/**
-	 * 
+	 * 菜单编号
 	 */
-	@ApiModelProperty("")
+	@ApiModelProperty("菜单编号")
 	private Long menuId;
+
+	/**
+	 * 权限,见ts_dict表PERMISSION,多个用逗号隔开
+	 */
+	@ApiModelProperty("权限,见ts_dict表PERMISSION,多个用逗号隔开")
+	private String permissions;
 
 	/**
 	 * 菜单状态:默认1全选,2半选

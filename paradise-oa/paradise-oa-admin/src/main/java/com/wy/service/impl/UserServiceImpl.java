@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wy.base.AbstractService;
+import com.wy.component.RedisService;
 import com.wy.component.TokenService;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.BooleanEnum;
@@ -92,6 +93,9 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Autowired
 	private FileinfoService fileinfoService;
 
+	@Autowired
+	private RedisService redisService;
+
 	/**
 	 * 通过用户名,邮件,手机号查询用户信息
 	 * 
@@ -105,8 +109,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		example.or().andMobileEqualTo(username);
 		List<User> entitys = userMapper.selectByExample(example);
 		if (ListUtils.isBlank(entitys) || entitys.size() > 1) {
-			log.info("登录用户:{}不存在.", username);
-			throw new AuthException("对不起,帐号:" + username + " 不存在");
+			return null;
 		}
 		return entitys.get(0);
 	}
@@ -146,36 +149,63 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		if (config.getApi().isValidCode()) {
-			String code = ServletUtils.getParameter("code");
-			if (StrUtils.isBlank(code)) {
-				throw new AuthException("验证码不能为空");
-			}
-			String sessionCode = ServletUtils.getHttpSession().getAttribute(config.getCache().getIdentifyCodeKey())
-					.toString();
-			if (StrUtils.isBlank(sessionCode)) {
-				asyncTask.recordLogininfo(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
-						messageSource.getMessage("user.code.expire", null, Locale.getDefault()));
-				throw new ResultException("验证码过期");
-			}
-			if (!Objects.equals(code, sessionCode)) {
-				asyncTask.recordLogininfo(username, BooleanEnum.NO.ordinal(),
-						messageSource.getMessage("user.code.error", null, Locale.getDefault()));
-				throw new ResultException("验证码错误,请重新输入或刷新验证码");
-			}
-			// 验证过后删除session中的缓存
-			ServletUtils.getHttpSession().removeAttribute(config.getCache().getIdentifyCodeKey());
-		}
+		handlerCaptcha(username);
 		User user = getByUsername(username);
-		if (UserState.USER_DELETE.getCode() == user.getState()) {
-			log.info("登录用户:{}已被删除.", username);
-			throw new ResultException("对不起,账号:" + username + " 已被删除");
-		} else if (UserState.USER_BLACK.getCode() == user.getState()) {
-			log.info("登录用户:{}是黑名单用户.", username);
-			throw new ResultException("对不起,账号:" + username + "是黑名单帐号,请联系客服");
+		if (Objects.isNull(user)) {
+			return null;
 		}
+		handlerState(user);
 		user.setPermissions(menuService.getMenuPermission(user.getUserId()));
 		return user;
+	}
+
+	/**
+	 * 验证码处理
+	 * 
+	 * @param username 登录用户名
+	 */
+	private void handlerCaptcha(String username) {
+		if (!config.getCaptcha().isValid()) {
+			return;
+		}
+		String code = ServletUtils.getParameter("code");
+		if (StrUtils.isBlank(code)) {
+			throw new AuthException(TipEnum.TIP_LOGIN_FAIL_CODE_EMPTY);
+		}
+		String sessionCode = redisService.getStr(ServletUtils.getHttpServletRequest().getRequestedSessionId());
+		if (StrUtils.isBlank(sessionCode)) {
+			asyncTask.recordLogininfo(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
+					messageSource.getMessage("user.code.expire", null, Locale.getDefault()));
+			throw new ResultException("验证码过期");
+		}
+		if (!Objects.equals(code, sessionCode)) {
+			asyncTask.recordLogininfo(username, BooleanEnum.NO.ordinal(),
+					messageSource.getMessage("user.code.error", null, Locale.getDefault()));
+			throw new ResultException("验证码错误,请重新输入或刷新验证码");
+		}
+		// 验证过后删除session中的缓存
+		// ServletUtils.getHttpSession().removeAttribute(Constants.REDIS_KEY_CAPTCHA_CODE);
+		redisService.delete(ServletUtils.getHttpServletRequest().getRequestedSessionId());
+	}
+
+	/**
+	 * 用户状态处理
+	 * 
+	 * @param user 用户信息
+	 */
+	private void handlerState(User user) {
+		if (UserState.USER_BLACK.getCode() == user.getState()) {
+			log.info("登录用户:{}是黑名单用户", user.getUsername());
+			throw new AuthException("对不起,账号:" + user.getUsername() + "是黑名单帐号,请联系客服");
+		}
+		if (UserState.USER_DELETE.getCode() == user.getState()) {
+			log.info("登录用户:{}已被删除", user.getUsername());
+			throw new AuthException("对不起,账号:" + user.getUsername() + "已被删除,请联系管理员");
+		}
+		if (UserState.USER_LOCK.getCode() == user.getState()) {
+			log.info("登录用户:{}为锁定状态", user.getUsername());
+			throw new AuthException("对不起,账号:" + user.getUsername() + "被锁定,请等待" + config.getCommon());
+		}
 	}
 
 	/**
@@ -203,7 +233,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		if (StrUtils.isBlank(password)) {
 			password = config.getCommon().getDefaultPwd();
 		} else {
-			String temp_pwd = CryptoUtils.AESSimpleCrypt(password, config.getCommon().getSecretKeyUser(), false);
+			String temp_pwd = CryptoUtils.AESSimpleCrypt(password, config.getLogin().getSecretKeyUser(), false);
 			password = temp_pwd.substring(0, temp_pwd.lastIndexOf("_"));
 			if (password.length() > 12) {
 				throw new ResultException("密码长度不能超过12位");

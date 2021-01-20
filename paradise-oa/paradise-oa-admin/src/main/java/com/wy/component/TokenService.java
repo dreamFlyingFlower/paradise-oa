@@ -1,7 +1,6 @@
 package com.wy.component;
 
 import java.text.MessageFormat;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,12 +13,9 @@ import com.wy.crypto.CryptoUtils;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
+import com.wy.util.JwtUtils;
 import com.wy.utils.MapUtils;
 import com.wy.utils.StrUtils;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * token验证处理
@@ -60,20 +56,10 @@ public class TokenService {
 		String token = MessageFormat.format(TOKEN_FORMAT, CryptoUtils.UUID(), user.getUserId(),
 				System.currentTimeMillis());
 		refreshToken(user);
-		user.setToken(config.getFilter().isJwtEnable() ? createToken(MapUtils.builder(Constants.TOKEN, token).build())
+		user.setToken(config.getFilter().isJwtEnable()
+				? JwtUtils.buildToken(MapUtils.builder(Constants.TOKEN, token).build(), config.getToken().getSecret())
 				: token);
 		redisTemplate.opsForValue().set(getTokenKey(user.getUserId()), user);
-	}
-
-	/**
-	 * jwt对token进行加密生成jwt令牌
-	 * 
-	 * @param claims 数据声明
-	 * @return 令牌
-	 */
-	private String createToken(Map<String, Object> claims) {
-		return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, config.getToken().getSecret())
-				.compact();
 	}
 
 	/**
@@ -90,7 +76,7 @@ public class TokenService {
 		}
 		if (config.getFilter().isJwtEnable()) {
 			// 解析对应的权限以及用户信息
-			token = parseToken(token);
+			token = JwtUtils.parseToken(token, config.getToken().getSecret());
 		}
 		String userKey = getTokenKey(Long.parseLong(token.split("_")[1]));
 		return (User) redisTemplate.opsForValue().get(userKey);
@@ -108,17 +94,6 @@ public class TokenService {
 			token = token.replace(Constants.TOKEN_PREFIX, "");
 		}
 		return token;
-	}
-
-	/**
-	 * 从令牌中获取数据声明
-	 * 
-	 * @param token 令牌
-	 * @return 数据声明
-	 */
-	private String parseToken(String token) {
-		Claims claims = Jwts.parser().setSigningKey(config.getToken().getSecret()).parseClaimsJws(token).getBody();
-		return (String) claims.get(Constants.TOKEN);
 	}
 
 	/**

@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 
 import com.wy.base.AbstractModel;
 import com.wy.database.annotation.Pri;
+import com.wy.database.annotation.Unique;
 import com.wy.enums.CommonState;
 import com.wy.excel.annotation.ExcelColumn;
 import com.wy.valid.ValidEdit;
@@ -25,7 +26,7 @@ import lombok.ToString;
  * 角色表 ts_role
  * 
  * @author 飞花梦影
- * @date 2021-01-13 09:43:43
+ * @date 2021-01-20 17:30:19
  * @git {@link https://github.com/mygodness100}
  */
 @ApiModel(description = "角色表 ts_role")
@@ -58,6 +59,13 @@ public class Role extends AbstractModel {
 	private String roleName;
 
 	/**
+	 * 角色编码
+	 */
+	@ApiModelProperty("角色编码")
+	@Unique
+	private String roleCode;
+
+	/**
 	 * 角色类型:0不可见,只有超级管理员不可见;默认1可见
 	 */
 	@ApiModelProperty("角色类型:0不可见,只有超级管理员不可见;默认1可见")
@@ -88,6 +96,12 @@ public class Role extends AbstractModel {
 	 */
 	@ApiModelProperty("菜单编号集合")
 	private List<Long> menuIds;
+
+	/**
+	 * 权限集合
+	 */
+	@ApiModelProperty("权限集合")
+	private List<RoleMenu> roleMenus;
 
 	/**
 	 * 部门集合

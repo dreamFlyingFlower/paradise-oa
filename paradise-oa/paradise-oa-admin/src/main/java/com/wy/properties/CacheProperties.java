@@ -14,9 +14,6 @@ import lombok.Setter;
 @Setter
 public class CacheProperties {
 
-	/** redis缓存中验证码key缓存前缀 */
-	private String identifyCodeKey = "identify_code:";
-
 	/** redis缓存中验证码过期时间,单位120s */
-	private int identifyCodeExpireTime = 120;
+//	private int identifyCodeExpireTime = 120;
 }

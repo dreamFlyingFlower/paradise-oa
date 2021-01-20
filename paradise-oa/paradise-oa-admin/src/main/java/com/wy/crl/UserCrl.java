@@ -97,8 +97,8 @@ public class UserCrl extends AbstractCrl<User, Long> {
 
 	@Log(title = "用户管理", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:user:export')")
-	@GetMapping("export")
-	public Result<?> export(User user, HttpServletResponse response) {
+	@GetMapping("excelExport")
+	public Result<?> excelExport(User user, HttpServletResponse response) {
 		List<User> list = userService.getEntitys(user).getData();
 		ExcelModelUtils.getInstance().exportExcel(list, response, "用户数据.xlsx");
 		return Result.ok();
@@ -106,8 +106,8 @@ public class UserCrl extends AbstractCrl<User, Long> {
 
 	@Log(title = "用户管理", businessType = BusinessType.IMPORT)
 	@PreAuthorize("@ss.hasPermi('system:user:import')")
-	@PostMapping("importData")
-	public Result<?> importData(MultipartFile file, boolean updateSupport) throws Exception {
+	@PostMapping("excelImport")
+	public Result<?> excelImport(MultipartFile file, boolean updateSupport) throws Exception {
 		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
 		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
 		String operName = loginUser.getUsername();

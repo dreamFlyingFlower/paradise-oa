@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.wy.model.RoleMenu">
     <id column="role_id" jdbcType="BIGINT" property="roleId" />
     <id column="menu_id" jdbcType="BIGINT" property="menuId" />
+    <result column="permissions" jdbcType="VARCHAR" property="permissions" />
     <result column="menu_state" jdbcType="INTEGER" property="menuState" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -65,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    role_id, menu_id, menu_state
+    role_id, menu_id, permissions, menu_state
   </sql>
   <select id="selectByExample" parameterType="com.wy.model.RoleMenuExample" resultMap="BaseResultMap">
     select
@@ -100,10 +101,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.wy.model.RoleMenu">
-    insert into tr_role_menu (role_id, menu_id, menu_state
-      )
-    values (#{roleId,jdbcType=BIGINT}, #{menuId,jdbcType=BIGINT}, #{menuState,jdbcType=INTEGER}
-      )
+    insert into tr_role_menu (role_id, menu_id, permissions, 
+      menu_state)
+    values (#{roleId,jdbcType=BIGINT}, #{menuId,jdbcType=BIGINT}, #{permissions,jdbcType=VARCHAR}, 
+      #{menuState,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.wy.model.RoleMenu">
     insert into tr_role_menu
@@ -113,6 +114,9 @@
       </if>
       <if test="menuId != null">
         menu_id,
+      </if>
+      <if test="permissions != null">
+        permissions,
       </if>
       <if test="menuState != null">
         menu_state,
@@ -124,6 +128,9 @@
       </if>
       <if test="menuId != null">
         #{menuId,jdbcType=BIGINT},
+      </if>
+      <if test="permissions != null">
+        #{permissions,jdbcType=VARCHAR},
       </if>
       <if test="menuState != null">
         #{menuState,jdbcType=INTEGER},
@@ -145,6 +152,9 @@
       <if test="record.menuId != null">
         menu_id = #{record.menuId,jdbcType=BIGINT},
       </if>
+      <if test="record.permissions != null">
+        permissions = #{record.permissions,jdbcType=VARCHAR},
+      </if>
       <if test="record.menuState != null">
         menu_state = #{record.menuState,jdbcType=INTEGER},
       </if>
@@ -157,6 +167,7 @@
     update tr_role_menu
     set role_id = #{record.roleId,jdbcType=BIGINT},
       menu_id = #{record.menuId,jdbcType=BIGINT},
+      permissions = #{record.permissions,jdbcType=VARCHAR},
       menu_state = #{record.menuState,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -165,6 +176,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.wy.model.RoleMenu">
     update tr_role_menu
     <set>
+      <if test="permissions != null">
+        permissions = #{permissions,jdbcType=VARCHAR},
+      </if>
       <if test="menuState != null">
         menu_state = #{menuState,jdbcType=INTEGER},
       </if>
@@ -174,29 +188,30 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wy.model.RoleMenu">
     update tr_role_menu
-    set menu_state = #{menuState,jdbcType=INTEGER}
+    set permissions = #{permissions,jdbcType=VARCHAR},
+      menu_state = #{menuState,jdbcType=INTEGER}
     where role_id = #{roleId,jdbcType=BIGINT}
       and menu_id = #{menuId,jdbcType=BIGINT}
   </update>
   <insert id="inserts" parameterType="list">
-    insert into tr_role_menu (role_id,menu_id,menu_state)  values <foreach collection="list" item="item" index="index" separator=",">(#{item.roleId,jdbcType=BIGINT},#{item.menuId,jdbcType=BIGINT},<choose><when test="item.menuState!= null">menu_state = #{item.menuState,jdbcType=INTEGER}</when><otherwise>1</otherwise></choose>)</foreach>
+    insert into tr_role_menu (role_id,menu_id,permissions,menu_state)  values <foreach collection="list" item="item" index="index" separator=",">(#{item.roleId,jdbcType=BIGINT},#{item.menuId,jdbcType=BIGINT},#{item.permissions,jdbcType=VARCHAR},<choose><when test="item.menuState!= null">menu_state = #{item.menuState,jdbcType=INTEGER}</when><otherwise>1</otherwise></choose>)</foreach>
   </insert>
   <delete id="deleteAll">
-    delete from  tr_role_menu 
+    truncate table  tr_role_menu 
   </delete>
   <select id="selectEntitys" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List" /> from tr_role_menu<where><if test = "roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuState != null "> and menu_state = #{menuState,jdbcType=INTEGER} </if></where>
+    select <include refid="Base_Column_List" /> from tr_role_menu<where><if test = "roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "permissions != null "> and permissions = #{permissions,jdbcType=VARCHAR} </if><if test = "menuState != null "> and menu_state = #{menuState,jdbcType=INTEGER} </if></where>
   </select>
   <select id="selectLists" resultType="map">
-    select <include refid="Base_Column_List" /> from tr_role_menu<where><if test = "roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuState != null "> and menu_state = #{menuState,jdbcType=INTEGER} </if></where>
+    select <include refid="Base_Column_List" /> from tr_role_menu<where><if test = "roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if><if test = "menuId != null "> and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "permissions != null "> and permissions = #{permissions,jdbcType=VARCHAR} </if><if test = "menuState != null "> and menu_state = #{menuState,jdbcType=INTEGER} </if></where>
   </select>
   <select id="countByEntity" resultType="java.lang.Long">
-    select count(*) from tr_role_menu<where><if test = "roleId != null ">and role_id = #{roleId,jdbcType=BIGINT} </if><if test = "menuId != null ">and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "menuState != null ">and menu_state = #{menuState,jdbcType=INTEGER} </if></where>
+    select count(*) from tr_role_menu<where><if test = "roleId != null ">and role_id = #{roleId,jdbcType=BIGINT} </if><if test = "menuId != null ">and menu_id = #{menuId,jdbcType=BIGINT} </if><if test = "permissions != null ">and permissions = #{permissions,jdbcType=VARCHAR} </if><if test = "menuState != null ">and menu_state = #{menuState,jdbcType=INTEGER} </if></where>
   </select>
-  <select id="getMaxValue" resultType="java.lang.Long">
+  <select id="selectMaxValue" resultType="java.lang.Long">
     select <choose><when test="'roleId' == _parameter.column">max(role_id)</when><when test="'menuId' == _parameter.column">max(menu_id)</when><when test="'menuState' == _parameter.column">max(menu_state)</when><otherwise>max(0)</otherwise>  </choose>  from tr_role_menu
   </select>
-  <select id="getMaxTime" resultType="java.util.Date">
+  <select id="selectMaxTime" resultType="java.util.Date">
     select <choose><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from tr_role_menu
   </select>
 </mapper>

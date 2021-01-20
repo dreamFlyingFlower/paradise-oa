@@ -4,6 +4,7 @@
 	<resultMap id="BaseResultMap" type="com.wy.model.Role">
 		<id column="role_id" jdbcType="BIGINT" property="roleId" />
 		<result column="role_name" jdbcType="VARCHAR" property="roleName" />
+		<result column="role_code" jdbcType="VARCHAR" property="roleCode" />
 		<result column="role_type" jdbcType="TINYINT" property="roleType" />
 		<result column="role_state" jdbcType="INTEGER" property="roleState" />
 		<result column="role_desc" jdbcType="VARCHAR" property="roleDesc" />
@@ -69,7 +70,7 @@
 		</where>
 	</sql>
 	<sql id="Base_Column_List">
-		role_id, role_name, role_type, role_state, role_desc
+		role_id, role_name, role_code, role_type, role_state, role_desc
 	</sql>
 	<select id="selectByExample" parameterType="com.wy.model.RoleExample"
 		resultMap="BaseResultMap">
@@ -104,10 +105,10 @@
 	</delete>
 	<insert id="insert" keyColumn="role_id" keyProperty="roleId"
 		parameterType="com.wy.model.Role" useGeneratedKeys="true">
-		insert into ts_role (role_name, role_type, role_state,
-		role_desc)
-		values (#{roleName,jdbcType=VARCHAR}, #{roleType,jdbcType=TINYINT}, #{roleState,jdbcType=INTEGER},
-		#{roleDesc,jdbcType=VARCHAR})
+		insert into ts_role (role_name, role_code, role_type,
+		role_state, role_desc)
+		values (#{roleName,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR}, #{roleType,jdbcType=TINYINT},
+		#{roleState,jdbcType=INTEGER}, #{roleDesc,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" keyColumn="role_id" keyProperty="roleId"
 		parameterType="com.wy.model.Role" useGeneratedKeys="true">
@@ -115,6 +116,9 @@
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="roleName != null">
 				role_name,
+			</if>
+			<if test="roleCode != null">
+				role_code,
 			</if>
 			<if test="roleType != null">
 				role_type,
@@ -129,6 +133,9 @@
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="roleName != null">
 				#{roleName,jdbcType=VARCHAR},
+			</if>
+			<if test="roleCode != null">
+				#{roleCode,jdbcType=VARCHAR},
 			</if>
 			<if test="roleType != null">
 				#{roleType,jdbcType=TINYINT},
@@ -157,6 +164,9 @@
 			<if test="record.roleName != null">
 				role_name = #{record.roleName,jdbcType=VARCHAR},
 			</if>
+			<if test="record.roleCode != null">
+				role_code = #{record.roleCode,jdbcType=VARCHAR},
+			</if>
 			<if test="record.roleType != null">
 				role_type = #{record.roleType,jdbcType=TINYINT},
 			</if>
@@ -175,6 +185,7 @@
 		update ts_role
 		set role_id = #{record.roleId,jdbcType=BIGINT},
 		role_name = #{record.roleName,jdbcType=VARCHAR},
+		role_code = #{record.roleCode,jdbcType=VARCHAR},
 		role_type = #{record.roleType,jdbcType=TINYINT},
 		role_state = #{record.roleState,jdbcType=INTEGER},
 		role_desc = #{record.roleDesc,jdbcType=VARCHAR}
@@ -187,6 +198,9 @@
 		<set>
 			<if test="roleName != null">
 				role_name = #{roleName,jdbcType=VARCHAR},
+			</if>
+			<if test="roleCode != null">
+				role_code = #{roleCode,jdbcType=VARCHAR},
 			</if>
 			<if test="roleType != null">
 				role_type = #{roleType,jdbcType=TINYINT},
@@ -203,15 +217,16 @@
 	<update id="updateByPrimaryKey" parameterType="com.wy.model.Role">
 		update ts_role
 		set role_name = #{roleName,jdbcType=VARCHAR},
+		role_code = #{roleCode,jdbcType=VARCHAR},
 		role_type = #{roleType,jdbcType=TINYINT},
 		role_state = #{roleState,jdbcType=INTEGER},
 		role_desc = #{roleDesc,jdbcType=VARCHAR}
 		where role_id = #{roleId,jdbcType=BIGINT}
 	</update>
 	<insert id="inserts" parameterType="list">
-		insert into ts_role (role_id,role_name,role_type,role_state,role_desc) values
+		insert into ts_role (role_id,role_name,role_code,role_type,role_state,role_desc) values
 		<foreach collection="list" item="item" index="index" separator=",">
-			(null,#{item.roleName,jdbcType=VARCHAR},
+			(null,#{item.roleName,jdbcType=VARCHAR},#{item.roleCode,jdbcType=VARCHAR},
 			<choose>
 				<when test="item.roleType!= null">role_type = #{item.roleType,jdbcType=TINYINT},</when>
 				<otherwise>1,</otherwise>
@@ -229,7 +244,7 @@
 		</foreach>
 	</delete>
 	<delete id="deleteAll">
-		delete from ts_role
+		truncate table ts_role
 	</delete>
 	<select id="selectEntitys" resultMap="BaseResultMap">
 		select
@@ -238,6 +253,7 @@
 		<where>
 			<if test="roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if>
 			<if test="roleName != null "> and role_name = #{roleName,jdbcType=VARCHAR} </if>
+			<if test="roleCode != null "> and role_code = #{roleCode,jdbcType=VARCHAR} </if>
 			<if test="roleType != null "> and role_type = #{roleType,jdbcType=TINYINT} </if>
 			<if test="roleState != null "> and role_state = #{roleState,jdbcType=INTEGER} </if>
 			<if test="roleDesc != null "> and role_desc = #{roleDesc,jdbcType=VARCHAR} </if>
@@ -250,6 +266,7 @@
 		<where>
 			<if test="roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if>
 			<if test="roleName != null "> and role_name = #{roleName,jdbcType=VARCHAR} </if>
+			<if test="roleCode != null "> and role_code = #{roleCode,jdbcType=VARCHAR} </if>
 			<if test="roleType != null "> and role_type = #{roleType,jdbcType=TINYINT} </if>
 			<if test="roleState != null "> and role_state = #{roleState,jdbcType=INTEGER} </if>
 			<if test="roleDesc != null "> and role_desc = #{roleDesc,jdbcType=VARCHAR} </if>
@@ -260,12 +277,13 @@
 		<where>
 			<if test="roleId != null ">and role_id = #{roleId,jdbcType=BIGINT} </if>
 			<if test="roleName != null ">and role_name = #{roleName,jdbcType=VARCHAR} </if>
+			<if test="roleCode != null ">and role_code = #{roleCode,jdbcType=VARCHAR} </if>
 			<if test="roleType != null ">and role_type = #{roleType,jdbcType=TINYINT} </if>
 			<if test="roleState != null ">and role_state = #{roleState,jdbcType=INTEGER} </if>
 			<if test="roleDesc != null ">and role_desc = #{roleDesc,jdbcType=VARCHAR} </if>
 		</where>
 	</select>
-	<select id="getMaxValue" resultType="java.lang.Long">
+	<select id="selectMaxValue" resultType="java.lang.Long">
 		select
 		<choose>
 			<when test="'roleId' == _parameter.column">max(role_id)</when>
@@ -275,17 +293,17 @@
 		</choose>
 		from ts_role
 	</select>
-	<select id="getMaxTime" resultType="java.util.Date">
+	<select id="selectMaxTime" resultType="java.util.Date">
 		select
 		<choose>
 			<otherwise>1970-01-01 00:00:00</otherwise>
 		</choose>
 		from ts_role
 	</select>
-	
 	<sql id="selectUserRole">
 		select r.role_id, r.role_name, r.role_type, r.role_state, r.role_desc
-		from ts_role r left join tr_user_role ur on ur.role_id = r.role_id
+		from ts_role r
+		left join tr_user_role ur on ur.role_id = r.role_id
 		left join ts_user u on u.user_id = ur.user_id
 	</sql>
 

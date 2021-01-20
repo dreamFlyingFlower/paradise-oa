@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,10 @@ import org.springframework.stereotype.Component;
 public class RedisService {
 
 	@Autowired
-	public RedisTemplate<Object, Object> redisTemplate;
+	private RedisTemplate<Object, Object> redisTemplate;
+
+	@Autowired
+	private StringRedisTemplate stringRedisTemplate;
 
 	/**
 	 * 缓存基本对象
@@ -38,6 +42,19 @@ public class RedisService {
 	 */
 	public ValueOperations<Object, Object> setObject(String key, Object value) {
 		ValueOperations<Object, Object> operation = redisTemplate.opsForValue();
+		operation.set(key, value);
+		return operation;
+	}
+
+	/**
+	 * 缓存字符串
+	 * 
+	 * @param key 缓存的键值
+	 * @param value 缓存的值
+	 * @return 缓存的对象
+	 */
+	public ValueOperations<String, String> setStr(String key, String value) {
+		ValueOperations<String, String> operation = stringRedisTemplate.opsForValue();
 		operation.set(key, value);
 		return operation;
 	}
@@ -58,7 +75,22 @@ public class RedisService {
 	}
 
 	/**
-	 * 获得缓存的基本对象。
+	 * 缓存字符串
+	 * 
+	 * @param key 缓存的键值
+	 * @param value 缓存的值
+	 * @param timeout 时间
+	 * @param timeUnit 时间颗粒度
+	 * @return 缓存的对象
+	 */
+	public ValueOperations<String, String> setStr(String key, String value, Integer timeout, TimeUnit timeUnit) {
+		ValueOperations<String, String> operation = stringRedisTemplate.opsForValue();
+		operation.set(key, value, timeout, timeUnit);
+		return operation;
+	}
+
+	/**
+	 * 获得缓存的基本对象
 	 * 
 	 * @param key 缓存键值
 	 * @return 缓存键值对应的数据
@@ -69,21 +101,14 @@ public class RedisService {
 	}
 
 	/**
-	 * 删除单个对象
+	 * 获得缓存的字符串
 	 * 
-	 * @param key
+	 * @param key 缓存键值
+	 * @return 缓存键值对应的数据
 	 */
-	public void delete(String key) {
-		redisTemplate.delete(key);
-	}
-
-	/**
-	 * 删除集合对象
-	 * 
-	 * @param collection
-	 */
-	public void delete(Collection<Object> collection) {
-		redisTemplate.delete(collection);
+	public String getStr(String key) {
+		ValueOperations<String, String> operation = stringRedisTemplate.opsForValue();
+		return operation.get(key);
 	}
 
 	/**
@@ -185,5 +210,23 @@ public class RedisService {
 	 */
 	public Collection<Object> keys(String pattern) {
 		return redisTemplate.keys(pattern);
+	}
+
+	/**
+	 * 删除单个对象
+	 * 
+	 * @param key
+	 */
+	public void delete(String key) {
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 删除集合对象
+	 * 
+	 * @param collection
+	 */
+	public void delete(Collection<Object> collection) {
+		redisTemplate.delete(collection);
 	}
 }

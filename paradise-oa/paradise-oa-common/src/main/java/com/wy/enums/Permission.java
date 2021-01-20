@@ -11,29 +11,27 @@ import com.wy.common.PropConverter;
  */
 public enum Permission implements PropConverter {
 
-	PERMISSION_ALL(1, "所有数据权限"),
-	PERMISSION_CUSTOM(2, "自定义数据权限"),
-	PERMISSION_DEPART(3, "本部门数据权限"),
-	PERMISSION_DEPARTS(4, "本部门及以下数据权限");
+	/** 所有权限 */
+	PERMISSION_ALL("ALL"),
+	PERMISSION_INSERT("INSERT"),
+	PERMISSION_DELETE("DELETE"),
+	PERMISSION_UPDATE("UPDATE"),
+	PERMISSION_SELECT("SELECT"),
+	PERMISSION_IMPORT("IMPORT"),
+	PERMISSION_EXPORT("EXPORT");
 
-	private int code;
+	private String msg;
 
-	private String desc;
-
-	private Permission() {
-	}
-
-	private Permission(int code, String desc) {
-		this.code = code;
-		this.desc = desc;
+	private Permission(String msg) {
+		this.msg = msg;
 	}
 
 	public int getCode() {
-		return this.code;
+		return this.ordinal();
 	}
 
 	@Override
 	public Object getValue() {
-		return this.desc;
+		return this.msg;
 	}
 }

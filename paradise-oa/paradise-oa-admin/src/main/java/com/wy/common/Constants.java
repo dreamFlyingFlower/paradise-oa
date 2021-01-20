@@ -19,40 +19,19 @@ public interface Constants {
 	/** 登录用户redis key */
 	String REDIS_KEY_TOKEN = "key_token:";
 
-	/** 验证码有效期,单位分钟 */
-	int CAPTCHA_EXPIRATION = 2;
-
 	/** 用户token */
 	String TOKEN = "login_token";
 
 	/** 令牌前缀 */
 	String TOKEN_PREFIX = "Bearer ";
 
-	//
-	// /**
-	// * 令牌前缀
-	// */
-	// public static final String LOGIN_USER_KEY = "login_user_key";
-	//
-	// /**
-	// * 用户ID
-	// */
-	// public static final String JWT_USERID = "userid";
-	//
+	/** 验证码有效期,单位分钟 */
+	int CAPTCHA_EXPIRATION = 2;
+
 	// /**
 	// * 用户名称
 	// */
 	// public static final String JWT_USERNAME = Claims.SUBJECT;
-	//
-	// /**
-	// * 用户头像
-	// */
-	// public static final String JWT_AVATAR = "avatar";
-	//
-	// /**
-	// * 创建时间
-	// */
-	// public static final String JWT_CREATED = "created";
 	//
 	// /**
 	// * 用户权限

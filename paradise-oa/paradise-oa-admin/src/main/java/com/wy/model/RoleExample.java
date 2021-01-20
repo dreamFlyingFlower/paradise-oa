@@ -234,6 +234,76 @@ public class RoleExample {
             return (Criteria) this;
         }
 
+        public Criteria andRoleCodeIsNull() {
+            addCriterion("role_code is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeIsNotNull() {
+            addCriterion("role_code is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeEqualTo(String value) {
+            addCriterion("role_code =", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeNotEqualTo(String value) {
+            addCriterion("role_code <>", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeGreaterThan(String value) {
+            addCriterion("role_code >", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeGreaterThanOrEqualTo(String value) {
+            addCriterion("role_code >=", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeLessThan(String value) {
+            addCriterion("role_code <", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeLessThanOrEqualTo(String value) {
+            addCriterion("role_code <=", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeLike(String value) {
+            addCriterion("role_code like", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeNotLike(String value) {
+            addCriterion("role_code not like", value, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeIn(List<String> values) {
+            addCriterion("role_code in", values, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeNotIn(List<String> values) {
+            addCriterion("role_code not in", values, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeBetween(String value1, String value2) {
+            addCriterion("role_code between", value1, value2, "roleCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andRoleCodeNotBetween(String value1, String value2) {
+            addCriterion("role_code not between", value1, value2, "roleCode");
+            return (Criteria) this;
+        }
+
         public Criteria andRoleTypeIsNull() {
             addCriterion("role_type is null");
             return (Criteria) this;

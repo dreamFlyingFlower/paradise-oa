@@ -47,7 +47,7 @@ public class LoginLogCrl extends AbstractCrl<LoginLog, Long> {
 	}
 
 	@PreAuthorize("@ss.hasPermi('monitor:logininfor:remove')")
-	@Log(title = "登陆日志", businessType = BusinessType.CLEAN)
+	@Log(title = "登陆日志", businessType = BusinessType.CLEAR)
 	@GetMapping("clear")
 	public Result<?> clear() {
 		loginLogService.clear();
