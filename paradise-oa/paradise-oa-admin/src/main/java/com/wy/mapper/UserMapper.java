@@ -38,4 +38,11 @@ public interface UserMapper extends BaseMapper<User, Long> {
 	int updateByPrimaryKeySelective(User record);
 
 	int updateByPrimaryKey(User record);
+
+	/**
+	 * 根据用户名或邮件地址,手机号查询用户信息,角色信息
+	 * 
+	 * @param username 可以是用户名,邮件地址,手机号
+	 */
+	List<User> selectByUsername(String username);
 }

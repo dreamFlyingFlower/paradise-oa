@@ -34,7 +34,6 @@ import com.wy.mapper.UserinfoMapper;
 import com.wy.model.Fileinfo;
 import com.wy.model.Role;
 import com.wy.model.User;
-import com.wy.model.UserExample;
 import com.wy.model.UserRole;
 import com.wy.model.UserRoleExample;
 import com.wy.model.vo.PermissionVo;
@@ -104,11 +103,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @return 用户信息
 	 */
 	public User getByUsername(String username) {
-		UserExample example = new UserExample();
-		example.or().andUsernameEqualTo(username);
-		example.or().andEmailEqualTo(username);
-		example.or().andMobileEqualTo(username);
-		List<User> entitys = userMapper.selectByExample(example);
+		List<User> entitys =userMapper.selectByUsername(username);
 		if (ListUtils.isBlank(entitys) || entitys.size() > 1) {
 			return null;
 		}

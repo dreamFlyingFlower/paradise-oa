@@ -73,8 +73,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				// 认证失败处理类
 				// .exceptionHandling().authenticationEntryPoint(loginFailureHandle).and()
 				.exceptionHandling().authenticationEntryPoint(new SecurityEntryPoint(null)).and()
-				// 基于token,所以不需要session
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				// 过滤请求
 				.authorizeRequests()
 				// 不进行拦截的url
@@ -89,9 +87,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.successHandler(loginSuccessHandler).failureHandler(loginFailureHandler)
 				// 自定义登出方法
 				.and().logout().logoutUrl("/user/logout").logoutSuccessHandler(logoutSuccessHandler);
-		// 添加token拦截
+		// 添加token拦截,若使用token就不使用session;若不使用token,就使用session
 		if (config.getFilter().isTokenEnable()) {
 			httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+		} else {
+			httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}
 	}
 }

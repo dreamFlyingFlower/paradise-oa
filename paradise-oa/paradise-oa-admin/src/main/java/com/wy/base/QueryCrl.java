@@ -27,7 +27,7 @@ import io.swagger.annotations.ApiParam;
 public abstract class QueryCrl<T, ID> {
 
 	@Autowired
-	public AbstractService<T, ID> abstractService;
+	public BaseService<T, ID> baseService;
 
 	/**
 	 * 查询数据库中的值是否有重复,条件必须是相等的才可以查询
@@ -38,7 +38,7 @@ public abstract class QueryCrl<T, ID> {
 	@ApiOperation("查询该类中某个字段值是否重复")
 	@PostMapping("hasValue")
 	public Result<?> hasValue(@RequestBody T t) {
-		if (abstractService.hasValue(t)) {
+		if (baseService.hasValue(t)) {
 			return Result.ok("字段值重复", 1);
 		}
 		return Result.ok("无重复值", 0);
@@ -53,7 +53,7 @@ public abstract class QueryCrl<T, ID> {
 	@ApiOperation("根据主键获得数据详情,主键类型是数字类型")
 	@GetMapping("getById/{id}")
 	public Result<?> getById(@ApiParam("数字主键编号") @PathVariable ID id) {
-		return Result.ok(abstractService.getById(id));
+		return Result.ok(baseService.getById(id));
 	}
 
 	/**
@@ -69,7 +69,7 @@ public abstract class QueryCrl<T, ID> {
 	public Result<?> getTree(@ApiParam("该API实体类参数") @PathVariable ID id,
 			@ApiParam("是否查询本级数据,true获取,false直接获取下级,默认false") @RequestParam(required = false) Boolean self,
 			@ApiParam("其他基本类型参数") @RequestParam(required = false) Map<String, Object> params) {
-		return Result.ok(abstractService.getTree(id, self, params));
+		return Result.ok(baseService.getTree(id, self, params));
 	}
 
 	/**
@@ -82,7 +82,7 @@ public abstract class QueryCrl<T, ID> {
 	@ApiOperation("分页/不分页查询,参数为非null字段的等值查询,该方法的返回值是以实体类为单位的结果集")
 	@GetMapping("getEntitys")
 	public Result<?> getEntitys(@ApiParam("该API实体类参数") T t) {
-		return abstractService.getEntitys(t);
+		return baseService.getEntitys(t);
 	}
 
 	/**
@@ -95,7 +95,7 @@ public abstract class QueryCrl<T, ID> {
 	 */
 	@GetMapping("getExport")
 	public void getExport(@ApiParam("该API实体类参数") T t, HttpServletRequest request, HttpServletResponse response) {
-		abstractService.getExport(t, request, response);
+		baseService.getExport(t, request, response);
 	}
 
 	/**
@@ -107,6 +107,6 @@ public abstract class QueryCrl<T, ID> {
 	@ApiOperation("分页/不分页查询,需要自定义查询条件,该方法的返回值是以map为单位的结果集")
 	@GetMapping("getLists")
 	public Result<?> getLists(@RequestParam(required = false) Map<String, Object> params) {
-		return abstractService.getLists(params);
+		return baseService.getLists(params);
 	}
 }

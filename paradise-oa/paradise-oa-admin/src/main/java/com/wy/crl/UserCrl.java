@@ -73,7 +73,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 
 	@Log(title = "用户管理", businessType = BusinessType.EXPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
-	@PreAuthorize("#{permissionService.hasAuthority('ROLE_ADMIN:EXPORT')}")
+	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:EXPORT')")
 	@GetMapping("excelExport")
 	public Result<?> excelExport(User user, HttpServletResponse response) {
 		List<User> list = userService.getEntitys(user).getData();
@@ -83,7 +83,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 
 	@Log(title = "用户管理", businessType = BusinessType.IMPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
-	@PreAuthorize("#{permissionService.hasAuthority('ROLE_ADMIN:IMPORT')}")
+	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:IMPORT')")
 	@PostMapping("excelImport")
 	public Result<?> excelImport(MultipartFile file, boolean updateSupport) throws Exception {
 		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
@@ -97,7 +97,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	/**
 	 * 新增用户
 	 */
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN'")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
 	@Log(title = "用户管理", businessType = BusinessType.INSERT)
 	@ApiOperation("新增用户")
 	@Override
@@ -117,7 +117,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * @param user 需要重置密码的用户信息
 	 * @return 成功或失败
 	 */
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN'")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
 	@Log(title = "用户管理", businessType = BusinessType.UPDATE)
 	@ApiOperation("重置密码")
 	@PostMapping("resetPwd")
@@ -129,9 +129,10 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * 修改密码
 	 */
 	@Log(title = "个人信息", businessType = BusinessType.UPDATE)
+	@PreAuthorize("#username == principal.username")
 	@ApiOperation("修改密码")
 	@PostMapping("updatePwd")
-	public Result<?> updatePwd(String oldPassword, String newPassword) {
+	public Result<?> updatePwd(String username,String oldPassword, String newPassword) {
 		User loginUser = SecurityUtils.getLoginUser();
 		String password = loginUser.getPassword();
 		if (!SecurityUtils.matches(oldPassword, password)) {

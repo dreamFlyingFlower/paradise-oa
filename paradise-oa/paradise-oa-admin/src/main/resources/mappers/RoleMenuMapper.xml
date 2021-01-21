@@ -6,7 +6,7 @@
 		<id column="menu_id" jdbcType="BIGINT" property="menuId" />
 		<result column="permissions" jdbcType="VARCHAR" property="permissions" />
 		<result column="menu_state" jdbcType="INTEGER" property="menuState" />
-		<result column="role_code" javaType="VARCHAR" property="roleCode"/>
+		<result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
 	</resultMap>
 	<sql id="Example_Where_Clause">
 		<where>
@@ -261,7 +261,8 @@
 		select a.role_id,a.menu_id,a.permissions,b.role_code
 		from tr_role_menu a
 		inner join ts_role b on b.role_id = a.role_id
-		inner join ts_user c on c.user_id = b.user_id
-		where c.user_id = #{userId,jdbcType=BIGINT}
+		inner join tr_user_role c on c.role_id = b.role_id
+		inner join ts_user d on d.user_id = c.user_id
+		where d.user_id = #{userId,jdbcType=BIGINT}
 	</select>
 </mapper>

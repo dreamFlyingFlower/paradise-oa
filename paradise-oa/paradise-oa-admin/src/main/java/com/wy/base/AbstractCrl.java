@@ -41,20 +41,20 @@ public abstract class AbstractCrl<T,ID> extends QueryCrl<T,ID> {
 			assert error != null;
 			return Result.error(error.getField() + error.getDefaultMessage());
 		}
-		return Result.ok(abstractService.insertSelective(t));
+		return Result.ok(baseService.insertSelective(t));
 	}
 
 	@ApiOperation("批量数据新增,不检查任何有效性")
 	@PostMapping("creates")
 	public Result<?> creates(@RequestBody List<T> ts) {
-		Object beans = abstractService.inserts(ts);
+		Object beans = baseService.inserts(ts);
 		return Objects.nonNull(beans) ? Result.ok(beans) : Result.error("新增失败");
 	}
 
 	@ApiOperation("根据主键删除表中单条数据,主键类型是数字类型")
 	@GetMapping("remove/{id}")
 	public Result<?> remove(@PathVariable ID id) {
-		int row = abstractService.delete(id);
+		int row = baseService.delete(id);
 		return row > 0 ? Result.ok(row) : Result.error("删除失败");
 	}
 
@@ -64,7 +64,7 @@ public abstract class AbstractCrl<T,ID> extends QueryCrl<T,ID> {
 		if (ListUtils.isBlank(ids)) {
 			return Result.error("集合数据为空");
 		}
-		return Result.ok(abstractService.deletes(ids));
+		return Result.ok(baseService.deletes(ids));
 	}
 
 	@ApiOperation("根据主键更新表中的该条数据的全部字段,若是传null,则数据库中字段就为null")
@@ -75,6 +75,6 @@ public abstract class AbstractCrl<T,ID> extends QueryCrl<T,ID> {
 			assert error != null;
 			return Result.error(error.getField() + error.getDefaultMessage());
 		}
-		return Result.ok(abstractService.updateSelective(t) > 0);
+		return Result.ok(baseService.updateSelective(t) > 0);
 	}
 }

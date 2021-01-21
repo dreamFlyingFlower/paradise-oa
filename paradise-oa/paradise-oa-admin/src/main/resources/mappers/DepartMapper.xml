@@ -8,6 +8,9 @@
 		<result column="pname" jdbcType="VARCHAR" property="pname" />
 		<result column="depart_desc" jdbcType="VARCHAR" property="departDesc" />
 		<result column="sort_index" jdbcType="INTEGER" property="sortIndex" />
+		
+		<result column="depart_id" jdbcType="INTEGER" property="treeId" />
+		<result column="treeName" jdbcType="INTEGER" property="treeName" />
 	</resultMap>
 	<sql id="Example_Where_Clause">
 		<where>

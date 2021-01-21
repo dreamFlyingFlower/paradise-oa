@@ -7,12 +7,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.wy.common.Constants;
 import com.wy.enums.Permission;
+import com.wy.enums.TipEnum;
+import com.wy.exception.AuthException;
 import com.wy.model.Role;
 import com.wy.model.User;
 import com.wy.model.vo.PermissionVo;
 import com.wy.util.SecurityUtils;
+import com.wy.utils.ListUtils;
 import com.wy.utils.StrUtils;
 
 /**
@@ -27,16 +29,39 @@ import com.wy.utils.StrUtils;
 @Component("permissionService")
 public class PermissionService {
 
+	/**
+	 * 获得用户信息
+	 * 
+	 * @param param 参数,可以是角色或权限
+	 * @return 用户信息
+	 */
 	private User getLoginUser(String... param) {
 		if (StrUtils.isBlank(param)) {
 			return null;
 		}
 		User loginUser = SecurityUtils.getLoginUser();
-		if (Objects.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getPermissionVos())
-				|| CollectionUtils.isEmpty(loginUser.getRoles())) {
+		if (Objects.isNull(loginUser) || CollectionUtils.isEmpty(loginUser.getRoles())) {
 			return null;
 		}
 		return loginUser;
+	}
+
+	/**
+	 * 判断是否为超级管理员
+	 * 
+	 * @param roles 角色列表
+	 * @return true or false
+	 */
+	private boolean assertAdmin(List<Role> roles) {
+		if (ListUtils.isBlank(roles)) {
+			throw new AuthException(TipEnum.TIP_USER_NOT_DISTRIBUTE_ROLE);
+		}
+		for (Role role : roles) {
+			if (0 == role.getRoleType()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -46,11 +71,7 @@ public class PermissionService {
 	 * @return 用户是否具备某权限
 	 */
 	public boolean hasAuthority(String permission) {
-		User loginUser = getLoginUser(permission);
-		if (Objects.isNull(loginUser)) {
-			return false;
-		}
-		return hasPermissions(loginUser.getPermissionVos(), permission);
+		return hasAnyAuthority(permission);
 	}
 
 	/**
@@ -74,7 +95,14 @@ public class PermissionService {
 		if (Objects.isNull(loginUser)) {
 			return false;
 		}
+		boolean admin = assertAdmin(loginUser.getRoles());
+		if (admin) {
+			return true;
+		}
 		List<PermissionVo> permissionVos = loginUser.getPermissionVos();
+		if (ListUtils.isBlank(permissionVos)) {
+			return false;
+		}
 		for (String permission : permissions) {
 			if (hasPermissions(permissionVos, permission)) {
 				return true;
@@ -101,10 +129,6 @@ public class PermissionService {
 		// 权限数组
 		String[] roleArray = roleAndPermissions[0].split(",");
 		for (PermissionVo permissionVo : permissions) {
-			// 超级管理员
-			if (Constants.SUPER_ADMIN.equalsIgnoreCase(permissionVo.getRoleCode())) {
-				return true;
-			}
 			for (String role : roleArray) {
 				if (permissionVo.getRoleCode().equalsIgnoreCase(role) && (permissionVo.getPermissions().toLowerCase()
 						.contains(Permission.ALL.name().toLowerCase())
@@ -123,19 +147,7 @@ public class PermissionService {
 	 * @return 用户是否具备某角色
 	 */
 	public boolean hasRole(String roleCode) {
-		User loginUser = getLoginUser(roleCode);
-		if (Objects.isNull(loginUser)) {
-			return false;
-		}
-		for (Role sysRole : loginUser.getRoles()) {
-			if (Constants.SUPER_ADMIN.equalsIgnoreCase(sysRole.getRoleCode())) {
-				return true;
-			}
-			if (roleCode.equalsIgnoreCase(sysRole.getRoleCode())) {
-				return true;
-			}
-		}
-		return false;
+		return hasAnyRole(roleCode);
 	}
 
 	/**
@@ -154,16 +166,17 @@ public class PermissionService {
 	 * @param roleCodes 角色列表
 	 * @return 用户是否具有以下任意一个角色
 	 */
-	public boolean hasAnyRoles(String... roleCodes) {
+	public boolean hasAnyRole(String... roleCodes) {
 		User loginUser = getLoginUser(roleCodes);
 		if (Objects.isNull(loginUser)) {
 			return false;
 		}
+		boolean admin = assertAdmin(loginUser.getRoles());
+		if (admin) {
+			return true;
+		}
 		for (String roleCode : roleCodes) {
 			for (Role sysRole : loginUser.getRoles()) {
-				if (Constants.SUPER_ADMIN.equalsIgnoreCase(sysRole.getRoleCode())) {
-					return true;
-				}
 				if (roleCode.equalsIgnoreCase(sysRole.getRoleCode())) {
 					return true;
 				}

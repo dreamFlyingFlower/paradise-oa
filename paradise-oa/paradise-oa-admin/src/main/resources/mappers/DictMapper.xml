@@ -9,6 +9,9 @@
     <result column="pid" jdbcType="BIGINT" property="pid" />
     <result column="pname" jdbcType="VARCHAR" property="pname" />
     <result column="sort_index" jdbcType="INTEGER" property="sortIndex" />
+    
+    <result column="dict_id" jdbcType="BIGINT" property="treeId" />
+    <result column="dict_name" jdbcType="VARCHAR" property="treeName" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>

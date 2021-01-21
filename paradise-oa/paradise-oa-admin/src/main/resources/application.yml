@@ -7,7 +7,7 @@ server:
       force-response: true
 spring: 
   profiles: 
-    active: dev
+    active: dev,config
   jackson: 
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non-empty

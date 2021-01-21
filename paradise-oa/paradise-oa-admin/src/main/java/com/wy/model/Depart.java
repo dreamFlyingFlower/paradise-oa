@@ -4,7 +4,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.wy.base.AbstractModel;
+import com.wy.base.Tree;
+import com.wy.database.annotation.Pid;
 import com.wy.database.annotation.Pri;
 import com.wy.database.annotation.Sort;
 import com.wy.database.annotation.Unique;
@@ -33,7 +34,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Depart extends AbstractModel {
+public class Depart extends Tree<Depart, Long> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,6 +60,7 @@ public class Depart extends AbstractModel {
 	 */
 	@ApiModelProperty("上级部门编号")
 	@NotNull
+	@Pid
 	private Long pid;
 
 	/**
