@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.wy.base.BaseService;
+import com.wy.base.Tree;
 import com.wy.model.Menu;
 import com.wy.model.vo.RouterVo;
 
@@ -46,7 +47,7 @@ public interface MenuService extends BaseService<Menu, Long> {
 	 * @param roleId 角色ID
 	 * @return 选中菜单列表
 	 */
-	Map<String, Object> getByRoleId(Long roleId);
+	Map<String, Object> getTreeByRoleId(Long roleId);
 
 	/**
 	 * 构建前端路由所需要的菜单
@@ -55,4 +56,12 @@ public interface MenuService extends BaseService<Menu, Long> {
 	 * @return 路由列表
 	 */
 	List<RouterVo> buildMenus(List<Menu> menus);
+
+	/**
+	 * 根据角色查询菜单以及权限
+	 * 
+	 * @param roleId 角色编号
+	 * @return 菜单权限列表
+	 */
+	List<Tree<Menu, Long>> getPermissionByRoleId(Long roleId);
 }

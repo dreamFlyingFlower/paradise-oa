@@ -1,0 +1,11 @@
+{
+    "version": "1.0.0",
+    "development":{
+      "USE_CAPTCHA": false,
+      "USE_TOKEN":false
+    },
+    "production":{
+      "USE_CAPTCHA": false,
+      "USE_TOKEN":false
+    }
+}

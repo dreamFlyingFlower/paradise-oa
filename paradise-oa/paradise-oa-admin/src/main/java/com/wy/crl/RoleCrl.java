@@ -86,20 +86,6 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 		return roleService.getEntitys(null);
 	}
 
-	// @ApiOperation("根据角色权限查询菜单树,不查询按钮")
-	// @GetMapping("getRoleMenu/{roleId}")
-	// public Result<?> getRoleMenu(@ApiParam("角色编号") @PathVariable Integer roleId)
-	// {
-	// return Result.ok(roleService.getRoleMenu(roleId));
-	// }
-	//
-	// @ApiOperation("根据角色权限查询菜单树,以及菜单下所有按钮")
-	// @GetMapping("getRoleMenus/{roleId}")
-	// public Result<?> getRoleMenus(@ApiParam("角色编号") @PathVariable Integer roleId)
-	// {
-	// return Result.ok(roleService.getRoleMenus(roleId));
-	// }
-	//
 	// @ApiOperation("根据角色编号保存角色菜单以及按钮权限")
 	// @PostMapping("savePermissions/{roleId}")
 	// public Result<?> savePermissions(@ApiParam("角色编号") @PathVariable Integer

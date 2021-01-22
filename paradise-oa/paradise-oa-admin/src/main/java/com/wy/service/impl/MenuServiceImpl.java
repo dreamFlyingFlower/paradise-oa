@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wy.base.AbstractService;
+import com.wy.base.Tree;
 import com.wy.component.TokenService;
 import com.wy.mapper.MenuMapper;
 import com.wy.mapper.RoleMenuMapper;
@@ -100,7 +101,7 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	 * @return 选中菜单列表
 	 */
 	@Override
-	public Map<String, Object> getByRoleId(Long roleId) {
+	public Map<String, Object> getTreeByRoleId(Long roleId) {
 		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
 		List<Menu> menus = getByUserId(loginUser.getUserId());
 		getTreeByOther(menus);
@@ -173,5 +174,11 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 			row += delete(id);
 		}
 		return row;
+	}
+
+	@Override
+	public List<Tree<Menu, Long>> getPermissionByRoleId(Long roleId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
