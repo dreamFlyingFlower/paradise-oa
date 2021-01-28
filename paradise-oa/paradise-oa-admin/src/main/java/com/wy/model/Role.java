@@ -66,6 +66,12 @@ public class Role extends AbstractModel {
 	private String roleCode;
 
 	/**
+	 * 原角色编号
+	 */
+	@ApiModelProperty("原角色编号")
+	private String oriRoleCode;
+
+	/**
 	 * 角色类型:0不可见,只有超级管理员不可见;默认1可见
 	 */
 	@ApiModelProperty("角色类型:0不可见,只有超级管理员不可见;默认1可见")

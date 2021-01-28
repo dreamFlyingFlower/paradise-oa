@@ -90,7 +90,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		// 添加token拦截,若使用token就不使用session;若不使用token,就使用session
 		if (config.getFilter().isTokenEnable()) {
 			httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
-		} else {
 			httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		}
 	}

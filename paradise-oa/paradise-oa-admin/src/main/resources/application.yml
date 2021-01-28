@@ -8,6 +8,9 @@ server:
 spring: 
   profiles: 
     active: dev,config
+  messages:
+    basename: i18n/messages
+    fallback-to-system-locale: true
   jackson: 
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non-empty

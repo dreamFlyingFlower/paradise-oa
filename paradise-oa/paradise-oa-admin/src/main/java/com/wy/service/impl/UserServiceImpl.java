@@ -27,7 +27,6 @@ import com.wy.exception.AuthException;
 import com.wy.manager.AsyncTask;
 import com.wy.mapper.DepartMapper;
 import com.wy.mapper.RoleMapper;
-import com.wy.mapper.RoleMenuMapper;
 import com.wy.mapper.UserMapper;
 import com.wy.mapper.UserRoleMapper;
 import com.wy.mapper.UserinfoMapper;
@@ -94,7 +93,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private RedisService redisService;
 
 	@Autowired
-	private RoleMenuMapper roleMenuMapper;
+	private MenuServiceImpl menuServiceImpl;
 
 	/**
 	 * 通过用户名,邮件,手机号查询用户信息
@@ -103,7 +102,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @return 用户信息
 	 */
 	public User getByUsername(String username) {
-		List<User> entitys =userMapper.selectByUsername(username);
+		List<User> entitys = userMapper.selectByUsername(username);
 		if (ListUtils.isBlank(entitys) || entitys.size() > 1) {
 			return null;
 		}
@@ -210,7 +209,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @param user 用户信息
 	 */
 	private void handlerPermission(User user) {
-		List<PermissionVo> permissionVos = roleMenuMapper.selectPermissionByUserId(user.getUserId());
+		List<PermissionVo> permissionVos = menuServiceImpl.getPermissionByUserId(user.getUserId());
 		user.setPermissionVos(permissionVos);
 	}
 

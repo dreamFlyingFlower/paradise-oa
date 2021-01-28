@@ -52,7 +52,7 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	}
 	
 	@ApiOperation("根据角色查询菜单树,以及相应权限")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
+	@PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 	@GetMapping("getPermissionByRoleId/{roleId}")
 	public Result<?> getPermissionByRoleId(@PathVariable Long roleId) {
 		return Result.ok(menuService.getPermissionByRoleId(roleId));

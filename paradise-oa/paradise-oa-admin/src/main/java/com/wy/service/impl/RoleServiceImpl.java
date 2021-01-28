@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.wy.base.AbstractService;
+import com.wy.common.Constants;
 import com.wy.mapper.RoleDepartMapper;
 import com.wy.mapper.RoleMapper;
 import com.wy.mapper.RoleMenuMapper;
@@ -62,6 +63,26 @@ public class RoleServiceImpl extends AbstractService<Role, Long> implements Role
 			throw new ResultException("this role does not exist");
 		}
 		return role.getRoleType() == 0;
+	}
+	
+	/**
+	 * 判断是否为超级管理员
+	 * 
+	 * @param roleId 角色编号
+	 * @return true是,false否
+	 */
+	public boolean ifAdminType(Integer roleType) {
+		return roleType == 0;
+	}
+	
+	/**
+	 * 判断是否为超级管理员
+	 * 
+	 * @param roleId 角色编号
+	 * @return true是,false否
+	 */
+	public boolean ifAdminType(String roleCode) {
+		return roleCode.equals(Constants.SUPER_ADMIN);
 	}
 	//
 	// @Override

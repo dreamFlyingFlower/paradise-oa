@@ -37,4 +37,7 @@ public class CommonProperties {
 
 	/** 默认用户图标 */
 	private String defaultUserIcon = "user.png";
+
+	/** 根菜单编号 */
+	private Long rootMenuId = 0l;
 }

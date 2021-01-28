@@ -1,14 +1,9 @@
 package com.wy.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wy.base.AbstractService;
-import com.wy.mapper.RoleMenuMapper;
 import com.wy.model.RoleMenu;
-import com.wy.model.vo.PermissionVo;
 import com.wy.service.RoleMenuService;
 
 /**
@@ -21,11 +16,4 @@ import com.wy.service.RoleMenuService;
 @Service("roleMenuService")
 public class RoleMenuServiceImpl extends AbstractService<RoleMenu, Long> implements RoleMenuService {
 
-	@Autowired
-	private RoleMenuMapper roleMenuMapper;
-
-	@Override
-	public List<PermissionVo> getPermissionByUserId(Long userId) {
-		return roleMenuMapper.selectPermissionByUserId(userId);
-	}
 }

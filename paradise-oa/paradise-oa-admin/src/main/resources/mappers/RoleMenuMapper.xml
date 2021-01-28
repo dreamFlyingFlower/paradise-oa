@@ -6,7 +6,6 @@
 		<id column="menu_id" jdbcType="BIGINT" property="menuId" />
 		<result column="permissions" jdbcType="VARCHAR" property="permissions" />
 		<result column="menu_state" jdbcType="INTEGER" property="menuState" />
-		<result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
 	</resultMap>
 	<sql id="Example_Where_Clause">
 		<where>
@@ -255,14 +254,5 @@
 			<otherwise>1970-01-01 00:00:00</otherwise>
 		</choose>
 		from tr_role_menu
-	</select>
-
-	<select id="selectPermissionByUserId" resultMap="BaseResultMap">
-		select a.role_id,a.menu_id,a.permissions,b.role_code
-		from tr_role_menu a
-		inner join ts_role b on b.role_id = a.role_id
-		inner join tr_user_role c on c.role_id = b.role_id
-		inner join ts_user d on d.user_id = c.user_id
-		where d.user_id = #{userId,jdbcType=BIGINT}
 	</select>
 </mapper>

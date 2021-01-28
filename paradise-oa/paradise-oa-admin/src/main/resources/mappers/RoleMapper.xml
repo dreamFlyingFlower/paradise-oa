@@ -95,7 +95,8 @@
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from ts_role
-		where role_id = #{roleId,jdbcType=BIGINT}
+		where role_id =
+		#{roleId,jdbcType=BIGINT} and role_type = 1
 	</delete>
 	<delete id="deleteByExample" parameterType="com.wy.model.RoleExample">
 		delete from ts_role
@@ -105,10 +106,13 @@
 	</delete>
 	<insert id="insert" keyColumn="role_id" keyProperty="roleId"
 		parameterType="com.wy.model.Role" useGeneratedKeys="true">
-		insert into ts_role (role_name, role_code, role_type,
+		insert into ts_role (role_name, role_code,
+		role_type,
 		role_state, role_desc)
-		values (#{roleName,jdbcType=VARCHAR}, #{roleCode,jdbcType=VARCHAR}, #{roleType,jdbcType=TINYINT},
-		#{roleState,jdbcType=INTEGER}, #{roleDesc,jdbcType=VARCHAR})
+		values (#{roleName,jdbcType=VARCHAR},
+		#{roleCode,jdbcType=VARCHAR}, 1,
+		#{roleState,jdbcType=INTEGER},
+		#{roleDesc,jdbcType=VARCHAR})
 	</insert>
 	<insert id="insertSelective" keyColumn="role_id" keyProperty="roleId"
 		parameterType="com.wy.model.Role" useGeneratedKeys="true">
@@ -138,7 +142,7 @@
 				#{roleCode,jdbcType=VARCHAR},
 			</if>
 			<if test="roleType != null">
-				#{roleType,jdbcType=TINYINT},
+				1,
 			</if>
 			<if test="roleState != null">
 				#{roleState,jdbcType=INTEGER},
@@ -168,7 +172,7 @@
 				role_code = #{record.roleCode,jdbcType=VARCHAR},
 			</if>
 			<if test="record.roleType != null">
-				role_type = #{record.roleType,jdbcType=TINYINT},
+				role_type = 1,
 			</if>
 			<if test="record.roleState != null">
 				role_state = #{record.roleState,jdbcType=INTEGER},
@@ -184,11 +188,12 @@
 	<update id="updateByExample" parameterType="map">
 		update ts_role
 		set role_id = #{record.roleId,jdbcType=BIGINT},
-		role_name = #{record.roleName,jdbcType=VARCHAR},
+		role_name =
+		#{record.roleName,jdbcType=VARCHAR},
 		role_code = #{record.roleCode,jdbcType=VARCHAR},
-		role_type = #{record.roleType,jdbcType=TINYINT},
 		role_state = #{record.roleState,jdbcType=INTEGER},
-		role_desc = #{record.roleDesc,jdbcType=VARCHAR}
+		role_desc =
+		#{record.roleDesc,jdbcType=VARCHAR}
 		<if test="_parameter != null">
 			<include refid="Update_By_Example_Where_Clause" />
 		</if>
@@ -202,9 +207,6 @@
 			<if test="roleCode != null">
 				role_code = #{roleCode,jdbcType=VARCHAR},
 			</if>
-			<if test="roleType != null">
-				role_type = #{roleType,jdbcType=TINYINT},
-			</if>
 			<if test="roleState != null">
 				role_state = #{roleState,jdbcType=INTEGER},
 			</if>
@@ -213,24 +215,23 @@
 			</if>
 		</set>
 		where role_id = #{roleId,jdbcType=BIGINT}
+		and role_type = 1
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wy.model.Role">
 		update ts_role
-		set role_name = #{roleName,jdbcType=VARCHAR},
+		set role_name =
+		#{roleName,jdbcType=VARCHAR},
 		role_code = #{roleCode,jdbcType=VARCHAR},
-		role_type = #{roleType,jdbcType=TINYINT},
 		role_state = #{roleState,jdbcType=INTEGER},
-		role_desc = #{roleDesc,jdbcType=VARCHAR}
+		role_desc =
+		#{roleDesc,jdbcType=VARCHAR}
 		where role_id = #{roleId,jdbcType=BIGINT}
+		and role_type = 1
 	</update>
 	<insert id="inserts" parameterType="list">
 		insert into ts_role (role_id,role_name,role_code,role_type,role_state,role_desc) values
 		<foreach collection="list" item="item" index="index" separator=",">
-			(null,#{item.roleName,jdbcType=VARCHAR},#{item.roleCode,jdbcType=VARCHAR},
-			<choose>
-				<when test="item.roleType!= null">role_type = #{item.roleType,jdbcType=TINYINT},</when>
-				<otherwise>1,</otherwise>
-			</choose>
+			(null,#{item.roleName,jdbcType=VARCHAR},#{item.roleCode,jdbcType=VARCHAR},1
 			<choose>
 				<when test="item.roleState!= null">role_state = #{item.roleState,jdbcType=INTEGER},</when>
 				<otherwise>1,</otherwise>
@@ -239,22 +240,22 @@
 		</foreach>
 	</insert>
 	<delete id="deleteByPrimaryKeys" parameterType="list">
-		delete from ts_role where role_id in
+		delete from ts_role where role_type = 1 and role_id in
 		<foreach open="(" close=")" collection="list" item="roleId" separator=",">#{roleId,jdbcType=BIGINT}
 		</foreach>
 	</delete>
 	<delete id="deleteAll">
-		truncate table ts_role
+		delete from ts_role where role_type = 1
 	</delete>
 	<select id="selectEntitys" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
 		from ts_role
 		<where>
+			role_type = 1
 			<if test="roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if>
 			<if test="roleName != null "> and role_name = #{roleName,jdbcType=VARCHAR} </if>
 			<if test="roleCode != null "> and role_code = #{roleCode,jdbcType=VARCHAR} </if>
-			<if test="roleType != null "> and role_type = #{roleType,jdbcType=TINYINT} </if>
 			<if test="roleState != null "> and role_state = #{roleState,jdbcType=INTEGER} </if>
 			<if test="roleDesc != null "> and role_desc = #{roleDesc,jdbcType=VARCHAR} </if>
 		</where>
@@ -264,10 +265,10 @@
 		<include refid="Base_Column_List" />
 		from ts_role
 		<where>
+			role_type = 1
 			<if test="roleId != null "> and role_id = #{roleId,jdbcType=BIGINT} </if>
 			<if test="roleName != null "> and role_name = #{roleName,jdbcType=VARCHAR} </if>
 			<if test="roleCode != null "> and role_code = #{roleCode,jdbcType=VARCHAR} </if>
-			<if test="roleType != null "> and role_type = #{roleType,jdbcType=TINYINT} </if>
 			<if test="roleState != null "> and role_state = #{roleState,jdbcType=INTEGER} </if>
 			<if test="roleDesc != null "> and role_desc = #{roleDesc,jdbcType=VARCHAR} </if>
 		</where>
@@ -275,10 +276,10 @@
 	<select id="countByEntity" resultType="java.lang.Long">
 		select count(*) from ts_role
 		<where>
+			role_type = 1
 			<if test="roleId != null ">and role_id = #{roleId,jdbcType=BIGINT} </if>
 			<if test="roleName != null ">and role_name = #{roleName,jdbcType=VARCHAR} </if>
 			<if test="roleCode != null ">and role_code = #{roleCode,jdbcType=VARCHAR} </if>
-			<if test="roleType != null ">and role_type = #{roleType,jdbcType=TINYINT} </if>
 			<if test="roleState != null ">and role_state = #{roleState,jdbcType=INTEGER} </if>
 			<if test="roleDesc != null ">and role_desc = #{roleDesc,jdbcType=VARCHAR} </if>
 		</where>
@@ -287,7 +288,6 @@
 		select
 		<choose>
 			<when test="'roleId' == _parameter.column">max(role_id)</when>
-			<when test="'roleType' == _parameter.column">max(role_type)</when>
 			<when test="'roleState' == _parameter.column">max(role_state)</when>
 			<otherwise>max(0)</otherwise>
 		</choose>
@@ -309,6 +309,6 @@
 
 	<select id="selectByUserId" parameterType="Long" resultMap="BaseResultMap">
 		<include refid="selectUserRole" />
-		where u.user_id = #{userId} and r.role_type = 1
+		where u.user_id = #{userId}
 	</select>
 </mapper>

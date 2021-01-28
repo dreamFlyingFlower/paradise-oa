@@ -2,16 +2,20 @@ package com.wy.service.impl;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 import com.wy.base.AbstractService;
-import com.wy.base.Tree;
+import com.wy.common.Constants;
 import com.wy.component.TokenService;
+import com.wy.enums.TipEnum;
 import com.wy.mapper.MenuMapper;
 import com.wy.mapper.RoleMenuMapper;
 import com.wy.model.Menu;
@@ -20,10 +24,13 @@ import com.wy.model.Role;
 import com.wy.model.RoleMenu;
 import com.wy.model.User;
 import com.wy.model.vo.MetaVo;
+import com.wy.model.vo.PermissionVo;
 import com.wy.model.vo.RouterVo;
+import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.MenuService;
 import com.wy.util.ServletUtils;
+import com.wy.utils.ListUtils;
 import com.wy.utils.MapUtils;
 import com.wy.utils.StrUtils;
 
@@ -43,16 +50,22 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	@Autowired
 	private RoleServiceImpl roleService;
 
-	// public static final String PREMISSION_STRING = "perms[\"{0}\"]";
-
 	@Autowired
 	private RoleMenuMapper roleMenuMapper;
 
 	@Autowired
 	private TokenService tokenService;
 
+	@Autowired
+	private ConfigProperties config;
+
+	@Autowired
+	private MessageSource messageSource;
+
 	@Override
 	public List<Menu> getSelfChildren(Long menuId) {
+		System.out.println(
+				messageSource.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.getDefault()));
 		MenuExample example = new MenuExample();
 		example.or().andPidEqualTo(menuId);
 		example.or().andMenuIdEqualTo(menuId);
@@ -177,8 +190,61 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	}
 
 	@Override
-	public List<Tree<Menu, Long>> getPermissionByRoleId(Long roleId) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<PermissionVo> getPermissionByUserId(Long userId) {
+		List<Role> roles = roleService.getByUserId(userId);
+		if (ListUtils.isBlank(roles)) {
+			throw new ResultException(TipEnum.TIP_USER_NOT_DISTRIBUTE_ROLE);
+		}
+		return getPermissionByRoleId(roles.get(0).getRoleId());
+	}
+
+	@Override
+	public List<PermissionVo> getPermissionByRoleId(Long roleId) {
+		boolean admin = roleService.ifAdmin(roleId);
+		if (admin) {
+			List<Menu> menus = menuMapper.selectEntitys(null);
+			List<PermissionVo> permissionVos = menus.stream().map(t -> {
+				PermissionVo vo = PermissionVo.builder().roleId(roleId).roleCode(Constants.SUPER_ADMIN)
+						.permissions("ALL").build();
+				vo.setMenuId(t.getMenuId());
+				vo.setMenuName(t.getMenuName());
+				vo.setPid(t.getPid());
+				return vo;
+			}).collect(Collectors.toList());
+			List<PermissionVo> result = getChildren(permissionVos, config.getCommon().getRootMenuId());
+			handlerAdmin(permissionVos, result);
+			return result;
+		}
+		List<PermissionVo> permissionVos = menuMapper.selectPermissions(null, null, null, roleId);
+		handlerChildren(permissionVos, roleId);
+		return permissionVos;
+	}
+
+	private List<PermissionVo> getChildren(List<PermissionVo> permissionVos, Long menuId) {
+		return permissionVos.stream().filter(t -> t.getPid() == menuId).collect(Collectors.toList());
+	}
+
+	private void handlerAdmin(List<PermissionVo> permissionVos, List<PermissionVo> childrens) {
+		for (PermissionVo permissionVo : childrens) {
+			List<PermissionVo> children = getChildren(permissionVos, permissionVo.getMenuId());
+			if (ListUtils.isNotBlank(children)) {
+				handlerAdmin(permissionVos, children);
+			}
+			permissionVo.setChildren(children);
+		}
+	}
+
+	private void handlerChildren(List<PermissionVo> childrens, Long roleId) {
+		if (ListUtils.isBlank(childrens)) {
+			return;
+		}
+		for (PermissionVo permissionVo : childrens) {
+			List<PermissionVo> children = menuMapper.selectPermissions(null, permissionVo.getPid(), null, roleId);
+			if (ListUtils.isNotBlank(children)) {
+				handlerChildren(children, roleId);
+			} else {
+				permissionVo.setChildren(children);
+			}
+		}
 	}
 }
