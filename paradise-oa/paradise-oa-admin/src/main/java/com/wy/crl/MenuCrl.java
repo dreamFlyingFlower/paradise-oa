@@ -35,7 +35,7 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	 * 根据用户编号获取菜单下拉树列表
 	 */
 	@ApiOperation("根据用户编号获取菜单下拉树列表")
-	@PreAuthorize("principal.userId = #userId")
+	@PreAuthorize("principal.userId == #userId")
 	@GetMapping("getTreeByUserId/{userId}")
 	public Result<?> getTreeByUserId(@PathVariable Long userId) {
 		return Result.ok(menuService.getTreeByUserId(userId));
@@ -45,14 +45,15 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	 * 加载对应角色菜单列表树
 	 */
 	@ApiOperation("根据角色查询菜单树,不查相应权限")
-//	@PreAuthorize("principal.userId = #userId")
+//	@PreAuthorize("principal.userId == #userId")
 	@GetMapping("getTreeByRoleId/{roleId}")
 	public Result<?> getTreeByRoleId(@PathVariable("roleId") Long roleId) {
 		return Result.ok(menuService.getTreeByRoleId(roleId));
 	}
 	
 	@ApiOperation("根据角色查询菜单树,以及相应权限")
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+	@PreAuthorize("principal.roles[0].roleId == #roleId")
+//	@PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 	@GetMapping("getPermissionByRoleId/{roleId}")
 	public Result<?> getPermissionByRoleId(@PathVariable Long roleId) {
 		return Result.ok(menuService.getPermissionByRoleId(roleId));

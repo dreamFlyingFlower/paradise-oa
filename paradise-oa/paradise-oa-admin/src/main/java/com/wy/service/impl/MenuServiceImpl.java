@@ -2,14 +2,11 @@ package com.wy.service.impl;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 import com.wy.base.AbstractService;
@@ -59,13 +56,8 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	@Autowired
 	private ConfigProperties config;
 
-	@Autowired
-	private MessageSource messageSource;
-
 	@Override
 	public List<Menu> getSelfChildren(Long menuId) {
-		System.out.println(
-				messageSource.getMessage("AbstractAccessDecisionManager.accessDenied", null, Locale.getDefault()));
 		MenuExample example = new MenuExample();
 		example.or().andPidEqualTo(menuId);
 		example.or().andMenuIdEqualTo(menuId);
