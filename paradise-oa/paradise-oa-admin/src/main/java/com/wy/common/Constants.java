@@ -19,14 +19,17 @@ public interface Constants {
 	/** 验证码redis key */
 	String REDIS_KEY_CAPTCHA_CODE = "key_captcha_code:";
 
-	/** 登录用户redis key */
-	String REDIS_KEY_TOKEN = "key_token:";
+	/** 登录用户信息redis key */
+	String REDIS_KEY_USER_LOGIN = "key_user_login:";
 
-	/** 用户token */
-	String TOKEN = "login_token";
+	/** 登录用户进行jwt加密的token key */
+	String JWT_TOKEN_KEY = "login_token";
 
-	/** 令牌前缀 */
-	String TOKEN_PREFIX = "Bearer ";
+	/** http请求头中携带token的字段 */
+	String HTTP_TOKEN_AUTHENTICATION = "Authorization";
+
+	/** http请求中token值的令牌前缀 */
+	String HTTP_TOKEN_PREFIX = "Bearer ";
 
 	/** 验证码有效期,单位分钟 */
 	int CAPTCHA_EXPIRATION = 2;

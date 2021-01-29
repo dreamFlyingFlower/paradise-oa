@@ -20,7 +20,7 @@ import com.wy.utils.StrUtils;
 public class MessageService {
 
 	@Autowired
-	private MessageSource messageSource;
+	protected MessageSource messageSource;
 
 	private void assertNull(String msg) {
 		if (StrUtils.isBlank(msg)) {

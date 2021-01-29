@@ -25,9 +25,6 @@ public class TokenProperties {
 	/** 重置token过期时间,不能超过expireTime,默认超过20分钟重置 */
 	private long flushTime = 20;
 
-	/** 请求头中携带token的字段 */
-	private String authentication = "Authorization";
-
 	/** token密钥 */
 	private String secret = "!@#$%^&*()QWERTY";
 }

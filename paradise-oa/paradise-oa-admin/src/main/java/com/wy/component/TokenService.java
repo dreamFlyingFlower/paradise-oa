@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.alibaba.fastjson.JSON;
 import com.wy.common.Constants;
 import com.wy.crypto.CryptoUtils;
+import com.wy.enums.TipEnum;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
@@ -25,7 +27,7 @@ import com.wy.utils.StrUtils;
  * @git {@link https://github.com/mygodness100}
  */
 @Component
-public class TokenService {
+public class TokenService extends MessageService {
 
 	@Autowired
 	private ConfigProperties config;
@@ -43,7 +45,7 @@ public class TokenService {
 	 * @return key
 	 */
 	private String getTokenKey(long userId) {
-		return Constants.REDIS_KEY_TOKEN + userId;
+		return Constants.REDIS_KEY_USER_LOGIN + userId;
 	}
 
 	/**
@@ -55,15 +57,27 @@ public class TokenService {
 	public void createToken(User user) {
 		String token = MessageFormat.format(TOKEN_FORMAT, CryptoUtils.UUID(), user.getUserId(),
 				System.currentTimeMillis());
-		refreshToken(user);
-		user.setToken(config.getFilter().isJwtEnable()
-				? JwtUtils.buildToken(MapUtils.builder(Constants.TOKEN, token).build(), config.getToken().getSecret())
-				: token);
-		redisTemplate.opsForValue().set(getTokenKey(user.getUserId()), user);
+		user.setToken(
+				config.getFilter().isJwtEnable()
+						? JwtUtils.buildToken(MapUtils.builder(Constants.JWT_TOKEN_KEY, token).build(),
+								config.getToken().getSecret())
+						: token);
+		redisTemplate.opsForValue().set(getTokenKey(user.getUserId()), user, config.getToken().getExpireTime(),
+				config.getToken().getExpireUnit());
 	}
 
 	/**
-	 * 获取用户身份信息
+	 * 直接从redis中获取用户身份信息
+	 * 
+	 * @param userId 用户编号
+	 * @return 用户信息
+	 */
+	public User getLoginUser(Long userId) {
+		return (User) redisTemplate.opsForValue().get(getTokenKey(userId));
+	}
+
+	/**
+	 * 从请求中获取用户身份信息
 	 * 
 	 * @param request 请求体
 	 * @return 用户信息
@@ -72,14 +86,20 @@ public class TokenService {
 		// 获取请求携带的令牌
 		String token = getToken(request);
 		if (StrUtils.isBlank(token)) {
-			throw new ResultException("the requset header has bad authentication");
+			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
 		}
 		if (config.getFilter().isJwtEnable()) {
 			// 解析对应的权限以及用户信息
 			token = JwtUtils.parseToken(token, config.getToken().getSecret());
 		}
-		String userKey = getTokenKey(Long.parseLong(token.split("_")[1]));
-		return (User) redisTemplate.opsForValue().get(userKey);
+		try {
+			String userKey = getTokenKey(Long.parseLong(token.split("_")[1]));
+			Object object = redisTemplate.opsForValue().get(userKey);
+			return JSON.parseObject(JSON.toJSONString(object), User.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_ILLEGAL);
+		}
 	}
 
 	/**
@@ -89,9 +109,9 @@ public class TokenService {
 	 * @return token
 	 */
 	private String getToken(HttpServletRequest request) {
-		String token = request.getHeader(config.getToken().getAuthentication());
-		if (StrUtils.isNotBlank(token) && token.startsWith(Constants.TOKEN_PREFIX)) {
-			token = token.replace(Constants.TOKEN_PREFIX, "");
+		String token = request.getHeader(Constants.HTTP_TOKEN_AUTHENTICATION);
+		if (StrUtils.isNotBlank(token) && token.startsWith(Constants.HTTP_TOKEN_PREFIX)) {
+			token = token.replace(Constants.HTTP_TOKEN_PREFIX, "");
 		}
 		return token;
 	}

@@ -17,37 +17,31 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
-
 /**
- * @apiNote redis自定义配置,使用fastjson序列化
+ * redis自定义配置,使用jackson2序列化
+ * 
  * @author ParadiseWY
- * @date 2020年4月2日 下午4:26:04
+ * @date 2020-04-02 16:26:04
+ * @git {@link https://github.com/mygodness100}
  */
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisConfig {
 
-	/**
-	 * 对象,map等数据类型在redis中的存储需要用到fastjson进行序列化,也可使用spring的依赖jackson
-	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<Object, Object> template = new RedisTemplate<>();
-
 		// 使用fastjson序列化
-		FastJsonRedisSerializer<Object> fastJsonRedisSerializer = new FastJsonRedisSerializer<Object>(Object.class);
-		// 设置方法参照{RedisTemplate}类中的afterPropertiesSet方法
-		// value值的序列化采用fastJsonRedisSerializer
-		template.setValueSerializer(fastJsonRedisSerializer);
-		template.setHashValueSerializer(fastJsonRedisSerializer);
-		// key的序列化采用StringRedisSerializer
-		template.setKeySerializer(new StringRedisSerializer());
-		template.setHashKeySerializer(new StringRedisSerializer());
+		StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+		template.setKeySerializer(stringRedisSerializer);
+		template.setHashKeySerializer(stringRedisSerializer);
+		Jackson2JsonRedisSerializer<Object> redisSerializer = new Jackson2JsonRedisSerializer<Object>(Object.class);
+		template.setDefaultSerializer(redisSerializer);
 		template.setConnectionFactory(redisConnectionFactory);
 		init(template);
 		return template;

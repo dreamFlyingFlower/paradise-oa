@@ -45,15 +45,14 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	 * 加载对应角色菜单列表树
 	 */
 	@ApiOperation("根据角色查询菜单树,不查相应权限")
-//	@PreAuthorize("principal.userId == #userId")
+	@PreAuthorize("principal.roles[0].roleId == #roleId")
 	@GetMapping("getTreeByRoleId/{roleId}")
-	public Result<?> getTreeByRoleId(@PathVariable("roleId") Long roleId) {
+	public Result<?> getTreeByRoleId(@PathVariable Long roleId) {
 		return Result.ok(menuService.getTreeByRoleId(roleId));
 	}
 	
 	@ApiOperation("根据角色查询菜单树,以及相应权限")
 	@PreAuthorize("principal.roles[0].roleId == #roleId")
-//	@PreAuthorize("hasAnyRole('SUPER_ADMIN')")
 	@GetMapping("getPermissionByRoleId/{roleId}")
 	public Result<?> getPermissionByRoleId(@PathVariable Long roleId) {
 		return Result.ok(menuService.getPermissionByRoleId(roleId));

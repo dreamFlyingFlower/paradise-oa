@@ -14,3 +14,7 @@ config:
     - /**/*.js
     - /druid/**
     - /common/**
+    - /csrf
+    - /favicon.ico
+  filter:
+    token-enable: true

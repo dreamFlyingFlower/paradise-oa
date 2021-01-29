@@ -25,10 +25,8 @@ import com.wy.base.AbstractCrl;
 import com.wy.component.TokenService;
 import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
-import com.wy.model.Menu;
 import com.wy.model.User;
 import com.wy.result.Result;
-import com.wy.service.MenuService;
 import com.wy.service.UserService;
 import com.wy.util.SecurityUtils;
 import com.wy.util.ServletUtils;
@@ -54,22 +52,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 
 	@Autowired
 	private TokenService tokenService;
-
-	@Autowired
-	private MenuService menuService;
-
-	/**
-	 * 获取路由信息
-	 * 
-	 * @return 路由信息
-	 */
-	@ApiOperation("获取路由信息")
-	@GetMapping("getRouters")
-	public Result<?> getRouters() {
-		User user = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-		List<Menu> menus = menuService.getTreeByUserId(user.getUserId());
-		return Result.ok(menuService.buildMenus(menus));
-	}
 
 	@Log(title = "用户管理", businessType = BusinessType.EXPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
@@ -117,7 +99,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * @param user 需要重置密码的用户信息
 	 * @return 成功或失败
 	 */
-	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
+	@PreAuthorize("hasRole('SUPER_ADMIN')")
 	@Log(title = "用户管理", businessType = BusinessType.UPDATE)
 	@ApiOperation("重置密码")
 	@PostMapping("resetPwd")
@@ -129,7 +111,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * 修改密码
 	 */
 	@Log(title = "个人信息", businessType = BusinessType.UPDATE)
-	@PreAuthorize("#username == principal.username")
+	@PreAuthorize("principal.username == #username ")
 	@ApiOperation("修改密码")
 	@PostMapping("updatePwd")
 	public Result<?> updatePwd(String username,String oldPassword, String newPassword) {
