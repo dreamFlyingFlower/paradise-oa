@@ -45,7 +45,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 		return Result.page(list);
 	}
 
-	@Log(title = "角色管理", businessType = BusinessType.EXPORT)
+	@Log(value = "角色管理", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:role:export')")
 	@GetMapping("export")
 	public Result<?> export(Role role, HttpServletResponse response) {
@@ -58,7 +58,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	 * 修改保存数据权限
 	 */
 	@PreAuthorize("@ss.hasPermi('system:role:edit')")
-	@Log(title = "角色管理", businessType = BusinessType.UPDATE)
+	@Log(value = "角色管理", businessType = BusinessType.UPDATE)
 	@PutMapping("/dataScope")
 	public Result<?> dataScope(@RequestBody Role role) {
 		roleService.checkRoleAllowed(role);
@@ -69,7 +69,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	 * 状态修改
 	 */
 	@PreAuthorize("@ss.hasPermi('system:role:edit')")
-	@Log(title = "角色管理", businessType = BusinessType.UPDATE)
+	@Log(value = "角色管理", businessType = BusinessType.UPDATE)
 	@PutMapping("/changeStatus")
 	public Result<?> changeStatus(@RequestBody Role role) {
 		roleService.checkRoleAllowed(role);

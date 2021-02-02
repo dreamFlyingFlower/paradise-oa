@@ -1,6 +1,7 @@
 package com.wy.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 import javax.servlet.http.Cookie;
@@ -9,17 +10,21 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.alibaba.fastjson.JSON;
 import com.wy.utils.StrUtils;
 
 /**
  * http请求处理
  * 
- * @author ParadiseWY
- * @date 2020年4月5日 上午11:56:14
+ * @author 飞花梦影
+ * @date 2020-04-05 11:36:54
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 public class ServletUtils {
 
@@ -160,18 +165,30 @@ public class ServletUtils {
 	/**
 	 * 将字符串渲染到客户端
 	 * 
-	 * @param response 渲染对象
+	 * @param response 响应信息
 	 * @param result 待渲染的字符串
 	 */
-	public static void writeResult(HttpServletResponse response, String result) {
+	public static void resultOk(HttpServletResponse response, Object result) {
+		result(response, HttpStatus.SC_OK, result);
+	}
+
+	/**
+	 * 将字符串渲染到客户端
+	 * 
+	 * @param response 响应信息
+	 * @param status 响应状态码
+	 * @param result 待渲染的字符串
+	 */
+	public static void result(HttpServletResponse response, Integer status, Object result) {
 		try {
-			response.setStatus(200);
-			response.setContentType("application/json");
-			response.setCharacterEncoding("utf-8");
-			response.getWriter().print(result);
+			response.setStatus(status);
+			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+			response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
+			response.getWriter().print(JSON.toJSONString(result));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	/**

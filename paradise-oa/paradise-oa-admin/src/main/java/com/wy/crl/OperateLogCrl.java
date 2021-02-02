@@ -38,7 +38,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 
 	// @PreAuthorize("@ss.hasPermi('monitor:operlog:list')")
 
-	@Log(title = "操作日志", businessType = BusinessType.EXPORT)
+	@Log(value = "操作日志", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('monitor:operlog:export')")
 	@GetMapping("/export")
 	public Result<?> export(OperateLog operLog, HttpServletResponse response) {
@@ -47,7 +47,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 		return Result.ok();
 	}
 
-	@Log(title = "操作日志", businessType = BusinessType.CLEAR)
+	@Log(value = "操作日志", businessType = BusinessType.CLEAR)
 	@PreAuthorize("@ss.hasPermi('monitor:operlog:remove')")
 	@DeleteMapping("clear")
 	public Result<?> clear() {

@@ -17,11 +17,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatProperties;
 import com.alibaba.druid.util.Utils;
 import com.wy.filter.RepeateFilter;
 import com.wy.filter.XssFilter;
+import com.wy.intercepter.IdempotencyInterceptor;
 import com.wy.properties.ConfigProperties;
 
 /**
@@ -31,10 +34,13 @@ import com.wy.properties.ConfigProperties;
  * @date 2020年4月6日 下午7:37:26
  */
 @Configuration
-public class GlobalFilterConfig {
+public class GlobalWebConfig extends WebMvcConfigurationSupport {
 
 	@Autowired
 	private ConfigProperties config;
+
+	@Autowired
+	private IdempotencyInterceptor idempotencyInterceptor;
 
 	/**
 	 * xss过滤器
@@ -87,8 +93,7 @@ public class GlobalFilterConfig {
 		Filter filter = new Filter() {
 
 			@Override
-			public void init(FilterConfig filterConfig) throws ServletException {
-			}
+			public void init(FilterConfig filterConfig) throws ServletException {}
 
 			@Override
 			public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -105,12 +110,19 @@ public class GlobalFilterConfig {
 			}
 
 			@Override
-			public void destroy() {
-			}
+			public void destroy() {}
 		};
 		FilterRegistrationBean<Filter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(filter);
 		registrationBean.addUrlPatterns(commonJsPattern);
 		return registrationBean;
+	}
+
+	/**
+	 * 添加拦截器
+	 */
+	@Override
+	protected void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(idempotencyInterceptor);
 	}
 }

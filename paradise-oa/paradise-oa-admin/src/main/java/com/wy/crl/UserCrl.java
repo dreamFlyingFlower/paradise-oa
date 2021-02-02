@@ -53,7 +53,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@Autowired
 	private TokenService tokenService;
 
-	@Log(title = "用户管理", businessType = BusinessType.EXPORT)
+	@Log(value = "用户管理", businessType = BusinessType.EXPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
 	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:EXPORT')")
 	@GetMapping("excelExport")
@@ -63,7 +63,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		return Result.ok();
 	}
 
-	@Log(title = "用户管理", businessType = BusinessType.IMPORT)
+	@Log(value = "用户管理", businessType = BusinessType.IMPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
 	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:IMPORT')")
 	@PostMapping("excelImport")
@@ -80,7 +80,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * 新增用户
 	 */
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
-	@Log(title = "用户管理", businessType = BusinessType.INSERT)
+	@Log(value = "用户管理", businessType = BusinessType.INSERT)
 	@ApiOperation("新增用户")
 	@Override
 	public Result<?> create(@Validated(ValidInserts.class) @RequestBody User user, BindingResult bind) {
@@ -100,7 +100,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * @return 成功或失败
 	 */
 	@PreAuthorize("hasRole('SUPER_ADMIN')")
-	@Log(title = "用户管理", businessType = BusinessType.UPDATE)
+	@Log(value = "用户管理", businessType = BusinessType.UPDATE)
 	@ApiOperation("重置密码")
 	@PostMapping("resetPwd")
 	public Result<?> resetPwd(@RequestBody User user) {
@@ -110,7 +110,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	/**
 	 * 修改密码
 	 */
-	@Log(title = "个人信息", businessType = BusinessType.UPDATE)
+	@Log(value = "个人信息", businessType = BusinessType.UPDATE)
 	@PreAuthorize("principal.username == #username ")
 	@ApiOperation("修改密码")
 	@PostMapping("updatePwd")
@@ -135,7 +135,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	/**
 	 * 头像上传
 	 */
-	@Log(title = "用户头像", businessType = BusinessType.UPDATE)
+	@Log(value = "用户头像", businessType = BusinessType.UPDATE)
 	@PostMapping("updateAvatar")
 	public Result<?> updateAvatar(@RequestParam MultipartFile file) {
 		return Result.ok(userService.updateAvatar(file));

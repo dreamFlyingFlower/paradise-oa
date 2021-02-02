@@ -17,14 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wy.base.AbstractService;
+import com.wy.component.AsyncService;
 import com.wy.component.RedisService;
 import com.wy.component.TokenService;
 import com.wy.crypto.CryptoUtils;
-import com.wy.enums.BooleanEnum;
+import com.wy.enums.CommonEnum;
 import com.wy.enums.TipEnum;
 import com.wy.enums.UserState;
 import com.wy.exception.AuthException;
-import com.wy.manager.AsyncTask;
 import com.wy.mapper.DepartMapper;
 import com.wy.mapper.RoleMapper;
 import com.wy.mapper.UserMapper;
@@ -78,7 +78,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private ConfigProperties config;
 
 	@Autowired
-	private AsyncTask asyncTask;
+	private AsyncService asyncService;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -169,12 +169,12 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		}
 		String sessionCode = redisService.getStr(ServletUtils.getHttpServletRequest().getRequestedSessionId());
 		if (StrUtils.isBlank(sessionCode)) {
-			asyncTask.recordLogininfo(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
+			asyncService.recordLoginLog(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
 					messageSource.getMessage("user.code.expire", null, Locale.getDefault()));
 			throw new ResultException("验证码过期");
 		}
 		if (!Objects.equals(code, sessionCode)) {
-			asyncTask.recordLogininfo(username, BooleanEnum.NO.ordinal(),
+			asyncService.recordLoginLog(username, CommonEnum.NO.ordinal(),
 					messageSource.getMessage("user.code.error", null, Locale.getDefault()));
 			throw new ResultException("验证码错误,请重新输入或刷新验证码");
 		}

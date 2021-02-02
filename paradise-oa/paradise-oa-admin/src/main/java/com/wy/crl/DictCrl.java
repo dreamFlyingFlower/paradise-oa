@@ -56,7 +56,7 @@ public class DictCrl extends AbstractCrl<Dict, Long> {
 		return dictService.selectDictList(dictData);
 	}
 
-	@Log(title = "字典数据", businessType = BusinessType.EXPORT)
+	@Log(value = "字典数据", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:dict:export')")
 	@GetMapping("/export")
 	public Result<?> export(Dict dictData, HttpServletResponse response) {

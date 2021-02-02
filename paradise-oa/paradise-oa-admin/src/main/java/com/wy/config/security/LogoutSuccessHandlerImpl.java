@@ -13,9 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wy.component.AsyncService;
 import com.wy.component.TokenService;
 import com.wy.enums.TipEnum;
-import com.wy.manager.AsyncTask;
 import com.wy.model.User;
 import com.wy.result.Result;
 
@@ -31,7 +31,7 @@ public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
 	private TokenService tokenService;
 
 	@Autowired
-	private AsyncTask asyncTask;
+	private AsyncService asyncService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -45,10 +45,7 @@ public class LogoutSuccessHandlerImpl implements LogoutSuccessHandler {
 			// 删除用户缓存记录
 			tokenService.delLoginUser(user.getUserId());
 			// 记录用户退出日志
-			asyncTask.recordLogininfo(userName, TipEnum.TIP_RESPONSE_SUCCESS.getCode(), "退出成功");
-			// AsyncManager.me()
-			// .execute(AsyncFactory.recordLogininfor(userName,
-			// TipEnum.TIP_RESPONSE_SUCCESS.getCode(), "退出成功"));
+			asyncService.recordLoginLog(userName, TipEnum.TIP_RESPONSE_SUCCESS.getCode(), "退出成功");
 		}
 		Result<?> result = Result.ok("登出成功", null);
 		response.setContentType("application/json;charset=UTF-8");

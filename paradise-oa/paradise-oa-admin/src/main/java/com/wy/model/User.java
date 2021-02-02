@@ -22,6 +22,7 @@ import com.wy.enums.SexEnum;
 import com.wy.enums.UserState;
 import com.wy.excel.annotation.ExcelColumn;
 import com.wy.model.vo.PermissionVo;
+import com.wy.utils.ListUtils;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;
@@ -211,6 +212,9 @@ public class User extends AbstractModel implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
+		if (ListUtils.isBlank(roles)) {
+			return null;
+		}
 		List<String> roleCodes = roles.stream().map(t -> {
 			return "ROLE_" + t.getRoleCode();
 		}).collect(Collectors.toList());

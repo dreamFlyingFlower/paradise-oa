@@ -37,7 +37,7 @@ public class LoginLogCrl extends AbstractCrl<LoginLog, Long> {
 
 	// @PreAuthorize("@ss.hasPermi('monitor:logininfor:list')")
 
-	@Log(title = "登陆日志", businessType = BusinessType.EXPORT)
+	@Log(value = "登陆日志", businessType = BusinessType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('monitor:logininfor:export')")
 	@GetMapping("export")
 	public Result<?> export(LoginLog loginLog, HttpServletResponse response) {
@@ -47,7 +47,7 @@ public class LoginLogCrl extends AbstractCrl<LoginLog, Long> {
 	}
 
 	@PreAuthorize("@ss.hasPermi('monitor:logininfor:remove')")
-	@Log(title = "登陆日志", businessType = BusinessType.CLEAR)
+	@Log(value = "登陆日志", businessType = BusinessType.CLEAR)
 	@GetMapping("clear")
 	public Result<?> clear() {
 		loginLogService.clear();

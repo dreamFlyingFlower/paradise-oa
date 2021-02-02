@@ -1,4 +1,4 @@
-package com.wy.manager;
+package com.wy.component;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -17,7 +17,7 @@ import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 异步写记录类信息,如日志,登录等信息 FIXME
+ * 异步写记录类信息,如日志,登录等信息
  * 
  * @author ParadiseWY
  * @date 2020年4月2日 下午11:49:49
@@ -25,13 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Async
 @Slf4j
-public class AsyncTask {
+public class AsyncService {
 
 	@Autowired
 	private LoginLogService loginLogService;
 
 	@Autowired
-	private OperateLogService operationLogService;
+	private OperateLogService operateLogService;
 
 	@Autowired
 	private ConfigProperties config;
@@ -43,7 +43,7 @@ public class AsyncTask {
 	 * @param state 状态,0失败,1成功
 	 * @param message 登录消息
 	 */
-	public void recordLogininfo(String username, int state, String message) {
+	public void recordLoginLog(String username, int state, String message) {
 		String ip = IpUtils.getIpByRequest(ServletUtils.getHttpServletRequest());
 		String address = IpUtils.getAddressByIp(ip, config.getCommon().isAddressOpt());
 		log.info(StrUtils.formatBuilder("::", ip, address, username, state, message));
@@ -58,11 +58,9 @@ public class AsyncTask {
 	/**
 	 * 操作日志记录
 	 * 
-	 * @param operationLog 操作日志信息
+	 * @param operateLog 操作日志信息
 	 */
-	public void recordOperation(OperateLog operationLog) {
-		operationLog.setOperatePlace(
-				IpUtils.getAddressByIp(operationLog.getOperateIp(), config.getCommon().isAddressOpt()));
-		operationLogService.insertSelective(operationLog);
+	public void recordOperateLog(OperateLog operateLog) {
+		operateLogService.insertSelective(operateLog);
 	}
 }

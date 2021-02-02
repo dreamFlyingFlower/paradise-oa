@@ -16,20 +16,26 @@ public interface Constants {
 	/** 默认分页时每页显示数据量 */
 	int PAGE_SIZE = 10;
 
-	/** 验证码redis key */
+	/** 验证码redis key前缀 */
 	String REDIS_KEY_CAPTCHA_CODE = "key_captcha_code:";
 
-	/** 登录用户信息redis key */
+	/** 登录用户信息redis key前缀 */
 	String REDIS_KEY_USER_LOGIN = "key_user_login:";
+
+	/** 防止重复提交提前存入的redis key前缀 */
+	String REDIS_KEY_IDEMPOTENCY = "key_idempotency:";
 
 	/** 登录用户进行jwt加密的token key */
 	String JWT_TOKEN_KEY = "login_token";
 
-	/** http请求头中携带token的字段 */
+	/** http请求头中携带token key */
 	String HTTP_TOKEN_AUTHENTICATION = "Authorization";
 
-	/** http请求中token值的令牌前缀 */
+	/** http请求头中携带token value令牌前缀 */
 	String HTTP_TOKEN_PREFIX = "Bearer ";
+
+	/** http请求头中携带重复请求的token key */
+	String HTTP_TOKEN_IDEMPOTENCY = "TokenIdempotency";
 
 	/** 验证码有效期,单位分钟 */
 	int CAPTCHA_EXPIRATION = 2;

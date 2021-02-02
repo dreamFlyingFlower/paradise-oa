@@ -29,17 +29,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ControllerAspect {
 
-	// 申明一个切点 里面是 execution表达式
+	// 申明一个切点,里面是execution表达式
 	@Pointcut("execution(public * com.wy.crl.*.*(..))")
-	private void controllerAspect() {}
+	private void controllerPoint() {}
 
 	/**
 	 * 请求method前打印内容
 	 * 
 	 * @param joinPoint 切面
 	 */
-	@Before(value = "controllerAspect()")
-	public void methodBefore(JoinPoint joinPoint) {
+	@Before("controllerPoint()")
+	public void before(JoinPoint joinPoint) {
 		ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder
 				.getRequestAttributes();
 		if (!Optional.ofNullable(requestAttributes).isPresent()) {
@@ -47,7 +47,6 @@ public class ControllerAspect {
 		}
 		HttpServletRequest request = requestAttributes.getRequest();
 		try {
-			// 打印请求内容
 			log.info("||===============请求内容 start===============||");
 			log.info("请求地址:" + request.getRequestURL().toString());
 			log.info("请求方式:" + request.getMethod());
@@ -55,7 +54,7 @@ public class ControllerAspect {
 			log.info("请求参数:" + Arrays.toString(joinPoint.getArgs()));
 			log.info("||===============请求内容 end=================||");
 		} catch (Exception e) {
-			log.error("###ControllerLogFilter.class methodBefore() ### ERROR:", e);
+			log.error("###ControllerAspect.class before() ERROR:", e);
 		}
 	}
 
@@ -64,14 +63,14 @@ public class ControllerAspect {
 	 * 
 	 * @param o 结果对象
 	 */
-	@AfterReturning(returning = "o", pointcut = "controllerAspect()")
-	public void methodAfterReturing(Object o) {
+	@AfterReturning(returning = "o", pointcut = "controllerPoint()")
+	public void afterReturing(Object o) {
 		try {
 			log.info("||--------------结果集 start----------------||");
 			log.info("Response内容:" + JSON.toJSONString(o));
 			log.info("||--------------结果集 end------------------||");
 		} catch (Exception e) {
-			log.error("###ControllerLogFilter.class methodAfterReturing() ### ERROR:", e);
+			log.error("###ControllerLogAspect.class afterReturing() ERROR:", e);
 		}
 	}
 }

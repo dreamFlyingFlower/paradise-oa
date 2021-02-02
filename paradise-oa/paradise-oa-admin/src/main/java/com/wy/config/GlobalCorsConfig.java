@@ -1,4 +1,4 @@
-package com.wy.filter;
+package com.wy.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ import org.springframework.web.filter.CorsFilter;
  * @git {@link https://github.com/mygodness100}
  */
 @Configuration
-public class CorFilter {
+public class GlobalCorsConfig {
 
 	@Bean
 	public CorsFilter filterRegistration() {

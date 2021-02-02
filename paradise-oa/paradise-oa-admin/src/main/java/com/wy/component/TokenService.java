@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import com.wy.common.Constants;
 import com.wy.crypto.CryptoUtils;
 import com.wy.enums.TipEnum;
+import com.wy.exception.AuthException;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
@@ -86,7 +87,7 @@ public class TokenService extends MessageService {
 		// 获取请求携带的令牌
 		String token = getToken(request);
 		if (StrUtils.isBlank(token)) {
-			throw new ResultException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
+			throw new AuthException(TipEnum.TIP_AUTH_TOKEN_EMPTY);
 		}
 		if (config.getFilter().isJwtEnable()) {
 			// 解析对应的权限以及用户信息

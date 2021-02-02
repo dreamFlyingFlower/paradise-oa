@@ -1,4 +1,4 @@
-package com.wy.filter;
+package com.wy.config;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestControllerAdvice
 @Slf4j
-public class ExceptionFilter {
+public class GlobalExceptionConfig {
 
 	@ExceptionHandler({ AuthException.class, AuthenticationException.class, Throwable.class })
 	public Result<?> handleException(HttpServletRequest request, Throwable throwable) {

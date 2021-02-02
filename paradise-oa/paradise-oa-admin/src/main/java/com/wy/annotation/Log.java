@@ -23,7 +23,7 @@ public @interface Log {
 	/**
 	 * 模块
 	 */
-	String title() default "";
+	String value() default "";
 
 	/**
 	 * 功能
