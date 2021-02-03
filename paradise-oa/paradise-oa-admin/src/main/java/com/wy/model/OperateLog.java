@@ -1,7 +1,7 @@
 package com.wy.model;
 
 import com.wy.base.AbstractModel;
-import com.wy.database.annotation.Pri;
+import com.wy.database.Pri;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

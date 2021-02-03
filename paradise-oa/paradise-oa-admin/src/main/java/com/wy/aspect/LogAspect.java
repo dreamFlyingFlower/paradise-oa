@@ -1,5 +1,6 @@
 package com.wy.aspect;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
@@ -24,10 +25,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
 import com.alibaba.fastjson.JSON;
-import com.wy.annotation.Log;
+import com.wy.common.StatusMsg;
 import com.wy.component.AsyncService;
 import com.wy.component.TokenService;
 import com.wy.enums.CommonEnum;
+import com.wy.log.Log;
 import com.wy.model.OperateLog;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
@@ -132,7 +134,6 @@ public class LogAspect {
 	 * @return 操作日志
 	 */
 	private OperateLog buildOperateLog(JoinPoint joinPoint, Log log, User loginUser, Exception e) {
-		// 数据库日志
 		OperateLog operateLog = new OperateLog();
 		operateLog.setState(CommonEnum.YES.getCode());
 		String ip = IpUtils.getIpByRequest(ServletUtils.getHttpServletRequest());
@@ -150,13 +151,37 @@ public class LogAspect {
 		String methodName = joinPoint.getSignature().getName();
 		operateLog.setMethod(className + "." + methodName + "()");
 		operateLog.setRequestMethod(ServletUtils.getHttpServletRequest().getMethod());
-		operateLog.setBusinessType(log.businessType().ordinal());
+		handlerLog(joinPoint, operateLog, log);
+		return operateLog;
+	}
+
+	private void handlerLog(JoinPoint joinPoint, OperateLog operateLog, Log log) {
 		operateLog.setTitle(log.value());
-		operateLog.setOperateType(log.operatorType().ordinal());
-		if (log.isSaveRequestData()) {
+		Class<? extends StatusMsg> logOtherType = log.logOtherType();
+		if (logOtherType == StatusMsg.class) {
+			operateLog.setBusinessType(log.logType().getCode());
+		} else {
+			try {
+				operateLog.setBusinessType(logOtherType.getConstructor().newInstance().getCode());
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+			}
+		}
+		Class<? extends StatusMsg> operatorOtherType = log.operatorOtherType();
+		if (operatorOtherType == StatusMsg.class) {
+			operateLog.setOperateType(log.operatorType().getCode());
+		} else {
+			try {
+				operateLog.setOperateType(operatorOtherType.getConstructor().newInstance().getCode());
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+			}
+		}
+		if (log.isSaveRequest()) {
 			handlerRequest(joinPoint, operateLog);
 		}
-		return operateLog;
 	}
 
 	/**

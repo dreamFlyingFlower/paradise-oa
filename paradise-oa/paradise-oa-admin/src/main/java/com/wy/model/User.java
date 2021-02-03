@@ -16,11 +16,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wy.base.AbstractModel;
-import com.wy.database.annotation.Pri;
-import com.wy.database.annotation.Unique;
+import com.wy.database.Pri;
+import com.wy.database.Unique;
 import com.wy.enums.SexEnum;
 import com.wy.enums.UserState;
-import com.wy.excel.annotation.ExcelColumn;
+import com.wy.excel.ExcelColumn;
 import com.wy.model.vo.PermissionVo;
 import com.wy.utils.ListUtils;
 import com.wy.valid.ValidEdit;

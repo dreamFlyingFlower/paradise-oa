@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
-import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
+import com.wy.log.Log;
+import com.wy.log.LogType;
 import com.wy.model.Dict;
 import com.wy.result.Result;
 import com.wy.service.DictService;
@@ -56,7 +56,7 @@ public class DictCrl extends AbstractCrl<Dict, Long> {
 		return dictService.selectDictList(dictData);
 	}
 
-	@Log(value = "字典数据", businessType = BusinessType.EXPORT)
+	@Log(value = "字典数据", logType = LogType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:dict:export')")
 	@GetMapping("/export")
 	public Result<?> export(Dict dictData, HttpServletResponse response) {

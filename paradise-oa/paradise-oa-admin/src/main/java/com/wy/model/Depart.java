@@ -5,10 +5,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.wy.base.Tree;
-import com.wy.database.annotation.Pid;
-import com.wy.database.annotation.Pri;
-import com.wy.database.annotation.Sort;
-import com.wy.database.annotation.Unique;
+import com.wy.database.Pid;
+import com.wy.database.Pri;
+import com.wy.database.Sort;
+import com.wy.database.Unique;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;

@@ -2,7 +2,7 @@ package com.wy.exception;
 
 import org.springframework.security.core.AuthenticationException;
 
-import com.wy.common.TipCode;
+import com.wy.common.StatusMsg;
 import com.wy.enums.TipEnum;
 
 /**
@@ -25,7 +25,7 @@ public class AuthException extends AuthenticationException {
 		this(TipEnum.TIP_SYS_ERROR);
 	}
 
-	public AuthException(TipCode tipCode) {
+	public AuthException(StatusMsg tipCode) {
 		this(tipCode.getCode(), tipCode.getMsg(), null);
 	}
 

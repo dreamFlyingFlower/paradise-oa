@@ -1,6 +1,6 @@
 package com.wy.enums;
 
-import com.wy.common.TipCode;
+import com.wy.common.StatusMsg;
 
 /**
  * 提示信息,后期接入国际化
@@ -9,7 +9,7 @@ import com.wy.common.TipCode;
  * @date 2021-01-18 13:38:08
  * @git {@link https://github.com/mygodness100}
  */
-public enum TipResult implements TipCode {
+public enum TipResult implements StatusMsg {
 
 	UPLOAD_FILE_STREAM_NOT_FOUND(0, "uploadFileStreamNotFound"),
 	UPLOAD_FILE_NAME_NOT_EXIST(0, "uploadFileNameNotExist"),

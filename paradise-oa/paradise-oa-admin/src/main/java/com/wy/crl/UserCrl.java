@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
-import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
 import com.wy.component.TokenService;
-import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
+import com.wy.log.Log;
+import com.wy.log.LogType;
 import com.wy.model.User;
 import com.wy.result.Result;
 import com.wy.service.UserService;
@@ -53,7 +53,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@Autowired
 	private TokenService tokenService;
 
-	@Log(value = "用户管理", businessType = BusinessType.EXPORT)
+	@Log(value = "用户管理", logType = LogType.EXPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
 	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:EXPORT')")
 	@GetMapping("excelExport")
@@ -63,7 +63,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		return Result.ok();
 	}
 
-	@Log(value = "用户管理", businessType = BusinessType.IMPORT)
+	@Log(value = "用户管理", logType = LogType.IMPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
 	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:IMPORT')")
 	@PostMapping("excelImport")
@@ -80,7 +80,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * 新增用户
 	 */
 	@PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
-	@Log(value = "用户管理", businessType = BusinessType.INSERT)
+	@Log(value = "用户管理", logType = LogType.INSERT)
 	@ApiOperation("新增用户")
 	@Override
 	public Result<?> create(@Validated(ValidInserts.class) @RequestBody User user, BindingResult bind) {
@@ -100,7 +100,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * @return 成功或失败
 	 */
 	@PreAuthorize("hasRole('SUPER_ADMIN')")
-	@Log(value = "用户管理", businessType = BusinessType.UPDATE)
+	@Log(value = "用户管理", logType = LogType.UPDATE)
 	@ApiOperation("重置密码")
 	@PostMapping("resetPwd")
 	public Result<?> resetPwd(@RequestBody User user) {
@@ -110,11 +110,11 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	/**
 	 * 修改密码
 	 */
-	@Log(value = "个人信息", businessType = BusinessType.UPDATE)
+	@Log(value = "个人信息", logType = LogType.UPDATE)
 	@PreAuthorize("principal.username == #username ")
 	@ApiOperation("修改密码")
 	@PostMapping("updatePwd")
-	public Result<?> updatePwd(String username,String oldPassword, String newPassword) {
+	public Result<?> updatePwd(String username, String oldPassword, String newPassword) {
 		User loginUser = SecurityUtils.getLoginUser();
 		String password = loginUser.getPassword();
 		if (!SecurityUtils.matches(oldPassword, password)) {
@@ -135,7 +135,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	/**
 	 * 头像上传
 	 */
-	@Log(value = "用户头像", businessType = BusinessType.UPDATE)
+	@Log(value = "用户头像", logType = LogType.UPDATE)
 	@PostMapping("updateAvatar")
 	public Result<?> updateAvatar(@RequestParam MultipartFile file) {
 		return Result.ok(userService.updateAvatar(file));

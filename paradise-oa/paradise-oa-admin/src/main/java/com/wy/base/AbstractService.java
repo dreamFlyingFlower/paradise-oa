@@ -10,8 +10,8 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
-import com.wy.database.annotation.Sort;
-import com.wy.database.annotation.Unique;
+import com.wy.database.Sort;
+import com.wy.database.Unique;
 import com.wy.result.ResultException;
 import com.wy.utils.StrUtils;
 

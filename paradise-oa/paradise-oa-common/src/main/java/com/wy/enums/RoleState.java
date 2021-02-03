@@ -9,17 +9,17 @@ import com.wy.common.PropConverter;
  * @date 2020-04-08 12:25:15
  * @git {@link https://github.com/mygodness100}
  */
-public enum CommonState implements PropConverter {
+public enum RoleState implements PropConverter {
 
-	COMMON_STOP() {
+	STOP() {
 
 		@Override
 		public Object getValue() {
-			return "异常";
+			return "停用";
 		}
 	},
 
-	COMMON_NORMAL() {
+	NORMAL() {
 
 		@Override
 		public Object getValue() {
@@ -27,7 +27,7 @@ public enum CommonState implements PropConverter {
 		}
 	},
 
-	COMMON_DELETE() {
+	DELETE() {
 
 		@Override
 		public Object getValue() {

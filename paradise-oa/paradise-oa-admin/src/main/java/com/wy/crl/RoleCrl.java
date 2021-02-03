@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
-import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
+import com.wy.log.Log;
+import com.wy.log.LogType;
 import com.wy.model.Role;
 import com.wy.result.Result;
 import com.wy.service.RoleService;
@@ -45,7 +45,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 		return Result.page(list);
 	}
 
-	@Log(value = "角色管理", businessType = BusinessType.EXPORT)
+	@Log(value = "角色管理", logType = LogType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('system:role:export')")
 	@GetMapping("export")
 	public Result<?> export(Role role, HttpServletResponse response) {
@@ -58,7 +58,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	 * 修改保存数据权限
 	 */
 	@PreAuthorize("@ss.hasPermi('system:role:edit')")
-	@Log(value = "角色管理", businessType = BusinessType.UPDATE)
+	@Log(value = "角色管理", logType = LogType.UPDATE)
 	@PutMapping("/dataScope")
 	public Result<?> dataScope(@RequestBody Role role) {
 		roleService.checkRoleAllowed(role);
@@ -69,7 +69,7 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	 * 状态修改
 	 */
 	@PreAuthorize("@ss.hasPermi('system:role:edit')")
-	@Log(value = "角色管理", businessType = BusinessType.UPDATE)
+	@Log(value = "角色管理", logType = LogType.UPDATE)
 	@PutMapping("/changeStatus")
 	public Result<?> changeStatus(@RequestBody Role role) {
 		roleService.checkRoleAllowed(role);

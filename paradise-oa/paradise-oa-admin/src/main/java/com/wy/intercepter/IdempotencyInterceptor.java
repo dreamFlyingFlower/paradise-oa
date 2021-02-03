@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.wy.annotation.Idempotency;
 import com.wy.component.MessageService;
+import com.wy.idempotent.Idempotency;
 import com.wy.result.Result;
 import com.wy.util.ServletUtils;
 
 /**
- * 幂等性拦截 FIXME
+ * 幂等性拦截
  * 
  * @author 飞花梦影
  * @date 2020-04-05 00:53:43

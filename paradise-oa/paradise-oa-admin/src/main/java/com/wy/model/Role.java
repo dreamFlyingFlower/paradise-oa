@@ -7,10 +7,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import com.wy.base.AbstractModel;
-import com.wy.database.annotation.Pri;
-import com.wy.database.annotation.Unique;
-import com.wy.enums.CommonState;
-import com.wy.excel.annotation.ExcelColumn;
+import com.wy.database.Pri;
+import com.wy.database.Unique;
+import com.wy.enums.RoleState;
+import com.wy.excel.ExcelColumn;
 import com.wy.valid.ValidEdit;
 
 import io.swagger.annotations.ApiModel;
@@ -81,7 +81,7 @@ public class Role extends AbstractModel {
 	 * 角色状态:0停用;默认1正常;2逻辑删除
 	 */
 	@ApiModelProperty("角色状态:0停用;默认1正常;2逻辑删除")
-	@ExcelColumn(value = "角色状态", propConverter = CommonState.class)
+	@ExcelColumn(value = "角色状态", propConverter = RoleState.class)
 	private Integer roleState;
 
 	/**

@@ -1,7 +1,7 @@
 package com.wy.enums;
 
 import com.wy.common.PropConverter;
-import com.wy.common.TipCode;
+import com.wy.common.StatusMsg;
 
 /**
  * 用户状态
@@ -9,7 +9,7 @@ import com.wy.common.TipCode;
  * @author ParadiseWY
  * @date 2020年4月8日 上午12:25:18
  */
-public enum UserState implements TipCode, PropConverter {
+public enum UserState implements StatusMsg, PropConverter {
 
 	USER_BLACK("黑名单"),
 	USER_NORMAL("正常"),

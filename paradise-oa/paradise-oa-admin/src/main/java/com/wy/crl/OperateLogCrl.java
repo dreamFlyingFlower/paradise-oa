@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wy.annotation.Log;
 import com.wy.base.AbstractCrl;
-import com.wy.enums.BusinessType;
 import com.wy.excel.ExcelModelUtils;
+import com.wy.log.Log;
+import com.wy.log.LogType;
 import com.wy.model.OperateLog;
 import com.wy.result.Result;
 import com.wy.service.OperateLogService;
@@ -38,7 +38,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 
 	// @PreAuthorize("@ss.hasPermi('monitor:operlog:list')")
 
-	@Log(value = "操作日志", businessType = BusinessType.EXPORT)
+	@Log(value = "操作日志", logType = LogType.EXPORT)
 	@PreAuthorize("@ss.hasPermi('monitor:operlog:export')")
 	@GetMapping("/export")
 	public Result<?> export(OperateLog operLog, HttpServletResponse response) {
@@ -47,7 +47,7 @@ public class OperateLogCrl extends AbstractCrl<OperateLog, Long> {
 		return Result.ok();
 	}
 
-	@Log(value = "操作日志", businessType = BusinessType.CLEAR)
+	@Log(value = "操作日志", logType = LogType.CLEAR)
 	@PreAuthorize("@ss.hasPermi('monitor:operlog:remove')")
 	@DeleteMapping("clear")
 	public Result<?> clear() {
