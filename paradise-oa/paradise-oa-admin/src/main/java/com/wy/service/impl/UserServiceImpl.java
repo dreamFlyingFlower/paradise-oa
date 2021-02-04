@@ -31,11 +31,11 @@ import com.wy.mapper.UserMapper;
 import com.wy.mapper.UserRoleMapper;
 import com.wy.mapper.UserinfoMapper;
 import com.wy.model.Fileinfo;
+import com.wy.model.Menu;
 import com.wy.model.Role;
 import com.wy.model.User;
 import com.wy.model.UserRole;
 import com.wy.model.UserRoleExample;
-import com.wy.model.vo.PermissionVo;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.FileinfoService;
@@ -209,8 +209,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @param user 用户信息
 	 */
 	private void handlerPermission(User user) {
-		List<PermissionVo> permissionVos = menuServiceImpl.getPermissionByUserId(user.getUserId());
-		user.setPermissionVos(permissionVos);
+		List<Menu> permissionVos = menuServiceImpl.getTreeByUserId(user.getUserId());
+		user.setMenus(permissionVos);
 	}
 
 	/**

@@ -29,7 +29,7 @@ import com.wy.common.StatusMsg;
 import com.wy.component.AsyncService;
 import com.wy.component.TokenService;
 import com.wy.enums.CommonEnum;
-import com.wy.log.Log;
+import com.wy.logger.Log;
 import com.wy.model.OperateLog;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
@@ -59,7 +59,7 @@ public class LogAspect {
 	@Autowired
 	private ConfigProperties config;
 
-	@Pointcut("@annotation(com.wy.annotation.Log)")
+	@Pointcut("@annotation(com.wy.logger.Log)")
 	public void logPoint() {}
 
 	/**

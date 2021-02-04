@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.wy.base.BaseService;
 import com.wy.model.Dict;
-import com.wy.result.Result;
 
 /**
  * 系统字典类
@@ -16,43 +15,19 @@ import com.wy.result.Result;
 public interface DictService extends BaseService<Dict, Long> {
 
 	/**
-	 * 根据字典编号获得当前字典数据以及直接子级字典数据
+	 * 根据字典编号获得当前字典数据以及直接子级字典数据列表
 	 * 
-	 * @param dicId 字典编号
+	 * @param dictId 字典编号
 	 * @return 当前字典数据以及直接子级字典数据
 	 */
-	List<Dict> getSelfChildren(long dicId);
+	List<Dict> getSelfChildren(long dictId);
 
 	/**
-	 * 根据字典唯一标识获得直接子级的字典数据
+	 * 根据字典唯一标识获得直接子级的字典数据列表
 	 * 
-	 * @param dicCode 字典唯一标识
+	 * @param dictCode 字典唯一标识
+	 * @param self 是否获得上级数据,null或false不获取,true获取
 	 * @return 直接子级字典数据
 	 */
-	List<Dict> getChildren(String dicCode);
-
-	/**
-	 * 根据条件分页查询字典数据
-	 * 
-	 * @param dictData 字典数据信息
-	 * @return 字典数据集合信息
-	 */
-	Result<List<Dict>> selectDictList(Dict dictData);
-
-	/**
-	 * 根据字典类型查询字典数据
-	 * 
-	 * @param dictType 字典类型
-	 * @return 字典数据集合信息
-	 */
-	List<Dict> selectDictDataByType(String dictType);
-
-	/**
-	 * 根据字典类型和字典键值查询字典数据信息
-	 * 
-	 * @param dictType 字典类型
-	 * @param dictValue 字典键值
-	 * @return 字典标签
-	 */
-	String selectDictLabel(String dictType, String dictValue);
+	List<Dict> getChildrenByCode(String dictCode, Boolean self);
 }

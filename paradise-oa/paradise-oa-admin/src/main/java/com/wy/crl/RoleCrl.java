@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wy.base.AbstractCrl;
 import com.wy.excel.ExcelModelUtils;
-import com.wy.log.Log;
-import com.wy.log.LogType;
+import com.wy.logger.Log;
+import com.wy.logger.LogType;
 import com.wy.model.Role;
 import com.wy.result.Result;
 import com.wy.service.RoleService;

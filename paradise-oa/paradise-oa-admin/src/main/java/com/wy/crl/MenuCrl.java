@@ -32,6 +32,18 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	private MenuService menuService;
 
 	/**
+	 * 根据上级菜单编号获得本身以及直接下级菜单列表
+	 * 
+	 * @param menuId 菜单编号
+	 * @return 本身以及直接下级菜单列表
+	 */
+	@ApiOperation("根据上级菜单编号获得本身以及直接下级菜单列表")
+	@GetMapping("getSelfChildren/{menuId}")
+	public Result<?> getSelfChildren(@ApiParam("上级菜单编号") @PathVariable Long menuId) {
+		return Result.ok(menuService.getSelfChildren(menuId));
+	}
+
+	/**
 	 * 根据用户编号获取菜单下拉树列表
 	 */
 	@ApiOperation("根据用户编号获取菜单下拉树列表")
@@ -49,18 +61,5 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	@GetMapping("getTreeByRoleId/{roleId}")
 	public Result<?> getTreeByRoleId(@PathVariable Long roleId) {
 		return Result.ok(menuService.getTreeByRoleId(roleId));
-	}
-	
-	@ApiOperation("根据角色查询菜单树,以及相应权限")
-	@PreAuthorize("principal.roles[0].roleId == #roleId")
-	@GetMapping("getPermissionByRoleId/{roleId}")
-	public Result<?> getPermissionByRoleId(@PathVariable Long roleId) {
-		return Result.ok(menuService.getPermissionByRoleId(roleId));
-	}
-
-	@ApiOperation("根据上级菜单编号获得本身以及直接下级菜单列表")
-	@GetMapping("getSelfChildren/{id}")
-	public Result<?> getSelfChildren(@ApiParam("上级菜单编号") @PathVariable Long id) {
-		return Result.ok(menuService.getSelfChildren(id));
 	}
 }

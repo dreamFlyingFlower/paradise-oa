@@ -18,7 +18,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatProperties;
 import com.alibaba.druid.util.Utils;
@@ -34,7 +34,7 @@ import com.wy.properties.ConfigProperties;
  * @date 2020年4月6日 下午7:37:26
  */
 @Configuration
-public class GlobalWebConfig extends WebMvcConfigurationSupport {
+public class GlobalWebConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private ConfigProperties config;
@@ -122,7 +122,7 @@ public class GlobalWebConfig extends WebMvcConfigurationSupport {
 	 * 添加拦截器
 	 */
 	@Override
-	protected void addInterceptors(InterceptorRegistry registry) {
+	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(idempotencyInterceptor);
 	}
 }

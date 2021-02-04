@@ -84,7 +84,8 @@
 		</where>
 	</sql>
 	<sql id="Base_Column_List">
-		menu_id, menu_name, pid, pname, menu_path, menu_view, router_name, menu_icon, menu_i18n,
+		menu_id, menu_name, pid, pname, menu_path, menu_view, router_name, menu_icon,
+		menu_i18n,
 		redirect, hidden, link, sort_index
 	</sql>
 	<select id="selectByExample" parameterType="com.wy.model.MenuExample"
@@ -110,7 +111,8 @@
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from ts_menu
-		where menu_id = #{menuId,jdbcType=BIGINT}
+		where menu_id =
+		#{menuId,jdbcType=BIGINT}
 	</delete>
 	<delete id="deleteByExample" parameterType="com.wy.model.MenuExample">
 		delete from ts_menu
@@ -125,7 +127,8 @@
 		menu_icon, menu_i18n, redirect,
 		hidden, link, sort_index
 		)
-		values (#{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=BIGINT}, #{pname,jdbcType=VARCHAR},
+		values
+		(#{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=BIGINT}, #{pname,jdbcType=VARCHAR},
 		#{menuPath,jdbcType=VARCHAR}, #{menuView,jdbcType=VARCHAR}, #{routerName,jdbcType=VARCHAR},
 		#{menuIcon,jdbcType=VARCHAR}, #{menuI18n,jdbcType=VARCHAR}, #{redirect,jdbcType=VARCHAR},
 		#{hidden,jdbcType=INTEGER}, #{link,jdbcType=INTEGER}, #{sortIndex,jdbcType=INTEGER}
@@ -268,17 +271,23 @@
 	<update id="updateByExample" parameterType="map">
 		update ts_menu
 		set menu_id = #{record.menuId,jdbcType=BIGINT},
-		menu_name = #{record.menuName,jdbcType=VARCHAR},
+		menu_name =
+		#{record.menuName,jdbcType=VARCHAR},
 		pid = #{record.pid,jdbcType=BIGINT},
-		pname = #{record.pname,jdbcType=VARCHAR},
+		pname =
+		#{record.pname,jdbcType=VARCHAR},
 		menu_path = #{record.menuPath,jdbcType=VARCHAR},
-		menu_view = #{record.menuView,jdbcType=VARCHAR},
+		menu_view =
+		#{record.menuView,jdbcType=VARCHAR},
 		router_name = #{record.routerName,jdbcType=VARCHAR},
-		menu_icon = #{record.menuIcon,jdbcType=VARCHAR},
+		menu_icon
+		= #{record.menuIcon,jdbcType=VARCHAR},
 		menu_i18n = #{record.menuI18n,jdbcType=VARCHAR},
-		redirect = #{record.redirect,jdbcType=VARCHAR},
+		redirect =
+		#{record.redirect,jdbcType=VARCHAR},
 		hidden = #{record.hidden,jdbcType=INTEGER},
-		link = #{record.link,jdbcType=INTEGER},
+		link =
+		#{record.link,jdbcType=INTEGER},
 		sort_index = #{record.sortIndex,jdbcType=INTEGER}
 		<if test="_parameter != null">
 			<include refid="Update_By_Example_Where_Clause" />
@@ -328,18 +337,23 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wy.model.Menu">
 		update ts_menu
-		set menu_name = #{menuName,jdbcType=VARCHAR},
+		set menu_name =
+		#{menuName,jdbcType=VARCHAR},
 		pid = #{pid,jdbcType=BIGINT},
 		pname = #{pname,jdbcType=VARCHAR},
 		menu_path = #{menuPath,jdbcType=VARCHAR},
 		menu_view = #{menuView,jdbcType=VARCHAR},
-		router_name = #{routerName,jdbcType=VARCHAR},
+		router_name =
+		#{routerName,jdbcType=VARCHAR},
 		menu_icon = #{menuIcon,jdbcType=VARCHAR},
-		menu_i18n = #{menuI18n,jdbcType=VARCHAR},
+		menu_i18n =
+		#{menuI18n,jdbcType=VARCHAR},
 		redirect = #{redirect,jdbcType=VARCHAR},
-		hidden = #{hidden,jdbcType=INTEGER},
+		hidden =
+		#{hidden,jdbcType=INTEGER},
 		link = #{link,jdbcType=INTEGER},
-		sort_index = #{sortIndex,jdbcType=INTEGER}
+		sort_index =
+		#{sortIndex,jdbcType=INTEGER}
 		where menu_id = #{menuId,jdbcType=BIGINT}
 	</update>
 	<insert id="inserts" parameterType="list">
@@ -365,7 +379,8 @@
 	</insert>
 	<delete id="deleteByPrimaryKeys" parameterType="list">
 		delete from ts_menu where menu_id in
-		<foreach open="(" close=")" collection="list" item="menuId" separator=",">#{menuId,jdbcType=BIGINT}</foreach>
+		<foreach open="(" close=")" collection="list" item="menuId" separator=",">#{menuId,jdbcType=BIGINT}
+		</foreach>
 	</delete>
 	<delete id="deleteAll">
 		delete from ts_menu
@@ -448,34 +463,23 @@
 		from ts_menu
 	</select>
 
-	<select id="selectByUserId" parameterType="long" resultMap="BaseResultMap">
-		select
-		<include refid="Base_Column_List" />
-		from ti_menu m
-		left join tr_role_menu rm on m.menu_id = rm.menu_id
-		left join tr_user_role ur on
-		rm.role_id = ur.role_id
-		where m.hidden = 0 and ur.user_id = #{userId}
-		order by m.pid, m.sort_index
-	</select>
-
-	<sql id="selectPermission">
-		select a.role_id,a.menu_id,a.permissions,b.role_code,e.menu_name,e.pid
-		from tr_role_menu
-		a
-		inner join ts_role b on b.role_id = a.role_id
-		inner join tr_user_role c on c.role_id = b.role_id
-		inner join ts_user d on d.user_id = c.user_id
-		inner join ts_menu e on e.menu_id = a.menu_id
+	<sql id="BaseAliasColumns">
+		a.menu_id, a.menu_name, a.pid, a.pname, a.menu_path, a.menu_view, a.router_name,
+		a.menu_icon, a.menu_i18n,a.redirect, a.hidden, a.link, a.sort_index
 	</sql>
 
-	<select id="selectPermissions" resultType="com.wy.model.vo.PermissionVo">
-		<include refid="selectPermission" />
+	<select id="selectByRoleId" resultMap="BaseResultMap">
+		select
+		<include refid="BaseAliasColumns" />
+		<choose>
+			<when test="roleId != null">,b.menu_state,b.permissions,c.role_code</when>
+			<otherwise>,1 menu_state,'ALL' permissions,'SUPER_ADMIN' role_code</otherwise>
+		</choose>
+		from ts_menu a left join tr_role_menu b on b.menu_id = a.menu_id
+		left join ts_role c on c.role_id = b.role_id
 		<where>
-			<if test="menuId != null ">e.menu_id = #{menuId,jdbcType=BIGINT}</if>
-			<if test="pid != null ">e.pid = #{pid,jdbcType=BIGINT}</if>
-			<if test="userId != null ">d.user_id = #{userId,jdbcType=BIGINT}</if>
-			<if test="roleId != null ">a.role_id = #{roleId,jdbcType=BIGINT}</if>
+			<if test="roleId != null ">and b.role_id = #{roleId,jdbcType=BIGINT}</if>
 		</where>
+		order by a.sort_index
 	</select>
 </mapper>

@@ -9,6 +9,7 @@ import com.wy.database.Pid;
 import com.wy.database.Pri;
 import com.wy.database.Sort;
 import com.wy.database.Unique;
+import com.wy.excel.ExcelAction;
 import com.wy.excel.ExcelColumn;
 import com.wy.valid.ValidEdit;
 
@@ -52,16 +53,14 @@ public class Dict extends AbstractModel {
 	 * 字典名
 	 */
 	@ApiModelProperty("字典名")
-	@ExcelColumn("字典名称")
-	@NotBlank(message = "字典名称不能为空")
+	@NotBlank(message = "字典名不能为空")
 	@Size(min = 0, max = 50, message = "字典名称长度不能超过50个字符")
 	private String dictName;
 
 	/**
 	 * 字典编码,唯一
 	 */
-	@ApiModelProperty("字典编码,唯一")
-	@ExcelColumn("字典唯一标识")
+	@ApiModelProperty("字典编码")
 	@NotBlank(message = "字典唯一标识不能为空")
 	@Size(min = 0, max = 50, message = "字典唯一标识长度不能超过50个字符")
 	@Unique
@@ -71,8 +70,6 @@ public class Dict extends AbstractModel {
 	 * 字典值
 	 */
 	@ApiModelProperty("字典值")
-	@ExcelColumn("字典键值")
-	@NotBlank(message = "字典键值不能为空")
 	@Size(min = 0, max = 50, message = "字典键值长度不能超过50个字符")
 	private Integer dictVal;
 
@@ -80,8 +77,7 @@ public class Dict extends AbstractModel {
 	 * 上级字典编号
 	 */
 	@ApiModelProperty("上级字典编号")
-	@ExcelColumn("父级字典编号")
-	@NotNull(message = "父级字典编号不能为空")
+	@NotNull(message = "上级字典编号不能为空")
 	@Pid
 	private Long pid;
 
@@ -89,6 +85,7 @@ public class Dict extends AbstractModel {
 	 * 上级字典名
 	 */
 	@ApiModelProperty("上级字典名")
+	@NotBlank(message = "上级字典名不能为空")
 	private String pname;
 
 	/**
@@ -99,4 +96,8 @@ public class Dict extends AbstractModel {
 	private Integer sortIndex;
 
 	/** 非数据库字段 */
+	@ApiModelProperty("修改dictCode时的原始dictCode")
+	@NotBlank(groups = ValidEdit.class)
+	@ExcelColumn(excelAction = ExcelAction.NOTHING)
+	private String oriDictCode;
 }

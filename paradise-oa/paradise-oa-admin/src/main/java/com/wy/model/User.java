@@ -21,7 +21,6 @@ import com.wy.database.Unique;
 import com.wy.enums.SexEnum;
 import com.wy.enums.UserState;
 import com.wy.excel.ExcelColumn;
-import com.wy.model.vo.PermissionVo;
 import com.wy.utils.ListUtils;
 import com.wy.valid.ValidEdit;
 
@@ -207,8 +206,8 @@ public class User extends AbstractModel implements UserDetails {
 	/**
 	 * 权限集合
 	 */
-	@ApiModelProperty("权限集合")
-	private List<PermissionVo> permissionVos;
+	@ApiModelProperty("菜单权限集合")
+	private List<Menu> menus;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

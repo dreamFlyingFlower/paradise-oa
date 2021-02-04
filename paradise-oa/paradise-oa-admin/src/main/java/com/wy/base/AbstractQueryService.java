@@ -203,7 +203,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	 * @param pidField 上级字段
 	 * @return 上下级字段对应关系
 	 */
-	private Map<ID, List<T>> handlerTreeMap(List<T> entitys, Field priField, Field pidField) {
+	public Map<ID, List<T>> handlerTreeMap(List<T> entitys, Field priField, Field pidField) {
 		Map<ID, List<T>> result = new HashMap<>(entitys.size());
 		for (T t : entitys) {
 			priField.setAccessible(true);
