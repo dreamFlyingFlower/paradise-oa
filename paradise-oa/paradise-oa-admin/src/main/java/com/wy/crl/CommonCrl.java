@@ -2,6 +2,7 @@ package com.wy.crl;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,10 +13,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wy.common.Constants;
 import com.wy.component.RedisService;
+import com.wy.crypto.CryptoUtils;
 import com.wy.enums.RequestSource;
 import com.wy.io.ImageUtils;
 import com.wy.properties.ConfigProperties;
+import com.wy.result.Result;
 import com.wy.result.ResultException;
 import com.wy.utils.StrUtils;
 
@@ -24,10 +28,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 /**
- * 通用请求处理,包括验证码,文件上传下载等API
+ * 通用请求处理,包括验证码,幂等性token生成,文件上传下载等API
  *
- * @author ParadiseWY
- * @date 2020年4月5日 下午1:04:00
+ * @author 飞花梦影
+ * @date 2021-02-04 22:58:47
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Api(tags = "通用请求处理,包括验证码")
 @RestController
@@ -74,5 +79,18 @@ public class CommonCrl {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 获得幂等性验证token
+	 * 
+	 * @return token
+	 */
+	@ApiOperation("获得幂等性验证token")
+	@GetMapping("getIdempotencyToken")
+	public Result<?> getIdempotencyToken() {
+		String uuid = CryptoUtils.UUID();
+		redisService.setStr(Constants.REDIS_KEY_IDEMPOTENCY + uuid, uuid, 10, TimeUnit.MINUTES);
+		return Result.ok(uuid);
 	}
 }

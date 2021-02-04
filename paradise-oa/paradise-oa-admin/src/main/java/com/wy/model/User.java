@@ -168,18 +168,6 @@ public class User extends AbstractModel implements UserDetails {
 
 	/** 非数据库字段 */
 	/**
-	 * 部门对象
-	 */
-	@ApiModelProperty("部门对象")
-	private Depart depart;
-
-	/**
-	 * 用户扩展信息
-	 */
-	@ApiModelProperty("用户扩展信息")
-	private Userinfo userinfo;
-
-	/**
 	 * 用户登录成功后返回的token
 	 */
 	@ApiModelProperty("用户登录成功后返回的token")
@@ -192,16 +180,22 @@ public class User extends AbstractModel implements UserDetails {
 	private Date loginTime;
 
 	/**
+	 * 部门对象
+	 */
+	@ApiModelProperty("部门对象")
+	private Depart depart;
+
+	/**
+	 * 用户扩展信息
+	 */
+	@ApiModelProperty("用户扩展信息")
+	private Userinfo userinfo;
+
+	/**
 	 * 用户角色对象
 	 */
 	@ApiModelProperty("用户角色对象")
 	private List<Role> roles;
-
-	/**
-	 * 角色编号集合
-	 */
-	@ApiModelProperty("角色编号集合")
-	private List<Long> roleIds;
 
 	/**
 	 * 权限集合

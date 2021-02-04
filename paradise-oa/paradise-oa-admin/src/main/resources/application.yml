@@ -51,3 +51,5 @@ pagehelper:
 logging: 
   level: 
     com.wy.mapper: debug
+  file:
+    max-history: 30

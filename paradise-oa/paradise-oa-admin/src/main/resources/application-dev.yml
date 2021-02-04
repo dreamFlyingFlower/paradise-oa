@@ -41,12 +41,19 @@ spring:
             alter-table-allow: false
             truncate-allow: false
             drop-table-allow: false
+            # 是否允许非以上基本语句的其他语句,默认关闭
             none-base-statement-allow: false
+            # 检查update语句是否无where条件
             update-where-none-check: true
+            # select into outfile是否允许,这是mysql注入攻击常见手段,默认是禁止的
             select-into-outfile-allow: false
+            # 是否允许调用connection.getmetdata方法,这个方法会暴露数据库的表信息
             metadata-allow: true
+            # 允许多条sql语句同时执行
             multi-statement-allow: true
+          # 对被认为是攻击的sql进行log.error输出
           log-violation: true
+          # 对被认为是攻击的sql抛出异常
           throw-exception: true
         stat:
           log-slow-sql: true

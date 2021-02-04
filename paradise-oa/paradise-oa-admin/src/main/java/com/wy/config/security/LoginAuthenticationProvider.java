@@ -16,15 +16,15 @@ import com.wy.enums.TipEnum;
 import com.wy.exception.AuthException;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
-import com.wy.result.ResultException;
 import com.wy.service.UserService;
 import com.wy.util.SecurityUtils;
 
 /**
  * 自定义登录的验证方法,从数据库中取出用户数据封装后返回
  * 
- * @author ParadiseWY
- * @date 2020年4月2日 下午11:33:49
+ * @author 飞花梦影
+ * @date 2021-02-04 22:34:37
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Configuration
 public class LoginAuthenticationProvider implements AuthenticationProvider {
@@ -41,19 +41,19 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		// 这个获取表单输入中返回的用户名,用户名必须唯一
+		// 获取表单输入中返回的用户名,用户名必须唯一
 		String username = authentication.getName();
-		// 这里调用我们的自己写的获取用户的方法来判断用户是否存在和密码是否正确
+		// 调用自己写的获取用户的方法来判断用户是否存在和密码是否正确
 		User user = (User) userService.loadUserByUsername(username);
 		if (user == null) {
 			throw new AuthException(TipEnum.TIP_LOGIN_FAIL_USERNAME);
 		}
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
 		String password = (String) authentication.getCredentials();
-		password = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), password,false);
+		password = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), password, false);
 		password = password.substring(0, password.lastIndexOf("_"));
 		if (password.length() > 12) {
-			throw new ResultException("密码长度不能超过12位");
+			throw new AuthException("密码长度不能超过12位");
 		}
 		// 使用该加密方式是spring推荐,加密后的长度为60,且被加密的字符串不得超过72
 		if (!SecurityUtils.matches(password, user.getPassword())) {
@@ -63,7 +63,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 		if (config.getFilter().isTokenEnable()) {
 			tokenService.createToken(user);
 		}
-		// 这里还可以加一些其他信息的判断,比如用户账号已停用等判断,这里为了方便我接下去的判断
+		// 这里可以加一些其他信息的判断,比如用户账号已停用等判断,这里为了方便接下去的判断
 		Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
 		// 构建返回的用户登录成功的token
 		return new UsernamePasswordAuthenticationToken(user, password, authorities);

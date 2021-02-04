@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -282,7 +281,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		}
 		List<Role> roles = roleMapper.selectByUserId(userId);
 		user.setRoles(roles);
-		user.setRoleIds(roles.stream().map(t -> t.getRoleId()).collect(Collectors.toList()));
 		return user;
 	}
 
@@ -344,14 +342,14 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @param user 用户对象
 	 */
 	public void insertUserRole(User user) {
-		List<Long> roles = user.getRoleIds();
+		List<Role> roles = user.getRoles();
 		if (ListUtils.isNotBlank(roles)) {
 			// 新增用户与角色管理
 			List<UserRole> list = new ArrayList<UserRole>();
-			for (Long roleId : roles) {
+			for (Role role : roles) {
 				UserRole ur = new UserRole();
 				ur.setUserId(user.getUserId());
-				ur.setRoleId(roleId);
+				ur.setRoleId(role.getRoleId());
 				list.add(ur);
 			}
 			if (list.size() > 0) {
