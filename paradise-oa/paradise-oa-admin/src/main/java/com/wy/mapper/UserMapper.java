@@ -45,4 +45,12 @@ public interface UserMapper extends BaseMapper<User, Long> {
 	 * @param username 可以是用户名,邮件地址,手机号
 	 */
 	List<User> selectByUsername(String username);
+
+	/**
+	 * 批量查询用户以及角色信息
+	 * 
+	 * @param ids 用户编号集合
+	 * @return 用户以及角色信息
+	 */
+	List<User> selectUserRoles(List<Long> ids);
 }

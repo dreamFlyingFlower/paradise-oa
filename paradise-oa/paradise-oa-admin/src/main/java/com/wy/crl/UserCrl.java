@@ -28,7 +28,6 @@ import com.wy.logger.LogType;
 import com.wy.model.User;
 import com.wy.result.Result;
 import com.wy.service.UserService;
-import com.wy.util.SecurityUtils;
 import com.wy.util.ServletUtils;
 import com.wy.valid.ValidInserts;
 
@@ -53,29 +52,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@Autowired
 	private TokenService tokenService;
 
-	@Log(value = "用户管理", logType = LogType.EXPORT)
-	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
-	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:EXPORT')")
-	@GetMapping("excelExport")
-	public Result<?> excelExport(User user, HttpServletResponse response) {
-		List<User> list = userService.getEntitys(user).getData();
-		ExcelModelUtils.getInstance().exportExcel(list, response, "用户数据.xlsx");
-		return Result.ok();
-	}
-
-	@Log(value = "用户管理", logType = LogType.IMPORT)
-	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
-	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:IMPORT')")
-	@PostMapping("excelImport")
-	public Result<?> excelImport(MultipartFile file, boolean updateSupport) throws Exception {
-		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
-		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-		String operName = loginUser.getUsername();
-		String message = userService.importUser(JSON.parseArray(JSON.toJSONString(userList), User.class), updateSupport,
-				operName);
-		return Result.ok(message);
-	}
-
 	/**
 	 * 新增用户
 	 */
@@ -89,7 +65,6 @@ public class UserCrl extends AbstractCrl<User, Long> {
 			assert error != null;
 			return Result.error(error.getField() + error.getDefaultMessage());
 		}
-		user.setPassword(SecurityUtils.encode(user.getPassword()));
 		return Result.result(userService.insertSelective(user));
 	}
 
@@ -111,25 +86,11 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	 * 修改密码
 	 */
 	@Log(value = "个人信息", logType = LogType.UPDATE)
-	@PreAuthorize("principal.username == #username ")
+	@PreAuthorize("principal.userId == #userId ")
 	@ApiOperation("修改密码")
 	@PostMapping("updatePwd")
-	public Result<?> updatePwd(String username, String oldPassword, String newPassword) {
-		User loginUser = SecurityUtils.getLoginUser();
-		String password = loginUser.getPassword();
-		if (!SecurityUtils.matches(oldPassword, password)) {
-			return Result.error("修改密码失败,旧密码错误");
-		}
-		if (SecurityUtils.matches(newPassword, password)) {
-			return Result.error("新密码不能与旧密码相同");
-		}
-		if (userService.resetUserPwd(loginUser.getUserId(), SecurityUtils.encode(newPassword)) > 0) {
-			// 更新缓存用户密码
-			loginUser.setPassword(SecurityUtils.encode(newPassword));
-			tokenService.refreshToken(loginUser);
-			return Result.ok();
-		}
-		return Result.error("修改密码异常,请联系管理员");
+	public Result<?> updatePwd(Long userId, String oldPassword, String newPassword) {
+		return Result.result(userService.resetUserPwd(userId, oldPassword, newPassword) > 0);
 	}
 
 	/**
@@ -139,5 +100,27 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@PostMapping("updateAvatar")
 	public Result<?> updateAvatar(@RequestParam MultipartFile file) {
 		return Result.ok(userService.updateAvatar(file));
+	}
+
+	@Log(value = "用户管理", logType = LogType.EXPORT)
+	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
+	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:EXPORT')")
+	@GetMapping("excelExport")
+	public Result<?> excelExport(User user, HttpServletResponse response) {
+		List<User> list = userService.getEntitys(user).getData();
+		ExcelModelUtils.getInstance().exportExcel(list, response, "用户数据.xlsx");
+		return Result.ok();
+	}
+
+	@Log(value = "用户管理", logType = LogType.IMPORT)
+	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
+	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:IMPORT')")
+	@PostMapping("excelImport")
+	public Result<?> excelImport(MultipartFile file) throws Exception {
+		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
+		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
+		int row = userService.importUser(JSON.parseArray(JSON.toJSONString(userList), User.class),
+				loginUser.getUsername());
+		return Result.result(row > 0);
 	}
 }

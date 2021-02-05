@@ -11,7 +11,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
 import com.wy.component.TokenService;
-import com.wy.crypto.CryptoUtils;
 import com.wy.enums.TipEnum;
 import com.wy.exception.AuthException;
 import com.wy.model.User;
@@ -50,11 +49,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
 		}
 		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
 		String password = (String) authentication.getCredentials();
-		password = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), password, false);
-		password = password.substring(0, password.lastIndexOf("_"));
-		if (password.length() > 12) {
-			throw new AuthException("密码长度不能超过12位");
-		}
+		password = userService.assertPassword(password);
 		// 使用该加密方式是spring推荐,加密后的长度为60,且被加密的字符串不得超过72
 		if (!SecurityUtils.matches(password, user.getPassword())) {
 			throw new AuthException(TipEnum.TIP_LOGIN_FAIL);

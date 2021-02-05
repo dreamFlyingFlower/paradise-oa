@@ -1,6 +1,7 @@
 package com.wy.component;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +17,7 @@ import com.wy.exception.AuthException;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
+import com.wy.service.impl.UserServiceImpl;
 import com.wy.util.JwtUtils;
 import com.wy.utils.MapUtils;
 import com.wy.utils.StrUtils;
@@ -32,6 +34,9 @@ public class TokenService extends MessageService {
 
 	@Autowired
 	private ConfigProperties config;
+
+	@Autowired
+	private UserServiceImpl userService;
 
 	@Autowired
 	private RedisTemplate<Object, Object> redisTemplate;
@@ -75,6 +80,20 @@ public class TokenService extends MessageService {
 	 */
 	public User getLoginUser(Long userId) {
 		return (User) redisTemplate.opsForValue().get(getTokenKey(userId));
+	}
+
+	/**
+	 * 直接从redis中获取用户身份信息
+	 * 
+	 * @param userId 用户编号
+	 * @return 用户信息
+	 */
+	public User getLoginUser(String username) {
+		User user = userService.getByUsername(username);
+		if (Objects.isNull(user)) {
+			throw new ResultException(TipEnum.TIP_USER_NOT_EXIST);
+		}
+		return (User) redisTemplate.opsForValue().get(getTokenKey(user.getUserId()));
 	}
 
 	/**

@@ -13,6 +13,12 @@ public interface Constants {
 	/** 密码存入数据库的MD5加密的密钥 */
 	String SECRET_KEY_DB = "#$%^&*()$%^#$%^&";
 
+	/** 原始密码最小长度 */
+	int PWD_MIN_LENGTH = 6;
+
+	/** 原始密码最大长度 */
+	int PWD_MAX_LENGTH = 16;
+
 	/** 默认分页时每页显示数据量 */
 	int PAGE_SIZE = 10;
 

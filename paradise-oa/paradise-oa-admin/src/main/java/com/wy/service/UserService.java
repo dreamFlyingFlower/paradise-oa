@@ -17,18 +17,25 @@ import com.wy.model.User;
  */
 public interface UserService extends BaseService<User, Long>, UserDetailsService {
 
-	// boolean assignRole();
-	//
 	// void leave();
 	//
 	// void approve();
+
 	/**
-	 * 通过用户名查询用户
+	 * 判断原始密码是否符合条件
 	 * 
-	 * @param userName 用户名
+	 * @param password 前端传到后台的密码:AES加密(原始密码_时间戳)
+	 * @return 原始密码
+	 */
+	String assertPassword(String password);
+
+	/**
+	 * 通过用户名或邮件或手机号查询用户
+	 * 
+	 * @param username 用户名或邮件或手机号
 	 * @return 用户对象信息
 	 */
-	User selectByUsername(String username);
+	User getByUsername(String username);
 
 	/**
 	 * 修改用户头像
@@ -47,21 +54,21 @@ public interface UserService extends BaseService<User, Long>, UserDetailsService
 	int resetPwd(User user);
 
 	/**
-	 * 重置用户密码
+	 * 用户修改密码
 	 * 
 	 * @param userId 用户编号
-	 * @param password 密码
+	 * @param oldPassword 旧密码
+	 * @param newPassword 新密码
 	 * @return 结果
 	 */
-	int resetUserPwd(Long userId, String password);
+	int resetUserPwd(Long userId, String oldPassword, String newPassword);
 
 	/**
 	 * 导入用户数据
 	 * 
 	 * @param userList 用户数据列表
-	 * @param isUpdateSupport 是否更新支持，如果已存在，则进行更新数据
 	 * @param username 操作用户
 	 * @return 结果
 	 */
-	String importUser(List<User> userList, Boolean isUpdateSupport, String username);
+	int importUser(List<User> userList, String username);
 }

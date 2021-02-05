@@ -3,20 +3,19 @@ package com.wy.service.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.wy.base.AbstractService;
+import com.wy.common.Constants;
 import com.wy.component.AsyncService;
+import com.wy.component.MessageService;
 import com.wy.component.RedisService;
 import com.wy.component.TokenService;
 import com.wy.crypto.CryptoUtils;
@@ -33,6 +32,7 @@ import com.wy.model.Fileinfo;
 import com.wy.model.Menu;
 import com.wy.model.Role;
 import com.wy.model.User;
+import com.wy.model.UserExample;
 import com.wy.model.UserRole;
 import com.wy.model.UserRoleExample;
 import com.wy.properties.ConfigProperties;
@@ -80,7 +80,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private AsyncService asyncService;
 
 	@Autowired
-	private MessageSource messageSource;
+	private MessageService messageService;
 
 	@Autowired
 	private TokenService tokenService;
@@ -93,20 +93,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 
 	@Autowired
 	private MenuServiceImpl menuServiceImpl;
-
-	/**
-	 * 通过用户名,邮件,手机号查询用户信息
-	 * 
-	 * @param username 用户名或邮件或手机号
-	 * @return 用户信息
-	 */
-	public User getByUsername(String username) {
-		List<User> entitys = userMapper.selectByUsername(username);
-		if (ListUtils.isBlank(entitys) || entitys.size() > 1) {
-			return null;
-		}
-		return entitys.get(0);
-	}
 
 	/**
 	 * 校验用户是否允许操作
@@ -128,6 +114,47 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 				}
 			}
 		}
+	}
+
+	/**
+	 * 判断原始密码是否符合条件
+	 * 
+	 * @param password 前端传到后台的密码:AES加密(原始密码_时间戳)
+	 */
+	@Override
+	public String assertPassword(String password) {
+		password = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), password, false);
+		password = password.substring(0, password.lastIndexOf("_"));
+		return assertOriginalPassword(password);
+	}
+
+	/**
+	 * 检查原始密码是否符合条件
+	 * 
+	 * @param password 原始密码
+	 * @return 原始密码
+	 */
+	private String assertOriginalPassword(String password) {
+		if (password.length() < Constants.PWD_MIN_LENGTH || password.length() > Constants.PWD_MAX_LENGTH) {
+			throw new AuthException(
+					messageService.getMessage("msg_pwd_length", Constants.PWD_MIN_LENGTH, Constants.PWD_MAX_LENGTH));
+		}
+		return password;
+	}
+
+	/**
+	 * 通过用户名,邮件,手机号查询用户信息
+	 * 
+	 * @param username 用户名或邮件或手机号
+	 * @return 用户信息
+	 */
+	@Override
+	public User getByUsername(String username) {
+		List<User> entitys = userMapper.selectByUsername(username);
+		if (ListUtils.isBlank(entitys) || entitys.size() > 1) {
+			return null;
+		}
+		return entitys.get(0);
 	}
 
 	@Override
@@ -162,24 +189,23 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		if (!config.getCaptcha().isValid()) {
 			return;
 		}
-		String code = ServletUtils.getParameter("code");
-		if (StrUtils.isBlank(code)) {
-			throw new AuthException(TipEnum.TIP_LOGIN_FAIL_CODE_EMPTY);
+		String captcha = ServletUtils.getParameter("captcha");
+		String uuidKey = ServletUtils.getParameter("uuid");
+		if (StrUtils.isBlank(captcha) || StrUtils.isBlank(uuidKey)) {
+			throw new AuthException(TipEnum.TIP_LOGIN_CAPTCHA_EMPTY);
 		}
-		String sessionCode = redisService.getStr(ServletUtils.getHttpServletRequest().getRequestedSessionId());
-		if (StrUtils.isBlank(sessionCode)) {
-			asyncService.recordLoginLog(username, TipEnum.TIP_RESPONSE_FAIL.getCode(),
-					messageSource.getMessage("user.code.expire", null, Locale.getDefault()));
-			throw new ResultException("验证码过期");
-		}
-		if (!Objects.equals(code, sessionCode)) {
+		String redisCaptcha = redisService.getStr(uuidKey);
+		if (StrUtils.isBlank(redisCaptcha)) {
 			asyncService.recordLoginLog(username, CommonEnum.NO.ordinal(),
-					messageSource.getMessage("user.code.error", null, Locale.getDefault()));
-			throw new ResultException("验证码错误,请重新输入或刷新验证码");
+					TipEnum.TIP_LOGIN_CAPTCHA_NOT_EXIST.getMsg());
+			throw new ResultException(TipEnum.TIP_LOGIN_CAPTCHA_NOT_EXIST);
+		}
+		if (!Objects.equals(captcha, redisCaptcha)) {
+			asyncService.recordLoginLog(username, CommonEnum.NO.ordinal(), TipEnum.TIP_LOGIN_CAPTCHA_ERROR.getMsg());
+			throw new ResultException(TipEnum.TIP_LOGIN_CAPTCHA_ERROR);
 		}
 		// 验证过后删除session中的缓存
-		// ServletUtils.getHttpSession().removeAttribute(Constants.REDIS_KEY_CAPTCHA_CODE);
-		redisService.delete(ServletUtils.getHttpServletRequest().getRequestedSessionId());
+		redisService.delete(uuidKey);
 	}
 
 	/**
@@ -190,15 +216,15 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	private void handlerState(User user) {
 		if (UserState.USER_BLACK.getCode() == user.getState()) {
 			log.info("登录用户:{}是黑名单用户", user.getUsername());
-			throw new AuthException("对不起,账号:" + user.getUsername() + "是黑名单帐号,请联系客服");
+			throw new AuthException(TipEnum.TIP_USER_IS_BLACK);
 		}
 		if (UserState.USER_DELETE.getCode() == user.getState()) {
 			log.info("登录用户:{}已被删除", user.getUsername());
-			throw new AuthException("对不起,账号:" + user.getUsername() + "已被删除,请联系管理员");
+			throw new AuthException(TipEnum.TIP_USER_NOT_AVALIABLE);
 		}
 		if (UserState.USER_LOCK.getCode() == user.getState()) {
 			log.info("登录用户:{}为锁定状态", user.getUsername());
-			throw new AuthException("对不起,账号:" + user.getUsername() + "被锁定,请等待" + config.getCommon());
+			throw new AuthException(messageService.getMessage("msg_user_lock", config.getLogin().getInterval()));
 		}
 	}
 
@@ -213,17 +239,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	/**
-	 * 通过用户名查询用户
-	 * 
-	 * @param username 用户名
-	 * @return 用户对象信息
-	 */
-	@Override
-	public User selectByUsername(String username) {
-		return getByUsername(username);
-	}
-
-	/**
 	 * 新增保存用户信息
 	 * 
 	 * @param user 用户信息
@@ -232,20 +247,18 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	@Override
 	@Transactional
 	public Object insertSelective(User user) {
-		// 这个是表单中输入的密码,密码的形式为:加密(密码_当前时间戳)
+		// 密码的形式为:AES加密(密码_当前时间戳)
 		String password = user.getPassword();
 		if (StrUtils.isBlank(password)) {
 			password = config.getCommon().getDefaultPwd();
 		} else {
-			String temp_pwd = CryptoUtils.AESSimpleCrypt(password, config.getLogin().getSecretKeyUser(), false);
+			String temp_pwd = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), password, false);
 			password = temp_pwd.substring(0, temp_pwd.lastIndexOf("_"));
-			if (password.length() > 12) {
-				throw new ResultException("密码长度不能超过12位");
+			if (password.length() > 16) {
+				throw new ResultException("密码长度不能超过16位");
 			}
 		}
-		// 使用该加密方式是spring推荐,加密后的长度为60,且被加密的字符串不得超过72
-		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		user.setPassword(passwordEncoder.encode(password));
+		user.setPassword(SecurityUtils.encode(password));
 		// 新增用户信息
 		int rows = userMapper.insertSelective(user);
 		// 新增用户与角色管理
@@ -270,18 +283,6 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		// 新增用户与角色管理
 		insertUserRole(user);
 		return userMapper.updateByPrimaryKeySelective(user);
-	}
-
-	@Override
-	public Object getById(Long userId) {
-		User user = userMapper.selectByPrimaryKey(userId);
-		user.setUserinfo(userinfoMapper.selectByPrimaryKey(userId));
-		if (!Objects.isNull(user.getDepartId())) {
-			user.setDepart(departMapper.selectByPrimaryKey(user.getDepartId()));
-		}
-		List<Role> roles = roleMapper.selectByUserId(userId);
-		user.setRoles(roles);
-		return user;
 	}
 
 	/**
@@ -324,16 +325,40 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		return userMapper.updateByPrimaryKeySelective(user);
 	}
 
-	/**
-	 * 重置用户密码
-	 * 
-	 * @param userName 用户名
-	 * @param password 密码
-	 * @return 结果
-	 */
 	@Override
-	public int resetUserPwd(Long userId, String password) {
-		return userMapper.updateByPrimaryKeySelective(User.builder().userId(userId).password(password).build());
+	public int resetUserPwd(Long userId, String oldPassword, String newPassword) {
+		User user = tokenService.getLoginUser(userId);
+		String password = user.getPassword();
+		oldPassword = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), oldPassword, false);
+		oldPassword = oldPassword.substring(0, oldPassword.lastIndexOf("_"));
+		if (!SecurityUtils.matches(oldPassword, password)) {
+			throw new ResultException(TipEnum.TIP_USER_PWD_ORIGINAL_ERROR);
+		}
+		newPassword = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), newPassword, false);
+		newPassword = newPassword.substring(0, newPassword.lastIndexOf("_"));
+		if (SecurityUtils.matches(newPassword, password)) {
+			throw new ResultException(TipEnum.TIP_USER_PWD_OLD_NOT_SAME_NEW);
+		}
+		int row = userMapper.updateByPrimaryKeySelective(
+				User.builder().userId(userId).password(SecurityUtils.encode(newPassword)).build());
+		if (row > 0) {
+			// 更新缓存用户密码
+			user.setPassword(SecurityUtils.encode(newPassword));
+			tokenService.refreshToken(user);
+		}
+		return row;
+	}
+
+	@Override
+	public Object getById(Long userId) {
+		User user = userMapper.selectByPrimaryKey(userId);
+		user.setUserinfo(userinfoMapper.selectByPrimaryKey(userId));
+		if (!Objects.isNull(user.getDepartId())) {
+			user.setDepart(departMapper.selectByPrimaryKey(user.getDepartId()));
+		}
+		List<Role> roles = roleMapper.selectByUserId(userId);
+		user.setRoles(roles);
+		return user;
 	}
 
 	/**
@@ -343,19 +368,14 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	public void insertUserRole(User user) {
 		List<Role> roles = user.getRoles();
-		if (ListUtils.isNotBlank(roles)) {
-			// 新增用户与角色管理
-			List<UserRole> list = new ArrayList<UserRole>();
-			for (Role role : roles) {
-				UserRole ur = new UserRole();
-				ur.setUserId(user.getUserId());
-				ur.setRoleId(role.getRoleId());
-				list.add(ur);
-			}
-			if (list.size() > 0) {
-				userRoleMapper.inserts(list);
-			}
+		if (ListUtils.isBlank(roles)) {
+			return;
 		}
+		List<UserRole> list = new ArrayList<UserRole>();
+		for (Role role : roles) {
+			list.add(UserRole.builder().userId(user.getUserId()).roleId(role.getRoleId()).build());
+		}
+		userRoleMapper.inserts(list);
 	}
 
 	/**
@@ -366,6 +386,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	@Override
 	public int delete(Long userId) {
+		assertModifyed(User.builder().userId(userId).build());
 		// 删除用户与角色关联
 		UserRoleExample example = new UserRoleExample();
 		example.createCriteria().andUserIdEqualTo(userId);
@@ -381,9 +402,12 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 */
 	@Override
 	public int deletes(List<Long> userIds) {
-		for (Long userId : userIds) {
-			assertModifyed(User.builder().userId(userId).build());
-		}
+		List<User> users = userMapper.selectUserRoles(userIds);
+		users.forEach(t -> {
+			if (ListUtils.isNotBlank(t.getRoles()) && t.getRoles().get(0).getRoleType() == 0) {
+				throw new ResultException(TipEnum.TIP_ROLE_NOT_OPERATE_ADMIN);
+			}
+		});
 		return userMapper.deleteByPrimaryKeys(userIds);
 	}
 
@@ -391,49 +415,70 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * 导入用户数据
 	 * 
 	 * @param userList 用户数据列表
-	 * @param isUpdateSupport 是否更新支持，如果已存在，则进行更新数据
 	 * @param operName 操作用户
 	 * @return 结果
 	 */
 	@Override
-	public String importUser(List<User> userList, Boolean isUpdateSupport, String operName) {
-		if (Objects.isNull(userList) || userList.size() == 0) {
-			throw new ResultException("导入用户数据不能为空！");
+	public int importUser(List<User> users, String operName) {
+		if (ListUtils.isBlank(users)) {
+			throw new ResultException("导入用户数据不能为空!");
 		}
-		int successNum = 0;
-		int failureNum = 0;
-		StringBuilder successMsg = new StringBuilder();
-		StringBuilder failureMsg = new StringBuilder();
-		for (User user : userList) {
-			try {
-				// 验证是否存在这个用户
-				User u = getByUsername(user.getUsername());
-				if (Objects.isNull(u)) {
-					user.setPassword(SecurityUtils.encode(config.getCommon().getDefaultPwd()));
-					this.insertSelective(user);
-					successNum++;
-					successMsg.append("<br/>" + successNum + "、账号 " + user.getUsername() + " 导入成功");
-				} else if (isUpdateSupport) {
-					this.insertSelective(user);
-					successNum++;
-					successMsg.append("<br/>" + successNum + "、账号 " + user.getUsername() + " 更新成功");
-				} else {
-					failureNum++;
-					failureMsg.append("<br/>" + failureNum + "、账号 " + user.getUsername() + " 已存在");
-				}
-			} catch (Exception e) {
-				failureNum++;
-				String msg = "<br/>" + failureNum + "、账号 " + user.getUsername() + " 导入失败：";
-				failureMsg.append(msg + e.getMessage());
-				log.error(msg, e);
+		assertUnique(users);
+		return 1;
+	}
+
+	/**
+	 * 批量导入检查用户名,邮箱,手机号唯一性
+	 * 
+	 * @param users 用户信息
+	 */
+	private void assertUnique(List<User> users) {
+		List<String> usernames = new ArrayList<String>();
+		List<String> emails = new ArrayList<String>();
+		List<String> mobiles = new ArrayList<String>();
+		users.stream().forEach(t -> {
+			usernames.add(t.getUsername());
+			emails.add(t.getEmail());
+			mobiles.add(t.getMobile());
+			if (StrUtils.isBlank(t.getPassword())) {
+				t.setPassword(SecurityUtils.encode(config.getCommon().getDefaultPwd()));
+			} else {
+				assertOriginalPassword(t.getPassword());
+				t.setPassword(SecurityUtils.encode(t.getPassword()));
 			}
+		});
+		// 检查重复用户名
+		UserExample example = new UserExample();
+		example.createCriteria().andUsernameIn(usernames);
+		List<User> repeatUsernames = userMapper.selectByExample(example);
+		if (ListUtils.isNotBlank(repeatUsernames)) {
+			usernames.clear();
+			for (User user : repeatUsernames) {
+				usernames.add(user.getUsername());
+			}
+			throw new ResultException("用户名:" + String.join(",", usernames) + "已经存在,请修改后重新导入!");
 		}
-		if (failureNum > 0) {
-			failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确，错误如下：");
-			throw new ResultException(failureMsg.toString());
-		} else {
-			successMsg.insert(0, "恭喜您，数据已全部导入成功！共 " + successNum + " 条，数据如下：");
+		// 检查重复邮箱
+		example.clear();
+		example.createCriteria().andEmailIn(emails);
+		List<User> repeatEmails = userMapper.selectByExample(example);
+		if (ListUtils.isNotBlank(repeatEmails)) {
+			emails.clear();
+			for (User user : repeatEmails) {
+				emails.add(user.getEmail());
+			}
+			throw new ResultException("邮箱:" + String.join(",", emails) + "已经存在,请修改后重新导入!");
 		}
-		return successMsg.toString();
+		// 检查重复手机号
+		example.clear();
+		example.createCriteria().andMobileIn(mobiles);
+		List<User> repeatMobiles = userMapper.selectByExample(example);
+		if (ListUtils.isNotBlank(repeatMobiles)) {
+			mobiles.clear();
+			for (User user : repeatMobiles) {
+				mobiles.add(user.getMobile());
+			}
+			throw new ResultException("手机号:" + String.join(",", mobiles) + "已经存在,请修改后重新导入!");
+		}
 	}
 }

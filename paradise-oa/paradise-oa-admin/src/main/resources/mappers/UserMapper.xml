@@ -18,7 +18,7 @@
 		<result column="avatar" jdbcType="VARCHAR" property="avatar" />
 		<result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
 		<result column="updatetime" jdbcType="TIMESTAMP" property="updatetime" />
-		
+
 		<collection property="roles" resultMap="com.wy.mapper.RoleMapper.BaseResultMap" />
 	</resultMap>
 	<sql id="Example_Where_Clause">
@@ -108,7 +108,8 @@
 	</select>
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from ts_user
-		where user_id = #{userId,jdbcType=BIGINT}
+		where user_id =
+		#{userId,jdbcType=BIGINT}
 	</delete>
 	<delete id="deleteByExample" parameterType="com.wy.model.UserExample">
 		delete from ts_user
@@ -118,17 +119,24 @@
 	</delete>
 	<insert id="insert" keyColumn="user_id" keyProperty="userId"
 		parameterType="com.wy.model.User" useGeneratedKeys="true">
-		insert into ts_user (username, password, realname,
+		insert into ts_user (username, password,
+		realname,
 		depart_id, idcard, sex,
 		age, address, birthday,
 		email, mobile, state,
-		avatar, createtime, updatetime
+		avatar, createtime,
+		updatetime
 		)
-		values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{realname,jdbcType=VARCHAR},
-		#{departId,jdbcType=INTEGER}, #{idcard,jdbcType=VARCHAR}, #{sex,jdbcType=VARCHAR},
-		#{age,jdbcType=INTEGER}, #{address,jdbcType=VARCHAR}, #{birthday,jdbcType=TIMESTAMP},
-		#{email,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT},
-		#{avatar,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}
+		values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+		#{realname,jdbcType=VARCHAR},
+		#{departId,jdbcType=INTEGER}, #{idcard,jdbcType=VARCHAR},
+		#{sex,jdbcType=VARCHAR},
+		#{age,jdbcType=INTEGER}, #{address,jdbcType=VARCHAR},
+		#{birthday,jdbcType=TIMESTAMP},
+		#{email,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
+		#{state,jdbcType=TINYINT},
+		#{avatar,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP},
+		#{updatetime,jdbcType=TIMESTAMP}
 		)
 	</insert>
 	<insert id="insertSelective" keyColumn="user_id" keyProperty="userId"
@@ -295,21 +303,29 @@
 	<update id="updateByExample" parameterType="map">
 		update ts_user
 		set user_id = #{record.userId,jdbcType=BIGINT},
-		username = #{record.username,jdbcType=VARCHAR},
+		username =
+		#{record.username,jdbcType=VARCHAR},
 		password = #{record.password,jdbcType=VARCHAR},
-		realname = #{record.realname,jdbcType=VARCHAR},
+		realname =
+		#{record.realname,jdbcType=VARCHAR},
 		depart_id = #{record.departId,jdbcType=INTEGER},
-		idcard = #{record.idcard,jdbcType=VARCHAR},
+		idcard =
+		#{record.idcard,jdbcType=VARCHAR},
 		sex = #{record.sex,jdbcType=VARCHAR},
-		age = #{record.age,jdbcType=INTEGER},
+		age =
+		#{record.age,jdbcType=INTEGER},
 		address = #{record.address,jdbcType=VARCHAR},
-		birthday = #{record.birthday,jdbcType=TIMESTAMP},
+		birthday =
+		#{record.birthday,jdbcType=TIMESTAMP},
 		email = #{record.email,jdbcType=VARCHAR},
-		mobile = #{record.mobile,jdbcType=VARCHAR},
+		mobile =
+		#{record.mobile,jdbcType=VARCHAR},
 		state = #{record.state,jdbcType=TINYINT},
-		avatar = #{record.avatar,jdbcType=VARCHAR},
+		avatar =
+		#{record.avatar,jdbcType=VARCHAR},
 		createtime = #{record.createtime,jdbcType=TIMESTAMP},
-		updatetime = #{record.updatetime,jdbcType=TIMESTAMP}
+		updatetime
+		= #{record.updatetime,jdbcType=TIMESTAMP}
 		<if test="_parameter != null">
 			<include refid="Update_By_Example_Where_Clause" />
 		</if>
@@ -367,21 +383,27 @@
 	</update>
 	<update id="updateByPrimaryKey" parameterType="com.wy.model.User">
 		update ts_user
-		set username = #{username,jdbcType=VARCHAR},
+		set username =
+		#{username,jdbcType=VARCHAR},
 		password = #{password,jdbcType=VARCHAR},
-		realname = #{realname,jdbcType=VARCHAR},
+		realname =
+		#{realname,jdbcType=VARCHAR},
 		depart_id = #{departId,jdbcType=INTEGER},
-		idcard = #{idcard,jdbcType=VARCHAR},
+		idcard =
+		#{idcard,jdbcType=VARCHAR},
 		sex = #{sex,jdbcType=VARCHAR},
 		age = #{age,jdbcType=INTEGER},
-		address = #{address,jdbcType=VARCHAR},
+		address =
+		#{address,jdbcType=VARCHAR},
 		birthday = #{birthday,jdbcType=TIMESTAMP},
-		email = #{email,jdbcType=VARCHAR},
+		email =
+		#{email,jdbcType=VARCHAR},
 		mobile = #{mobile,jdbcType=VARCHAR},
 		state = #{state,jdbcType=TINYINT},
 		avatar = #{avatar,jdbcType=VARCHAR},
 		createtime = #{createtime,jdbcType=TIMESTAMP},
-		updatetime = #{updatetime,jdbcType=TIMESTAMP}
+		updatetime =
+		#{updatetime,jdbcType=TIMESTAMP}
 		where user_id = #{userId,jdbcType=BIGINT}
 	</update>
 	<insert id="inserts" parameterType="list">
@@ -509,12 +531,30 @@
 	</select>
 
 	<select id="selectByUsername" resultMap="BaseResultMap">
-		select a.user_id, a.username, a.password, a.realname, a.depart_id, a.idcard, a.sex, a.age, a.address, a.birthday,
-		a.email, a.mobile, a.state, a.avatar, c.role_id,c.role_name,c.role_code,c.role_type,c.role_state
-		from ts_user a left join tr_user_role b on a.user_id = b.user_id
+		select a.user_id, a.username, a.password,
+		a.realname, a.depart_id, a.idcard, a.sex, a.age, a.address, a.birthday,
+		a.email, a.mobile, a.state,
+		a.avatar, c.role_id,c.role_name,c.role_code,c.role_type,c.role_state
+		from ts_user a left join
+		tr_user_role b on a.user_id = b.user_id
 		left join ts_role c on c.role_id = b.role_id
-		where a.username=#{username,jdbcType=VARCHAR}
+		where
+		a.username=#{username,jdbcType=VARCHAR}
 		or a.email=#{username,jdbcType=VARCHAR}
-		or a.mobile=#{username,jdbcType=VARCHAR}
+		or
+		a.mobile=#{username,jdbcType=VARCHAR}
+	</select>
+
+	<select id="selectUserRoles" resultMap="BaseResultMap">
+		select a.user_id, a.username, a.password, a.realname, a.depart_id, a.idcard, a.sex, a.age,
+		a.address, a.birthday,
+		a.email, a.mobile, a.state, a.avatar,
+		c.role_id,c.role_name,c.role_code,c.role_type,c.role_state
+		from ts_user a left join tr_user_role b
+		on a.user_id = b.user_id
+		left join ts_role c on c.role_id = b.role_id where a.user_id in
+		<foreach collection="list" open="(" close=")" item="userId" separator=",">
+			#{userId,jdbcType=BIGINT}
+		</foreach>
 	</select>
 </mapper>

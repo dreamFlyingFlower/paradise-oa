@@ -57,8 +57,12 @@ public class CommonCrl {
 	public void getCaptcha(@ApiParam("请求,必须包含source参数,该参数有3个值:W表示web,A表示android,I表示ios") HttpServletRequest request,
 			HttpServletResponse response) {
 		String source = request.getParameter("source");
+		String uuidKey = request.getParameter("uuid");
 		if (StrUtils.isBlank(source)) {
 			throw new ResultException("请求来源类型为空");
+		}
+		if (StrUtils.isBlank(uuidKey)) {
+			throw new ResultException("唯一标识为空");
 		}
 		try {
 			// 生成验证码
@@ -68,7 +72,7 @@ public class CommonCrl {
 					config.getCaptcha().getLengh());
 			if (Objects.equals(source, RequestSource.WEB.getSource())) {
 				// 若是web浏览器,存入session中,通过session存入到redis中
-				redisService.setStr(request.getRequestedSessionId(), captcha, config.getCaptcha().getExpireTime(),
+				redisService.setStr(uuidKey, captcha, config.getCaptcha().getExpireTime(),
 						config.getCaptcha().getExpireUnit());
 				// request.getSession().setAttribute(Constants.REDIS_KEY_CAPTCHA_CODE, verifyCode);
 			} else if (Objects.equals(source, RequestSource.ANDROID.getSource())) {

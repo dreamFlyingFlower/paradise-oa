@@ -66,12 +66,6 @@ public class Role extends AbstractModel {
 	private String roleCode;
 
 	/**
-	 * 原角色编号
-	 */
-	@ApiModelProperty("原角色编号")
-	private String oriRoleCode;
-
-	/**
 	 * 角色类型:0不可见,只有超级管理员不可见;默认1可见
 	 */
 	@ApiModelProperty("角色类型:0不可见,只有超级管理员不可见;默认1可见")
@@ -92,16 +86,17 @@ public class Role extends AbstractModel {
 
 	/** 非数据库字段 */
 	/**
+	 * 原角色编号
+	 */
+	@ApiModelProperty("原角色编号")
+	@NotBlank(groups = ValidEdit.class)
+	private String oriRoleCode;
+
+	/**
 	 * 菜单集合
 	 */
 	@ApiModelProperty("菜单集合")
 	private List<Menu> menus;
-
-	/**
-	 * 菜单编号集合
-	 */
-	@ApiModelProperty("菜单编号集合")
-	private List<Long> menuIds;
 
 	/**
 	 * 权限集合
@@ -114,10 +109,4 @@ public class Role extends AbstractModel {
 	 */
 	@ApiModelProperty("部门集合")
 	private List<Depart> departs;
-
-	/**
-	 * 部门编号集合
-	 */
-	@ApiModelProperty("部门编号集合")
-	private List<Long> departIds;
 }
