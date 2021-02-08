@@ -63,7 +63,17 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	@Override
 	public List<Menu> getTreeByUserId(Long userId) {
 		User loginUser = tokenService.getLoginUser(userId);
-		return getTreeByRoleId(loginUser.getRoles().get(0).getRoleId());
+		return getTreeByUser(loginUser);
+	}
+
+	/**
+	 * 根据用户信息查询菜单
+	 * 
+	 * @param user 用户信息
+	 * @return 菜单列表
+	 */
+	public List<Menu> getTreeByUser(User user) {
+		return getTreeByRoleId(user.getRoles().get(0).getRoleId());
 	}
 
 	/**

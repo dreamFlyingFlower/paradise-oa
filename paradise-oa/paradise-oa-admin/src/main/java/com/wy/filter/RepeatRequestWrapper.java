@@ -4,32 +4,28 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import org.apache.commons.io.IOUtils;
+import org.springframework.util.StreamUtils;
 
 /**
  * 构建可重复读取inputStream的request
  *
- * @author ParadiseWY
- * @date 2020年4月8日 上午12:29:05
+ * @author 飞花梦影
+ * @date 2021-02-09 00:05:34
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
-public class RepeateRequestWrapper extends HttpServletRequestWrapper {
+public class RepeatRequestWrapper extends HttpServletRequestWrapper {
 
 	private final byte[] body;
 
-	public RepeateRequestWrapper(HttpServletRequest request, ServletResponse response) throws IOException {
+	public RepeatRequestWrapper(HttpServletRequest request) throws IOException {
 		super(request);
-		request.setCharacterEncoding("UTF-8");
-		response.setCharacterEncoding("UTF-8");
-		body = String.join("", IOUtils.readLines(request.getInputStream(), StandardCharsets.UTF_8))
-				.getBytes(StandardCharsets.UTF_8);
+		body = StreamUtils.copyToByteArray(request.getInputStream());
 	}
 
 	@Override

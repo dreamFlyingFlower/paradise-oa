@@ -234,7 +234,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @param user 用户信息
 	 */
 	private void handlerPermission(User user) {
-		List<Menu> permissionVos = menuServiceImpl.getTreeByUserId(user.getUserId());
+		List<Menu> permissionVos = menuServiceImpl.getTreeByUser(user);
 		user.setMenus(permissionVos);
 	}
 

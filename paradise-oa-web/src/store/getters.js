@@ -3,9 +3,9 @@ import cookie from "../utils/cookie";
 export default {
   config: state => state.config,
   user: state => state.user && Object.keys(state.user).length > 0 ? state.user : cookie.getUser(),
-  userphoto: state => state.user.userphoto,
   roles: state => state.user && Object.keys(state.user).length > 0 ? state.user.roles
-      : cookie.getUser().roles,
+    : cookie.getUser().roles,
+  token: state => state.user && Object.keys(state.user).length > 0 ? state.user.token : cookie.getUser().token,
   routes: state => state.routes,
   buttons: state => state.buttons,
   fresh: state => state.fresh,

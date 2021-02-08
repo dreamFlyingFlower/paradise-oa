@@ -23,7 +23,7 @@ public class GlobalCorsConfig {
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.addAllowedMethod("*");
 		corsConfiguration.setAllowCredentials(true);
-
+		corsConfiguration.addExposedHeader("Authorization");
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfiguration);
 		return new CorsFilter(source);

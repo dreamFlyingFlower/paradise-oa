@@ -22,7 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatProperties;
 import com.alibaba.druid.util.Utils;
-import com.wy.filter.RepeateFilter;
+import com.wy.filter.RepeatRequestFilter;
 import com.wy.filter.XssFilter;
 import com.wy.intercepter.IdempotencyInterceptor;
 import com.wy.properties.ConfigProperties;
@@ -69,8 +69,8 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 	 */
 	@Bean
 	public FilterRegistrationBean<?> sameFilterRegistration() {
-		FilterRegistrationBean<RepeateFilter> registration = new FilterRegistrationBean<>();
-		registration.setFilter(new RepeateFilter());
+		FilterRegistrationBean<RepeatRequestFilter> registration = new FilterRegistrationBean<>();
+		registration.setFilter(new RepeatRequestFilter());
 		registration.addUrlPatterns("/*");
 		registration.setName("repeatableFilter");
 		registration.setOrder(FilterRegistrationBean.LOWEST_PRECEDENCE);
@@ -99,7 +99,7 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 			public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 					throws IOException, ServletException {
 				chain.doFilter(request, response);
-				// 重置缓冲区，响应头不会被重置
+				// 重置缓冲区,响应头不会被重置
 				response.resetBuffer();
 				// 获取common.js
 				String text = Utils.readFromResource(filePath);

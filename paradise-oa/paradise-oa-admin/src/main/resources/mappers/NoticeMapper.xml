@@ -3,9 +3,11 @@
 <mapper namespace="com.wy.mapper.NoticeMapper">
   <resultMap id="BaseResultMap" type="com.wy.model.Notice">
     <id column="notice_id" jdbcType="BIGINT" property="noticeId" />
-    <result column="notice_title" jdbcType="VARCHAR" property="noticeTitle" />
-    <result column="notice_type" jdbcType="INTEGER" property="noticeType" />
-    <result column="notice_content" jdbcType="VARCHAR" property="noticeContent" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="top" jdbcType="INTEGER" property="top" />
+    <result column="type" jdbcType="INTEGER" property="type" />
     <result column="state" jdbcType="INTEGER" property="state" />
     <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
   </resultMap>
@@ -68,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    notice_id, notice_title, notice_type, notice_content, state, createtime
+    notice_id, user_id, title, content, top, type, state, createtime
   </sql>
   <select id="selectByExample" parameterType="com.wy.model.NoticeExample" resultMap="BaseResultMap">
     select
@@ -101,22 +103,30 @@
     </if>
   </delete>
   <insert id="insert" keyColumn="notice_id" keyProperty="noticeId" parameterType="com.wy.model.Notice" useGeneratedKeys="true">
-    insert into ts_notice (notice_title, notice_type, notice_content, 
-      state, createtime)
-    values (#{noticeTitle,jdbcType=VARCHAR}, #{noticeType,jdbcType=INTEGER}, #{noticeContent,jdbcType=VARCHAR}, 
-      #{state,jdbcType=INTEGER}, #{createtime,jdbcType=TIMESTAMP})
+    insert into ts_notice (user_id, title, content, 
+      top, type, state, createtime
+      )
+    values (#{userId,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
+      #{top,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, #{createtime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="notice_id" keyProperty="noticeId" parameterType="com.wy.model.Notice" useGeneratedKeys="true">
     insert into ts_notice
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="noticeTitle != null">
-        notice_title,
+      <if test="userId != null">
+        user_id,
       </if>
-      <if test="noticeType != null">
-        notice_type,
+      <if test="title != null">
+        title,
       </if>
-      <if test="noticeContent != null">
-        notice_content,
+      <if test="content != null">
+        content,
+      </if>
+      <if test="top != null">
+        top,
+      </if>
+      <if test="type != null">
+        type,
       </if>
       <if test="state != null">
         state,
@@ -126,14 +136,20 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="noticeTitle != null">
-        #{noticeTitle,jdbcType=VARCHAR},
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
       </if>
-      <if test="noticeType != null">
-        #{noticeType,jdbcType=INTEGER},
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
       </if>
-      <if test="noticeContent != null">
-        #{noticeContent,jdbcType=VARCHAR},
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="top != null">
+        #{top,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
       </if>
       <if test="state != null">
         #{state,jdbcType=INTEGER},
@@ -155,14 +171,20 @@
       <if test="record.noticeId != null">
         notice_id = #{record.noticeId,jdbcType=BIGINT},
       </if>
-      <if test="record.noticeTitle != null">
-        notice_title = #{record.noticeTitle,jdbcType=VARCHAR},
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
       </if>
-      <if test="record.noticeType != null">
-        notice_type = #{record.noticeType,jdbcType=INTEGER},
+      <if test="record.title != null">
+        title = #{record.title,jdbcType=VARCHAR},
       </if>
-      <if test="record.noticeContent != null">
-        notice_content = #{record.noticeContent,jdbcType=VARCHAR},
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.top != null">
+        top = #{record.top,jdbcType=INTEGER},
+      </if>
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=INTEGER},
       </if>
       <if test="record.state != null">
         state = #{record.state,jdbcType=INTEGER},
@@ -178,9 +200,11 @@
   <update id="updateByExample" parameterType="map">
     update ts_notice
     set notice_id = #{record.noticeId,jdbcType=BIGINT},
-      notice_title = #{record.noticeTitle,jdbcType=VARCHAR},
-      notice_type = #{record.noticeType,jdbcType=INTEGER},
-      notice_content = #{record.noticeContent,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=BIGINT},
+      title = #{record.title,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=VARCHAR},
+      top = #{record.top,jdbcType=INTEGER},
+      type = #{record.type,jdbcType=INTEGER},
       state = #{record.state,jdbcType=INTEGER},
       createtime = #{record.createtime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
@@ -190,14 +214,20 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.wy.model.Notice">
     update ts_notice
     <set>
-      <if test="noticeTitle != null">
-        notice_title = #{noticeTitle,jdbcType=VARCHAR},
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
       </if>
-      <if test="noticeType != null">
-        notice_type = #{noticeType,jdbcType=INTEGER},
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
       </if>
-      <if test="noticeContent != null">
-        notice_content = #{noticeContent,jdbcType=VARCHAR},
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="top != null">
+        top = #{top,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
       </if>
       <if test="state != null">
         state = #{state,jdbcType=INTEGER},
@@ -210,35 +240,37 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.wy.model.Notice">
     update ts_notice
-    set notice_title = #{noticeTitle,jdbcType=VARCHAR},
-      notice_type = #{noticeType,jdbcType=INTEGER},
-      notice_content = #{noticeContent,jdbcType=VARCHAR},
+    set user_id = #{userId,jdbcType=BIGINT},
+      title = #{title,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      top = #{top,jdbcType=INTEGER},
+      type = #{type,jdbcType=INTEGER},
       state = #{state,jdbcType=INTEGER},
       createtime = #{createtime,jdbcType=TIMESTAMP}
     where notice_id = #{noticeId,jdbcType=BIGINT}
   </update>
   <insert id="inserts" parameterType="list">
-    insert into ts_notice (notice_id,notice_title,notice_type,notice_content,state,createtime)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.noticeTitle,jdbcType=VARCHAR},<choose><when test="item.noticeType!= null">notice_type = #{item.noticeType,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose>#{item.noticeContent,jdbcType=VARCHAR},<choose><when test="item.state!= null">state = #{item.state,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose><choose><when test="item.createtime!= null">createtime = #{item.createtime,jdbcType=TIMESTAMP}</when><otherwise>CURRENT_TIMESTAMP</otherwise></choose>)</foreach>
+    insert into ts_notice (notice_id,user_id,title,content,top,type,state,createtime)  values <foreach collection="list" item="item" index="index" separator=",">(null,#{item.userId,jdbcType=BIGINT},#{item.title,jdbcType=VARCHAR},#{item.content,jdbcType=VARCHAR},<choose><when test="item.top!= null">top = #{item.top,jdbcType=INTEGER},</when><otherwise>0,</otherwise></choose><choose><when test="item.type!= null">type = #{item.type,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose><choose><when test="item.state!= null">state = #{item.state,jdbcType=INTEGER},</when><otherwise>1,</otherwise></choose><choose><when test="item.createtime!= null">createtime = #{item.createtime,jdbcType=TIMESTAMP}</when><otherwise>CURRENT_TIMESTAMP</otherwise></choose>)</foreach>
   </insert>
   <delete id="deleteByPrimaryKeys" parameterType="list">
     delete from  ts_notice where notice_id in <foreach open="(" close=")" collection="list" item="noticeId" separator=",">#{noticeId,jdbcType=BIGINT}</foreach>
   </delete>
   <delete id="deleteAll">
-    delete from  ts_notice 
+    truncate table  ts_notice 
   </delete>
   <select id="selectEntitys" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List" /> from ts_notice<where><if test = "noticeId != null "> and notice_id = #{noticeId,jdbcType=BIGINT} </if><if test = "noticeTitle != null "> and notice_title = #{noticeTitle,jdbcType=VARCHAR} </if><if test = "noticeType != null "> and notice_type = #{noticeType,jdbcType=INTEGER} </if><if test = "noticeContent != null "> and notice_content = #{noticeContent,jdbcType=VARCHAR} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+    select <include refid="Base_Column_List" /> from ts_notice<where><if test = "noticeId != null "> and notice_id = #{noticeId,jdbcType=BIGINT} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "title != null "> and title = #{title,jdbcType=VARCHAR} </if><if test = "content != null "> and content = #{content,jdbcType=VARCHAR} </if><if test = "top != null "> and top = #{top,jdbcType=INTEGER} </if><if test = "type != null "> and type = #{type,jdbcType=INTEGER} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
   </select>
   <select id="selectLists" resultType="map">
-    select <include refid="Base_Column_List" /> from ts_notice<where><if test = "noticeId != null "> and notice_id = #{noticeId,jdbcType=BIGINT} </if><if test = "noticeTitle != null "> and notice_title = #{noticeTitle,jdbcType=VARCHAR} </if><if test = "noticeType != null "> and notice_type = #{noticeType,jdbcType=INTEGER} </if><if test = "noticeContent != null "> and notice_content = #{noticeContent,jdbcType=VARCHAR} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+    select <include refid="Base_Column_List" /> from ts_notice<where><if test = "noticeId != null "> and notice_id = #{noticeId,jdbcType=BIGINT} </if><if test = "userId != null "> and user_id = #{userId,jdbcType=BIGINT} </if><if test = "title != null "> and title = #{title,jdbcType=VARCHAR} </if><if test = "content != null "> and content = #{content,jdbcType=VARCHAR} </if><if test = "top != null "> and top = #{top,jdbcType=INTEGER} </if><if test = "type != null "> and type = #{type,jdbcType=INTEGER} </if><if test = "state != null "> and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null "> and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
   </select>
   <select id="countByEntity" resultType="java.lang.Long">
-    select count(*) from ts_notice<where><if test = "noticeId != null ">and notice_id = #{noticeId,jdbcType=BIGINT} </if><if test = "noticeTitle != null ">and notice_title = #{noticeTitle,jdbcType=VARCHAR} </if><if test = "noticeType != null ">and notice_type = #{noticeType,jdbcType=INTEGER} </if><if test = "noticeContent != null ">and notice_content = #{noticeContent,jdbcType=VARCHAR} </if><if test = "state != null ">and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null ">and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
+    select count(*) from ts_notice<where><if test = "noticeId != null ">and notice_id = #{noticeId,jdbcType=BIGINT} </if><if test = "userId != null ">and user_id = #{userId,jdbcType=BIGINT} </if><if test = "title != null ">and title = #{title,jdbcType=VARCHAR} </if><if test = "content != null ">and content = #{content,jdbcType=VARCHAR} </if><if test = "top != null ">and top = #{top,jdbcType=INTEGER} </if><if test = "type != null ">and type = #{type,jdbcType=INTEGER} </if><if test = "state != null ">and state = #{state,jdbcType=INTEGER} </if><if test = "createtime != null ">and createtime = #{createtime,jdbcType=TIMESTAMP} </if></where>
   </select>
-  <select id="getMaxValue" resultType="java.lang.Long">
-    select <choose><when test="'noticeId' == _parameter.column">max(notice_id)</when><when test="'noticeType' == _parameter.column">max(notice_type)</when><when test="'state' == _parameter.column">max(state)</when><otherwise>max(0)</otherwise>  </choose>  from ts_notice
+  <select id="selectMaxValue" resultType="java.lang.Long">
+    select <choose><when test="'noticeId' == _parameter.column">max(notice_id)</when><when test="'userId' == _parameter.column">max(user_id)</when><when test="'top' == _parameter.column">max(top)</when><when test="'type' == _parameter.column">max(type)</when><when test="'state' == _parameter.column">max(state)</when><otherwise>max(0)</otherwise>  </choose>  from ts_notice
   </select>
-  <select id="getMaxTime" resultType="java.util.Date">
+  <select id="selectMaxTime" resultType="java.util.Date">
     select <choose><when test="createtime == ${column}">max(createtime)</when><otherwise>1970-01-01 00:00:00</otherwise>  </choose>  from ts_notice
   </select>
 </mapper>

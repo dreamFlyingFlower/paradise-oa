@@ -11,8 +11,8 @@ import org.apache.ibatis.annotations.Param;
  * 公告表
  * 
  * @author 飞花梦影
- * @date 2021-01-13 09:43:43
- * @git {@link https://github.com/mygodness100}
+ * @date 2021-02-08 16:14:31
+ * @git {@link https://github.com/dreamFlyingFlower}
  */
 @Mapper
 public interface NoticeMapper extends BaseMapper<Notice, Long> {

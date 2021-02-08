@@ -67,8 +67,7 @@ public class XssFilter implements Filter {
 			chain.doFilter(request, response);
 			return;
 		}
-		XssRequestWrapper xssRequest = new XssRequestWrapper((HttpServletRequest) request,
-				includeRichText);
+		XssRequestWrapper xssRequest = new XssRequestWrapper((HttpServletRequest) request, includeRichText);
 		chain.doFilter(xssRequest, response);
 	}
 
@@ -91,6 +90,5 @@ public class XssFilter implements Filter {
 	}
 
 	@Override
-	public void destroy() {
-	}
+	public void destroy() {}
 }

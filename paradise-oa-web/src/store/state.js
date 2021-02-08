@@ -1,10 +1,10 @@
 import cookie from '../utils/cookie'
 
 export default {
-  config:{},
+  config: {},
   user: {},
-  userphoto: cookie.getUser() ? cookie.getUser().userphoto : null,
-  roles: cookie.getUser() && Object.keys(cookie.getUser()).length > 0 ? cookie.getUser().roles : [],
+  roles: [],
+  token: "",
   routes: [],
   buttons: [],
   // 是否刷新当前页面
