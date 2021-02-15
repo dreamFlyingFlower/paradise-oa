@@ -14,15 +14,20 @@ import com.wy.base.AbstractService;
 import com.wy.component.TokenService;
 import com.wy.mapper.MenuMapper;
 import com.wy.mapper.RoleMapper;
+import com.wy.mapper.RoleMenuMapper;
 import com.wy.model.Menu;
 import com.wy.model.MenuExample;
 import com.wy.model.Role;
+import com.wy.model.RoleMenu;
+import com.wy.model.RoleMenuExample;
 import com.wy.model.User;
+import com.wy.model.vo.PermissionVo;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
 import com.wy.service.MenuService;
 import com.wy.utils.ListUtils;
 import com.wy.utils.MapUtils;
+import com.wy.utils.StrUtils;
 
 /**
  * 菜单表
@@ -45,6 +50,9 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 
 	@Autowired
 	private ConfigProperties config;
+
+	@Autowired
+	private RoleMenuMapper roleMenuMapper;
 
 	@Override
 	public List<Menu> getSelfChildren(Long menuId) {
@@ -77,6 +85,16 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	}
 
 	/**
+	 * 根据角色id查询权限信息
+	 * 
+	 * @param roleId 角色id
+	 * @return 权限信息
+	 */
+	public List<PermissionVo> getPermission(Long roleId) {
+		return menuMapper.selectPermissions(roleId);
+	}
+
+	/**
 	 * 根据角色ID查询菜单树信息
 	 * 
 	 * @param roleId 角色编号
@@ -86,8 +104,7 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 	public List<Menu> getTreeByRoleId(Long roleId) {
 		Role role = roleMapper.selectByPrimaryKey(roleId);
 		List<Menu> menus = menuMapper.selectEntitys(Menu.builder().pid(config.getCommon().getRootMenuId()).build());
-		getTreeByOther(menus, MapUtils.builder("admin", role.getRoleType() == 0)
-				.put("roleId", role.getRoleType() == 0 ? null : roleId).build());
+		getTreeByOther(menus, MapUtils.builder("roleId", role.getRoleType() == 0 ? null : roleId).build());
 		return menus;
 	}
 
@@ -143,5 +160,26 @@ public class MenuServiceImpl extends AbstractService<Menu, Long> implements Menu
 			row += delete(id);
 		}
 		return row;
+	}
+
+	@Override
+	public void assignMenu(Long roleId, List<Menu> menus) {
+		// 先清空原有的菜单以及权限分配
+		RoleMenuExample roleMenuExample = new RoleMenuExample();
+		roleMenuExample.createCriteria().andRoleIdEqualTo(roleId);
+		roleMenuMapper.deleteByExample(roleMenuExample);
+		if (ListUtils.isBlank(menus)) {
+			return;
+		}
+		// 添加新的菜单以及权限
+		List<RoleMenu> roleMenus = new ArrayList<>();
+		for (Menu menu : menus) {
+			if (Objects.isNull(menu.getMenuState()) || StrUtils.isBlank(menu.getPermissions())) {
+				continue;
+			}
+			roleMenus.add(RoleMenu.builder().roleId(roleId).menuId(menu.getMenuId()).permissions(menu.getPermissions())
+					.menuState(menu.getMenuState()).build());
+		}
+		roleMenuMapper.inserts(roleMenus);
 	}
 }

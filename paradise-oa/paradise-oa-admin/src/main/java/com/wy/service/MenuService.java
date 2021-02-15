@@ -37,4 +37,13 @@ public interface MenuService extends BaseService<Menu, Long> {
 	 * @return 选中菜单列表
 	 */
 	List<Menu> getTreeByRoleId(Long roleId);
+
+	/**
+	 * 根据角色分配菜单以及权限
+	 * 
+	 * @param roleId 角色编号
+	 * @param menus 菜单列表
+	 * @return 是否成功
+	 */
+	void assignMenu(Long roleId, List<Menu> menus);
 }

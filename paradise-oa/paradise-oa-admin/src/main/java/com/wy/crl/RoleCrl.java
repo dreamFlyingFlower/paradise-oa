@@ -57,13 +57,4 @@ public class RoleCrl extends AbstractCrl<Role, Long> {
 	public Result<?> edit(Role t, BindingResult bind) {
 		return super.edit(t, bind);
 	}
-
-	// @ApiOperation("根据角色权限查询菜单树,以及菜单下所有按钮")
-	// @PostMapping("saveMenus/{roleId}")
-	// public Result<?> saveMenus(@ApiParam("角色编号") @PathVariable Integer roleId,
-	// @ApiParam("需要保存的数据,菜单数据中可包含按钮数据.isCheck为1的时候保存") @RequestBody
-	// List<Map<String, Object>> params) {
-	// roleService.saveMenus(roleId, params);
-	// return Result.ok();
-	// }
 }

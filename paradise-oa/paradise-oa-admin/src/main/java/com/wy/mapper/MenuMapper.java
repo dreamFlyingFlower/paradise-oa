@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import com.wy.base.BaseMapper;
 import com.wy.model.Menu;
 import com.wy.model.MenuExample;
+import com.wy.model.vo.PermissionVo;
 
 /**
  * 菜单表
@@ -48,4 +49,12 @@ public interface MenuMapper extends BaseMapper<Menu, Long> {
 	 * @return 菜单列表
 	 */
 	List<Menu> selectByRoleId(Long roleId);
+
+	/**
+	 * 根据角色id查询权限信息
+	 * 
+	 * @param roleId 角色id
+	 * @return 权限信息
+	 */
+	List<PermissionVo> selectPermissions(Long roleId);
 }

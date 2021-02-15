@@ -6,15 +6,16 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wy.result.Result;
-import com.wy.util.ServletUtils;
 
 /**
- * 安全登录成功的处理
+ * 安全登录成功的处理,此处不能使用ServletUtils.result方法,否则忽略密码将无效
  * 
  * @author 飞花梦影
  * @date 2021-02-04 22:30:05
@@ -22,6 +23,9 @@ import com.wy.util.ServletUtils;
  */
 @Configuration
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -36,7 +40,8 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 		// 这里可以根据实际情况,来确定是跳转到页面或者json格式
 		// 返回json格式
 		Result<?> result = Result.ok("登录成功", authentication.getPrincipal());
-		ServletUtils.result(response, 200, result);
+		response.setContentType("application/json;charset=UTF-8");
+		response.getWriter().write(objectMapper.writeValueAsString(result));
 		// 跳转到某个页面
 		// new DefaultRedirectStrategy().sendRedirect(request, response, "/index");
 	}

@@ -21,6 +21,7 @@ import com.wy.database.Unique;
 import com.wy.enums.SexEnum;
 import com.wy.enums.UserState;
 import com.wy.excel.ExcelColumn;
+import com.wy.model.vo.PermissionVo;
 import com.wy.utils.ListUtils;
 import com.wy.valid.ValidEdit;
 
@@ -198,11 +199,13 @@ public class User extends AbstractModel implements UserDetails {
 	private List<Role> roles;
 
 	/**
-	 * 权限集合
+	 * 权限集合,security使用
 	 */
+	@JsonIgnore
 	@ApiModelProperty("菜单权限集合")
-	private List<Menu> menus;
+	private List<PermissionVo> permissions;
 
+	@JsonIgnore
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		if (ListUtils.isBlank(roles)) {
@@ -214,21 +217,25 @@ public class User extends AbstractModel implements UserDetails {
 		return AuthorityUtils.commaSeparatedStringToAuthorityList(String.join(",", roleCodes));
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
 
+	@JsonIgnore
 	@Override
 	public boolean isEnabled() {
 		return true;

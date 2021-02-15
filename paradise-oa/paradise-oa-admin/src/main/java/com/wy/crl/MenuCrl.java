@@ -1,9 +1,13 @@
 package com.wy.crl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -61,5 +65,16 @@ public class MenuCrl extends AbstractCrl<Menu, Long> {
 	@GetMapping("getTreeByRoleId/{roleId}")
 	public Result<?> getTreeByRoleId(@PathVariable Long roleId) {
 		return Result.ok(menuService.getTreeByRoleId(roleId));
+	}
+
+	/**
+	 * 根据角色分配菜单以及权限
+	 */
+	@ApiOperation("根据角色分配菜单以及权限")
+	@PostMapping("assignMenu/{roleId}")
+	public Result<?> assignMenu(@ApiParam("角色编号") @PathVariable Long roleId,
+			@ApiParam("菜单以及权限列表") @RequestBody List<Menu> menus) {
+		menuService.assignMenu(roleId,menus);
+		return Result.ok();
 	}
 }

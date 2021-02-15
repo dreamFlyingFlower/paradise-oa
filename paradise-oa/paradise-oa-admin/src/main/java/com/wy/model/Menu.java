@@ -130,10 +130,4 @@ public class Menu extends Tree<Menu, Long> {
 	 */
 	@ApiModelProperty("菜单状态")
 	private Integer menuState;
-
-	/**
-	 * 角色编码
-	 */
-	@ApiModelProperty("角色编号")
-	private String roleCode;
 }

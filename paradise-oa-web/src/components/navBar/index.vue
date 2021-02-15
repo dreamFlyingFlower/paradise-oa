@@ -21,7 +21,7 @@
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="userphoto+'?imageView2/1/w/80/h/80'" class="user-avatar">
+          <img :src="$store.getters.user.avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -72,7 +72,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["sidebar", "userphoto", "device"])
+    ...mapGetters(["sidebar", "device"])
   },
   created() {
     this.getBreadcrumb();

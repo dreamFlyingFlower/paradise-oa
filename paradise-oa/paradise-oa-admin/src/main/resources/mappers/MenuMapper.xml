@@ -18,7 +18,6 @@
 
 		<result column="permissions" jdbcType="VARCHAR" property="permissions" />
 		<result column="menu_state" jdbcType="INTEGER" property="menuState" />
-		<result column="role_code" jdbcType="VARCHAR" property="roleCode" />
 
 		<result column="menu_id" jdbcType="BIGINT" property="treeId" />
 		<result column="menu_name" jdbcType="VARCHAR" property="treeName" />
@@ -41,8 +40,7 @@
 								</when>
 								<when test="criterion.listValue">
 									and ${criterion.condition}
-									<foreach close=")" collection="criterion.value" item="listItem" open="("
-										separator=",">
+									<foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
 										#{listItem}
 									</foreach>
 								</when>
@@ -71,8 +69,7 @@
 								</when>
 								<when test="criterion.listValue">
 									and ${criterion.condition}
-									<foreach close=")" collection="criterion.value" item="listItem" open="("
-										separator=",">
+									<foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
 										#{listItem}
 									</foreach>
 								</when>
@@ -86,10 +83,10 @@
 	<sql id="Base_Column_List">
 		menu_id, menu_name, pid, pname, menu_path, menu_view, router_name, menu_icon,
 		menu_i18n,
-		redirect, hidden, link, sort_index
+		redirect, hidden,
+		link, sort_index
 	</sql>
-	<select id="selectByExample" parameterType="com.wy.model.MenuExample"
-		resultMap="BaseResultMap">
+	<select id="selectByExample" parameterType="com.wy.model.MenuExample" resultMap="BaseResultMap">
 		select
 		<if test="distinct">
 			distinct
@@ -120,22 +117,25 @@
 			<include refid="Example_Where_Clause" />
 		</if>
 	</delete>
-	<insert id="insert" keyColumn="menu_id" keyProperty="menuId"
-		parameterType="com.wy.model.Menu" useGeneratedKeys="true">
+	<insert id="insert" keyColumn="menu_id" keyProperty="menuId" parameterType="com.wy.model.Menu"
+		useGeneratedKeys="true">
 		insert into ts_menu (menu_name, pid, pname,
 		menu_path, menu_view, router_name,
-		menu_icon, menu_i18n, redirect,
+		menu_icon, menu_i18n,
+		redirect,
 		hidden, link, sort_index
 		)
 		values
-		(#{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=BIGINT}, #{pname,jdbcType=VARCHAR},
+		(#{menuName,jdbcType=VARCHAR}, #{pid,jdbcType=BIGINT},
+		#{pname,jdbcType=VARCHAR},
 		#{menuPath,jdbcType=VARCHAR}, #{menuView,jdbcType=VARCHAR}, #{routerName,jdbcType=VARCHAR},
 		#{menuIcon,jdbcType=VARCHAR}, #{menuI18n,jdbcType=VARCHAR}, #{redirect,jdbcType=VARCHAR},
-		#{hidden,jdbcType=INTEGER}, #{link,jdbcType=INTEGER}, #{sortIndex,jdbcType=INTEGER}
+		#{hidden,jdbcType=INTEGER},
+		#{link,jdbcType=INTEGER}, #{sortIndex,jdbcType=INTEGER}
 		)
 	</insert>
-	<insert id="insertSelective" keyColumn="menu_id" keyProperty="menuId"
-		parameterType="com.wy.model.Menu" useGeneratedKeys="true">
+	<insert id="insertSelective" keyColumn="menu_id" keyProperty="menuId" parameterType="com.wy.model.Menu"
+		useGeneratedKeys="true">
 		insert into ts_menu
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="menuName != null">
@@ -214,8 +214,7 @@
 			</if>
 		</trim>
 	</insert>
-	<select id="countByExample" parameterType="com.wy.model.MenuExample"
-		resultType="java.lang.Long">
+	<select id="countByExample" parameterType="com.wy.model.MenuExample" resultType="java.lang.Long">
 		select count(*) from ts_menu
 		<if test="_parameter != null">
 			<include refid="Example_Where_Clause" />
@@ -273,7 +272,8 @@
 		set menu_id = #{record.menuId,jdbcType=BIGINT},
 		menu_name =
 		#{record.menuName,jdbcType=VARCHAR},
-		pid = #{record.pid,jdbcType=BIGINT},
+		pid =
+		#{record.pid,jdbcType=BIGINT},
 		pname =
 		#{record.pname,jdbcType=VARCHAR},
 		menu_path = #{record.menuPath,jdbcType=VARCHAR},
@@ -281,7 +281,8 @@
 		#{record.menuView,jdbcType=VARCHAR},
 		router_name = #{record.routerName,jdbcType=VARCHAR},
 		menu_icon
-		= #{record.menuIcon,jdbcType=VARCHAR},
+		=
+		#{record.menuIcon,jdbcType=VARCHAR},
 		menu_i18n = #{record.menuI18n,jdbcType=VARCHAR},
 		redirect =
 		#{record.redirect,jdbcType=VARCHAR},
@@ -339,10 +340,12 @@
 		update ts_menu
 		set menu_name =
 		#{menuName,jdbcType=VARCHAR},
-		pid = #{pid,jdbcType=BIGINT},
+		pid =
+		#{pid,jdbcType=BIGINT},
 		pname = #{pname,jdbcType=VARCHAR},
 		menu_path = #{menuPath,jdbcType=VARCHAR},
-		menu_view = #{menuView,jdbcType=VARCHAR},
+		menu_view =
+		#{menuView,jdbcType=VARCHAR},
 		router_name =
 		#{routerName,jdbcType=VARCHAR},
 		menu_icon = #{menuIcon,jdbcType=VARCHAR},
@@ -465,21 +468,27 @@
 
 	<sql id="BaseAliasColumns">
 		a.menu_id, a.menu_name, a.pid, a.pname, a.menu_path, a.menu_view, a.router_name,
-		a.menu_icon, a.menu_i18n,a.redirect, a.hidden, a.link, a.sort_index
+		a.menu_icon,
+		a.menu_i18n,a.redirect, a.hidden, a.link, a.sort_index
 	</sql>
 
 	<select id="selectByRoleId" resultMap="BaseResultMap">
 		select
 		<include refid="BaseAliasColumns" />
 		<choose>
-			<when test="roleId != null">,b.menu_state,b.permissions,c.role_code</when>
-			<otherwise>,1 menu_state,'ALL' permissions,'SUPER_ADMIN' role_code</otherwise>
+			<when test="roleId != null">,b.menu_state,b.permissions</when>
+			<otherwise>,1 menu_state,'ALL' permissions</otherwise>
 		</choose>
 		from ts_menu a left join tr_role_menu b on b.menu_id = a.menu_id
-		left join ts_role c on c.role_id = b.role_id
 		<where>
 			<if test="roleId != null ">and b.role_id = #{roleId,jdbcType=BIGINT}</if>
 		</where>
 		order by a.sort_index
+	</select>
+
+	<select id="selectPermissions" resultType="com.wy.model.vo.PermissionVo">
+		select a.role_type,a.role_code,b.role_id,b.menu_id,b.permissions,b.menu_state
+		from ts_role a inner join tr_role_menu b on b.role_id = a.role_id
+		where a.role_id = #{roleId,jdbcType=BIGINT}
 	</select>
 </mapper>

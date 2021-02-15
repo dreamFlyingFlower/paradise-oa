@@ -11,9 +11,9 @@ import com.wy.common.Constants;
 import com.wy.enums.Permission;
 import com.wy.enums.TipEnum;
 import com.wy.exception.AuthException;
-import com.wy.model.Menu;
 import com.wy.model.Role;
 import com.wy.model.User;
+import com.wy.model.vo.PermissionVo;
 import com.wy.util.SecurityUtils;
 import com.wy.utils.ListUtils;
 import com.wy.utils.StrUtils;
@@ -100,7 +100,7 @@ public class PermissionService {
 		if (admin) {
 			return true;
 		}
-		List<Menu> permissionVos = loginUser.getMenus();
+		List<PermissionVo> permissionVos = loginUser.getPermissions();
 		if (ListUtils.isBlank(permissionVos)) {
 			return false;
 		}
@@ -119,7 +119,7 @@ public class PermissionService {
 	 * @param permission 权限字符串
 	 * @return 用户是否具备某权限
 	 */
-	private boolean hasPermissions(List<Menu> permissions, String permission) {
+	private boolean hasPermissions(List<PermissionVo> permissions, String permission) {
 		String[] roleAndPermissions = permission.split(":");
 		if (StrUtils.isBlank(roleAndPermissions) || roleAndPermissions.length != 2) {
 			return false;
@@ -133,7 +133,7 @@ public class PermissionService {
 		if (loginUser.getRoles().get(0).getRoleCode().equalsIgnoreCase(Constants.SUPER_ADMIN)) {
 			return true;
 		}
-		for (Menu permissionVo : permissions) {
+		for (PermissionVo permissionVo : permissions) {
 			for (String role : roleArray) {
 				if (permissionVo.getRoleCode().equalsIgnoreCase(role) && (permissionVo.getPermissions().toLowerCase()
 						.contains(Permission.ALL.name().toLowerCase())

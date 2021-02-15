@@ -29,7 +29,7 @@ export default {
         commit('USER', null);
         cookie.removeToken();
         cookie.removeUser();
-        resetRouter();
+        // resetRouter();
         resolve();
       }).catch(error => {
         reject(error);
