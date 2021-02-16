@@ -1,5 +1,6 @@
 package com.wy.crl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,7 @@ import com.wy.valid.ValidInserts;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * 用户表API
@@ -90,7 +93,7 @@ public class UserCrl extends AbstractCrl<User, Long> {
 	@ApiOperation("修改密码")
 	@PostMapping("updatePwd")
 	public Result<?> updatePwd(Long userId, String oldPassword, String newPassword) {
-		return Result.result(userService.resetUserPwd(userId, oldPassword, newPassword) > 0);
+		return Result.result(userService.updatePwd(userId, oldPassword, newPassword) > 0);
 	}
 
 	/**
@@ -112,15 +115,52 @@ public class UserCrl extends AbstractCrl<User, Long> {
 		return Result.ok();
 	}
 
+	/**
+	 * 用户批量导入
+	 * 
+	 * @param file 要导入的excel文件
+	 */
+	@ApiOperation("用户批量导入")
 	@Log(value = "用户管理", logType = LogType.IMPORT)
 	@Secured({ "ROLE_SUPER_ADMIN", "ROLE_ADMIN" })
 	@PreAuthorize("@permissionService.hasAuthority('ROLE_ADMIN:IMPORT')")
 	@PostMapping("excelImport")
-	public Result<?> excelImport(MultipartFile file) throws Exception {
-		List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
-		User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
-		int row = userService.importUser(JSON.parseArray(JSON.toJSONString(userList), User.class),
-				loginUser.getUsername());
+	public Result<?> excelImport(@RequestParam MultipartFile file) {
+		int row = 0;
+		try {
+			List<Map<String, Object>> userList = ExcelModelUtils.getInstance().readExcel(file.getInputStream());
+			User loginUser = tokenService.getLoginUser(ServletUtils.getHttpServletRequest());
+			row = userService.importUser(JSON.parseArray(JSON.toJSONString(userList), User.class),
+					loginUser.getUsername());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return Result.result(row > 0);
+	}
+
+	/**
+	 * 用户请假
+	 * 
+	 * @param userId 用户编号
+	 * @param day 请假天数
+	 */
+	@ApiOperation("用户请假")
+	@GetMapping("leave/{userId}")
+	public Result<?> leave(@ApiParam("用户编号") @PathVariable Long userId, @ApiParam("请假天数") Integer day) {
+		userService.leave(userId, day);
+		return Result.ok();
+	}
+
+	/**
+	 * 批准或驳回请假
+	 * 
+	 * @param userId 批准人编号
+	 * @param taskId 请假的任务编号
+	 */
+	@ApiOperation("批准请假")
+	@GetMapping("approve/{userId}")
+	public Result<?> approve(@ApiParam("用户编号") @PathVariable Long userId, @ApiParam("请假的任务编号") Long taskId) {
+		userService.approve(userId, taskId);
+		return Result.ok();
 	}
 }

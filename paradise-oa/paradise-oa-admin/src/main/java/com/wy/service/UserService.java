@@ -17,10 +17,6 @@ import com.wy.model.User;
  */
 public interface UserService extends BaseService<User, Long>, UserDetailsService {
 
-	// void leave();
-	//
-	// void approve();
-
 	/**
 	 * 判断原始密码是否符合条件
 	 * 
@@ -61,7 +57,7 @@ public interface UserService extends BaseService<User, Long>, UserDetailsService
 	 * @param newPassword 新密码
 	 * @return 结果
 	 */
-	int resetUserPwd(Long userId, String oldPassword, String newPassword);
+	int updatePwd(Long userId, String oldPassword, String newPassword);
 
 	/**
 	 * 导入用户数据
@@ -71,4 +67,20 @@ public interface UserService extends BaseService<User, Long>, UserDetailsService
 	 * @return 结果
 	 */
 	int importUser(List<User> userList, String username);
+
+	/**
+	 * 用户请假
+	 * 
+	 * @param userId 用户编号
+	 * @param day 请假天数
+	 */
+	void leave(Long userId, Integer day);
+
+	/**
+	 * 批准或驳回请假
+	 * 
+	 * @param userId 批准人编号
+	 * @param taskId 请假的任务编号
+	 */
+	void approve(Long userId, Long taskId);
 }

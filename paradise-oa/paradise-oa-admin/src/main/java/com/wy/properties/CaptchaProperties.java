@@ -17,7 +17,7 @@ import lombok.Setter;
 public class CaptchaProperties {
 
 	/** 是否检查验证码 */
-	private boolean valid = false;
+	private boolean enable = false;
 
 	/** 验证码图形宽度,默认120px */
 	private int width = 120;

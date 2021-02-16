@@ -186,7 +186,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @param username 登录用户名
 	 */
 	private void handlerCaptcha(String username) {
-		if (!config.getCaptcha().isValid()) {
+		if (!config.getCaptcha().isEnable()) {
 			return;
 		}
 		String captcha = ServletUtils.getParameter("captcha");
@@ -198,13 +198,13 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 		if (StrUtils.isBlank(redisCaptcha)) {
 			asyncService.recordLoginLog(username, CommonEnum.NO.ordinal(),
 					TipEnum.TIP_LOGIN_CAPTCHA_NOT_EXIST.getMsg());
-			throw new ResultException(TipEnum.TIP_LOGIN_CAPTCHA_NOT_EXIST);
+			throw new AuthException(TipEnum.TIP_LOGIN_CAPTCHA_NOT_EXIST);
 		}
 		if (!Objects.equals(captcha, redisCaptcha)) {
 			asyncService.recordLoginLog(username, CommonEnum.NO.ordinal(), TipEnum.TIP_LOGIN_CAPTCHA_ERROR.getMsg());
-			throw new ResultException(TipEnum.TIP_LOGIN_CAPTCHA_ERROR);
+			throw new AuthException(TipEnum.TIP_LOGIN_CAPTCHA_ERROR);
 		}
-		// 验证过后删除session中的缓存
+		// 验证过后删除redis中的缓存
 		redisService.delete(uuidKey);
 	}
 
@@ -324,6 +324,7 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	 * @return 结果
 	 */
 	@Override
+	@Transactional
 	public int resetPwd(User user) {
 		assertModifyed(user);
 		user.setPassword(SecurityUtils.encode(user.getPassword()));
@@ -331,7 +332,8 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 	}
 
 	@Override
-	public int resetUserPwd(Long userId, String oldPassword, String newPassword) {
+	@Transactional
+	public int updatePwd(Long userId, String oldPassword, String newPassword) {
 		User user = tokenService.getLoginUser(userId);
 		String password = user.getPassword();
 		oldPassword = CryptoUtils.AESSimpleCrypt(config.getLogin().getSecretKeyUser(), oldPassword, false);
@@ -485,5 +487,17 @@ public class UserServiceImpl extends AbstractService<User, Long> implements User
 			}
 			throw new ResultException("手机号:" + String.join(",", mobiles) + "已经存在,请修改后重新导入!");
 		}
+	}
+
+	@Override
+	public void leave(Long userId, Integer day) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void approve(Long userId, Long taskId) {
+		// TODO Auto-generated method stub
+		
 	}
 }
