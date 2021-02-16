@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,10 +67,9 @@ public class CommonCrl {
 		}
 		try {
 			// 生成验证码
-			String captcha = ImageUtils.obtainVerifyImage(response.getOutputStream(),
-					ServletRequestUtils.getIntParameter(request, "width", config.getCaptcha().getWidth()),
-					ServletRequestUtils.getIntParameter(request, "height", config.getCaptcha().getHeight()),
-					config.getCaptcha().getLengh());
+			int length = config.getCaptcha().getLength();
+			length = length <= 0 ? 4 : length;
+			String captcha = RandomStringUtils.random(length, true, true);
 			if (Objects.equals(source, RequestSource.WEB.getSource())) {
 				// 若是web浏览器,存入session中,通过session存入到redis中
 				redisService.setStr(uuidKey, captcha, config.getCaptcha().getExpireTime(),
@@ -80,6 +80,9 @@ public class CommonCrl {
 			} else if (Objects.equals(source, RequestSource.IOS.getSource())) {
 				// 如果是ios系统,需要根据什么策略来存储 FIXME
 			}
+			ImageUtils.obtainImage(response.getOutputStream(),
+					ServletRequestUtils.getIntParameter(request, "width", config.getCaptcha().getWidth()),
+					ServletRequestUtils.getIntParameter(request, "height", config.getCaptcha().getHeight()), captcha);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

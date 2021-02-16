@@ -26,7 +26,7 @@ public class CaptchaProperties {
 	private int height = 35;
 
 	/** 验证码长度,默认4 */
-	private int lengh = 4;
+	private int length = 4;
 
 	/** 验证码过期时间,默认1分钟 */
 	private TimeUnit expireUnit = TimeUnit.MINUTES;

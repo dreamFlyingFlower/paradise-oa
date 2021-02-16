@@ -25,6 +25,7 @@ import com.alibaba.druid.util.Utils;
 import com.wy.filter.RepeatRequestFilter;
 import com.wy.filter.XssFilter;
 import com.wy.intercepter.IdempotencyInterceptor;
+import com.wy.intercepter.LimitAccessInterceptor;
 import com.wy.properties.ConfigProperties;
 
 /**
@@ -41,6 +42,9 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private IdempotencyInterceptor idempotencyInterceptor;
+	
+	@Autowired
+	private LimitAccessInterceptor limitAccessInterceptor;
 
 	/**
 	 * xss过滤器
@@ -124,5 +128,6 @@ public class GlobalWebConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(idempotencyInterceptor);
+		registry.addInterceptor(limitAccessInterceptor);
 	}
 }
