@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.wy.common.Constants;
+import com.wy.component.RedisService;
 import com.wy.enums.TipEnum;
 import com.wy.result.ResultException;
 import com.wy.utils.StrUtils;
@@ -29,6 +30,9 @@ public class DefaultResubmitInterceptor extends IdempotencyInterceptor {
 	@Autowired
 	private RedisTemplate<Object, Object> redisTemplate;
 
+	@Autowired
+	private RedisService redisService;
+
 	@Override
 	public boolean isResubmit(HttpServletRequest request) {
 		String tokenIdempotency = request.getHeader(Constants.HTTP_TOKEN_IDEMPOTENCY);
@@ -38,9 +42,11 @@ public class DefaultResubmitInterceptor extends IdempotencyInterceptor {
 		// 从redis中取值,若存在说明是第一次提交,删除redis中的值;若是重复提交,则不存在
 		Object value = redisTemplate.opsForValue().get(Constants.REDIS_KEY_IDEMPOTENCY + tokenIdempotency);
 		if (Objects.isNull(value)) {
-			return true;
+			Long row = redisService.deleteSafe(Constants.REDIS_KEY_IDEMPOTENCY + tokenIdempotency, value);
+			if (row != 0L) {
+				return true;
+			}
 		}
-		redisTemplate.delete(Constants.REDIS_KEY_IDEMPOTENCY + tokenIdempotency);
 		return false;
 	}
 }
