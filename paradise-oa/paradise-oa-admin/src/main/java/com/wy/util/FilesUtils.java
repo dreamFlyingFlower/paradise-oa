@@ -16,12 +16,11 @@ import com.wy.crypto.CryptoUtils;
 import com.wy.enums.DateEnum;
 import com.wy.enums.FileType;
 import com.wy.enums.TipResult;
+import com.wy.lang.NumberTool;
+import com.wy.lang.StrTool;
 import com.wy.model.vo.FileinfoVo;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
-import com.wy.utils.DateTimeUtils;
-import com.wy.utils.NumUtils;
-import com.wy.utils.StrUtils;
 
 /**
  * 本项目所有上传文件的接口
@@ -65,7 +64,7 @@ public class FilesUtils {
 			throw new ResultException(TipResult.UPLOAD_FILE_STREAM_NOT_FOUND);
 		}
 		String originalFilename = file.getOriginalFilename();
-		if (StrUtils.isBlank(originalFilename)) {
+		if (StrTool.isBlank(originalFilename)) {
 			throw new ResultException(TipResult.UPLOAD_FILE_NAME_NOT_EXIST);
 		}
 		if (originalFilename.length() > config.getFileinfo().getFileNameLength()) {
@@ -73,8 +72,8 @@ public class FilesUtils {
 		}
 		String extension = Files.getFileExtension(originalFilename);
 		String localName = MessageFormat.format(FILE_FORMATTER, CryptoUtils.UUID(),
-				DateTimeUtils.format(new Date(), DateEnum.DATE_NONE.getPattern()));
-		localName = StrUtils.isBlank(extension) ? localName : MessageFormat.format("{0}.{1}", localName, extension);
+				DateTimeTool.format(new Date(), DateEnum.DATE_NONE.getPattern()));
+		localName = StrTool.isBlank(extension) ? localName : MessageFormat.format("{0}.{1}", localName, extension);
 		FileinfoVo fileinfoVo = FileinfoVo.builder().originalName(originalFilename).fileSuffix(extension)
 				.localName(localName).build();
 		buildFileinfo(fileinfoVo, file.getSize());
@@ -118,7 +117,7 @@ public class FilesUtils {
 		if (fileSize <= 0) {
 			fileinfoVo.setFileSize(0);
 		}
-		fileinfoVo.setFileSize(NumUtils.div(fileSize, 1024 * 1024, 2));
+		fileinfoVo.setFileSize(NumberTool.div(fileSize, 1024 * 1024, 2).doubleValue());
 		// 处理文件时长 FIXME
 	}
 
@@ -129,7 +128,7 @@ public class FilesUtils {
 	 * @return 文件类型
 	 */
 	public static FileType getFileType(String suffix) {
-		if (StrUtils.isNotBlank(suffix)) {
+		if (StrTool.isNotBlank(suffix)) {
 			for (Map.Entry<FileType, List<String>> entry : FILE_SUFFIXMAP.entrySet()) {
 				if (entry.getValue().contains(suffix.toUpperCase())) {
 					return entry.getKey();

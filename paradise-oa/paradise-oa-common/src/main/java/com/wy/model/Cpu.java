@@ -1,6 +1,6 @@
 package com.wy.model;
 
-import com.wy.utils.NumUtils;
+import com.wy.lang.NumberTool;
 
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -57,22 +57,22 @@ public class Cpu {
 	private double free;
 
 	public double getTotal() {
-		return NumUtils.round(NumUtils.multiply(total, 100), 2);
+		return NumberTool.round(NumberTool.multiply(total, 100), 2);
 	}
 
 	public double getSys() {
-		return NumUtils.round(NumUtils.multiply(sys / total, 100), 2);
+		return NumberTool.round(NumberTool.multiply(sys / total, 100), 2);
 	}
 
 	public double getUsed() {
-		return NumUtils.round(NumUtils.multiply(used / total, 100), 2);
+		return NumberTool.round(NumberTool.multiply(used / total, 100), 2);
 	}
 
 	public double getWait() {
-		return NumUtils.round(NumUtils.multiply(wait / total, 100), 2);
+		return NumberTool.round(NumberTool.multiply(wait / total, 100), 2);
 	}
 
 	public double getFree() {
-		return NumUtils.round(NumUtils.multiply(free / total, 100), 2);
+		return NumberTool.round(NumberTool.multiply(free / total, 100), 2);
 	}
 }

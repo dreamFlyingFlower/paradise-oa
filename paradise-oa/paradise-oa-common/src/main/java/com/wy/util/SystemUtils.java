@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Properties;
 
 import com.wy.Constants;
+import com.wy.lang.NumberTool;
 import com.wy.model.Cpu;
 import com.wy.model.Jvm;
 import com.wy.model.Mem;
 import com.wy.model.Server;
 import com.wy.model.Sys;
 import com.wy.model.SysFile;
-import com.wy.utils.NumUtils;
 
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor.TickType;
@@ -110,7 +110,7 @@ public class SystemUtils {
 			sysFile.setTotal(convertFileSize(total));
 			sysFile.setFree(convertFileSize(free));
 			sysFile.setUsed(convertFileSize(used));
-			sysFile.setUsage(NumUtils.multiply(NumUtils.div(used, total, 4), 100));
+			sysFile.setUsage(NumberTool.multiply(NumberTool.div(used, total, 4), 100).doubleValue());
 			sysFiles.add(sysFile);
 		}
 		return sysFiles;

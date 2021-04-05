@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.wy.http.HttpDefaultUtils;
-import com.wy.utils.MapUtils;
-import com.wy.utils.StrUtils;
+import com.wy.collection.MapTool;
+import com.wy.http.HttpTool;
+import com.wy.lang.StrTool;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,19 +69,19 @@ public class IpUtils {
 		final byte SECTION_5 = (byte) 0xC0;
 		final byte SECTION_6 = (byte) 0xA8;
 		switch (b0) {
-		case SECTION_1:
-			return true;
-		case SECTION_2:
-			if (b1 >= SECTION_3 && b1 <= SECTION_4) {
+			case SECTION_1:
 				return true;
-			}
-		case SECTION_5:
-			switch (b1) {
-			case SECTION_6:
-				return true;
-			}
-		default:
-			return false;
+			case SECTION_2:
+				if (b1 >= SECTION_3 && b1 <= SECTION_4) {
+					return true;
+				}
+			case SECTION_5:
+				switch (b1) {
+					case SECTION_6:
+						return true;
+				}
+			default:
+				return false;
 		}
 	}
 
@@ -101,50 +101,50 @@ public class IpUtils {
 			long l;
 			int i;
 			switch (elements.length) {
-			case 1:
-				l = Long.parseLong(elements[0]);
-				if ((l < 0L) || (l > 4294967295L))
-					return null;
-				bytes[0] = (byte) (int) (l >> 24 & 0xFF);
-				bytes[1] = (byte) (int) ((l & 0xFFFFFF) >> 16 & 0xFF);
-				bytes[2] = (byte) (int) ((l & 0xFFFF) >> 8 & 0xFF);
-				bytes[3] = (byte) (int) (l & 0xFF);
-				break;
-			case 2:
-				l = Integer.parseInt(elements[0]);
-				if ((l < 0L) || (l > 255L))
-					return null;
-				bytes[0] = (byte) (int) (l & 0xFF);
-				l = Integer.parseInt(elements[1]);
-				if ((l < 0L) || (l > 16777215L))
-					return null;
-				bytes[1] = (byte) (int) (l >> 16 & 0xFF);
-				bytes[2] = (byte) (int) ((l & 0xFFFF) >> 8 & 0xFF);
-				bytes[3] = (byte) (int) (l & 0xFF);
-				break;
-			case 3:
-				for (i = 0; i < 2; ++i) {
-					l = Integer.parseInt(elements[i]);
+				case 1:
+					l = Long.parseLong(elements[0]);
+					if ((l < 0L) || (l > 4294967295L))
+						return null;
+					bytes[0] = (byte) (int) (l >> 24 & 0xFF);
+					bytes[1] = (byte) (int) ((l & 0xFFFFFF) >> 16 & 0xFF);
+					bytes[2] = (byte) (int) ((l & 0xFFFF) >> 8 & 0xFF);
+					bytes[3] = (byte) (int) (l & 0xFF);
+					break;
+				case 2:
+					l = Integer.parseInt(elements[0]);
 					if ((l < 0L) || (l > 255L))
 						return null;
-					bytes[i] = (byte) (int) (l & 0xFF);
-				}
-				l = Integer.parseInt(elements[2]);
-				if ((l < 0L) || (l > 65535L))
-					return null;
-				bytes[2] = (byte) (int) (l >> 8 & 0xFF);
-				bytes[3] = (byte) (int) (l & 0xFF);
-				break;
-			case 4:
-				for (i = 0; i < 4; ++i) {
-					l = Integer.parseInt(elements[i]);
-					if ((l < 0L) || (l > 255L))
+					bytes[0] = (byte) (int) (l & 0xFF);
+					l = Integer.parseInt(elements[1]);
+					if ((l < 0L) || (l > 16777215L))
 						return null;
-					bytes[i] = (byte) (int) (l & 0xFF);
-				}
-				break;
-			default:
-				return null;
+					bytes[1] = (byte) (int) (l >> 16 & 0xFF);
+					bytes[2] = (byte) (int) ((l & 0xFFFF) >> 8 & 0xFF);
+					bytes[3] = (byte) (int) (l & 0xFF);
+					break;
+				case 3:
+					for (i = 0; i < 2; ++i) {
+						l = Integer.parseInt(elements[i]);
+						if ((l < 0L) || (l > 255L))
+							return null;
+						bytes[i] = (byte) (int) (l & 0xFF);
+					}
+					l = Integer.parseInt(elements[2]);
+					if ((l < 0L) || (l > 65535L))
+						return null;
+					bytes[2] = (byte) (int) (l >> 8 & 0xFF);
+					bytes[3] = (byte) (int) (l & 0xFF);
+					break;
+				case 4:
+					for (i = 0; i < 4; ++i) {
+						l = Integer.parseInt(elements[i]);
+						if ((l < 0L) || (l > 255L))
+							return null;
+						bytes[i] = (byte) (int) (l & 0xFF);
+					}
+					break;
+				default:
+					return null;
 			}
 		} catch (NumberFormatException e) {
 			return null;
@@ -195,8 +195,8 @@ public class IpUtils {
 			return "内网IP";
 		}
 		if (addressOpt) {
-			String res = HttpDefaultUtils.sendPost(IP_ADDRESS_URL, MapUtils.getBuilder("ip", ip).build());
-			if (StrUtils.isBlank(res)) {
+			String res = HttpTool.sendPost(IP_ADDRESS_URL, MapTool.builder("ip", ip).build());
+			if (StrTool.isBlank(res)) {
 				log.error("获取地理位置异常 {}", ip);
 				return address;
 			}

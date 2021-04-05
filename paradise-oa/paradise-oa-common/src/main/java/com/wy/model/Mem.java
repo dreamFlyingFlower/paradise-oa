@@ -1,6 +1,6 @@
 package com.wy.model;
 
-import com.wy.utils.NumUtils;
+import com.wy.lang.NumberTool;
 
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -42,18 +42,18 @@ public class Mem {
 	private double free;
 
 	public double getTotal() {
-		return NumUtils.div(total, (1024 * 1024 * 1024), 2);
+		return NumberTool.div(total, (1024 * 1024 * 1024), 2).doubleValue();
 	}
 
 	public double getUsed() {
-		return NumUtils.div(used, (1024 * 1024 * 1024), 2);
+		return NumberTool.div(used, (1024 * 1024 * 1024), 2).doubleValue();
 	}
 
 	public double getFree() {
-		return NumUtils.div(free, (1024 * 1024 * 1024), 2);
+		return NumberTool.div(free, (1024 * 1024 * 1024), 2).doubleValue();
 	}
 
 	public double getUsage() {
-		return NumUtils.multiply(NumUtils.div(used, total, 4), 100);
+		return NumberTool.multiply(NumberTool.div(used, total, 4), 100).doubleValue();
 	}
 }

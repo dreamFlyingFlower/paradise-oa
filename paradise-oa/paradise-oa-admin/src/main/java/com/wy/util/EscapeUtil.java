@@ -1,6 +1,6 @@
 package com.wy.util;
 
-import com.wy.utils.StrUtils;
+import com.wy.lang.StrTool;
 
 /**
  * 转义工具类
@@ -87,7 +87,7 @@ public class EscapeUtil {
 	 * @return 解码后的字符串
 	 */
 	public static String decode(String content) {
-		if (StrUtils.isBlank(content)) {
+		if (StrTool.isBlank(content)) {
 			return content;
 		}
 

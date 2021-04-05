@@ -2,8 +2,8 @@ package com.wy.model;
 
 import java.lang.management.ManagementFactory;
 
-import com.wy.utils.DateUtils;
-import com.wy.utils.NumUtils;
+import com.wy.lang.NumberTool;
+import com.wy.util.DateTool;
 
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
@@ -55,23 +55,23 @@ public class Jvm {
 	private String home;
 
 	public double getTotal() {
-		return NumUtils.div(total, (1024 * 1024), 2);
+		return NumberTool.div(total, (1024 * 1024), 2).doubleValue();
 	}
 
 	public double getMax() {
-		return NumUtils.div(max, (1024 * 1024), 2);
+		return NumberTool.div(max, (1024 * 1024), 2).doubleValue();
 	}
 
 	public double getFree() {
-		return NumUtils.div(free, (1024 * 1024), 2);
+		return NumberTool.div(free, (1024 * 1024), 2).doubleValue();
 	}
 
 	public double getUsed() {
-		return NumUtils.div(total - free, (1024 * 1024), 2);
+		return NumberTool.div(total - free, (1024 * 1024), 2).doubleValue();
 	}
 
 	public double getUsage() {
-		return NumUtils.multiply(NumUtils.div(total - free, total, 4), 100);
+		return NumberTool.multiply(NumberTool.div(total - free, total, 4), 100).doubleValue();
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class Jvm {
 	 * JDK启动时间
 	 */
 	public String getStartTime() {
-		return DateUtils.formatDateTime(ManagementFactory.getRuntimeMXBean().getStartTime());
+		return DateTool.formatDateTime(ManagementFactory.getRuntimeMXBean().getStartTime());
 	}
 
 	/**

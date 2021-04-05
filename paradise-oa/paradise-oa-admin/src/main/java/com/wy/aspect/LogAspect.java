@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -33,6 +32,7 @@ import com.wy.logger.Log;
 import com.wy.model.OperateLog;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
+import com.wy.util.ArrayTool;
 import com.wy.util.IpUtils;
 import com.wy.util.ServletUtils;
 
@@ -210,7 +210,7 @@ public class LogAspect {
 	 * @return 参数字符串
 	 */
 	private String handlerArgs(Object[] params) {
-		if (ArrayUtils.isEmpty(params)) {
+		if (ArrayTool.isEmpty(params)) {
 			return "";
 		}
 		return Stream.of(params).filter(t -> {
