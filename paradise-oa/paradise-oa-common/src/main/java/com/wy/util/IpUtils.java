@@ -1,5 +1,6 @@
 package com.wy.util;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -195,14 +196,18 @@ public class IpUtils {
 			return "内网IP";
 		}
 		if (addressOpt) {
-			String res = HttpTool.sendPost(IP_ADDRESS_URL, MapTool.builder("ip", ip).build());
-			if (StrTool.isBlank(res)) {
-				log.error("获取地理位置异常 {}", ip);
-				return address;
+			try {
+				String res = HttpTool.sendPost(IP_ADDRESS_URL, JSON.toJSONString(MapTool.builder("ip", ip).build()));
+				if (StrTool.isBlank(res)) {
+					log.error("获取地理位置异常 {}", ip);
+					return address;
+				}
+				JSONObject obj = JSON.parseObject(res);
+				JSONObject data = obj.getObject("data", JSONObject.class);
+				address = data.getString("region") + ":" + data.getString("city");
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			JSONObject obj = JSON.parseObject(res);
-			JSONObject data = obj.getObject("data", JSONObject.class);
-			address = data.getString("region") + ":" + data.getString("city");
 		}
 		return address;
 	}

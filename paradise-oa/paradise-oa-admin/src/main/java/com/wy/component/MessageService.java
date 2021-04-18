@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
+import com.wy.lang.StrTool;
 import com.wy.result.ResultException;
-import com.wy.utils.StrUtils;
 
 /**
  * 国际化配置使用
@@ -23,7 +23,7 @@ public class MessageService {
 	protected MessageSource messageSource;
 
 	private void assertNull(String msg) {
-		if (StrUtils.isBlank(msg)) {
+		if (StrTool.isBlank(msg)) {
 			throw new ResultException(getMessage("", "提示消息不能为空"));
 		}
 	}

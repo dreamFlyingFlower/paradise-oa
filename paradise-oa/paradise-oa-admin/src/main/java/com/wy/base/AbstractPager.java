@@ -3,7 +3,7 @@ package com.wy.base;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.wy.common.Constant;
+import com.wy.common.Constants;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -74,7 +74,7 @@ public abstract class AbstractPager implements Serializable {
 			return false;
 		}
 		if (pageSize == null || pageSize <= 0) {
-			pageSize = Constant.PAGE_SIZE;
+			pageSize = Constants.PAGE_SIZE;
 		}
 		return true;
 	}

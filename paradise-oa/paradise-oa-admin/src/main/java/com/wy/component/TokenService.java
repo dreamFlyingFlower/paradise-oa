@@ -10,15 +10,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSON;
-import com.wy.common.Constants;
+import com.wy.collection.MapToo
 import com.wy.crypto.CryptoUtils;
+import com.wy.digest.DigestTool;
 import com.wy.enums.TipEnum;
 import com.wy.exception.AuthException;
 import com.wy.model.User;
 import com.wy.properties.ConfigProperties;
 import com.wy.result.ResultException;
-import com.wy.service.impl.UserServiceImpl;
-import com.wy.util.JwtUtils;
+import com.wy.service.impl.UserServiceils;
 import com.wy.utils.MapUtils;
 import com.wy.utils.StrUtils;
 
@@ -61,11 +61,11 @@ public class TokenService extends MessageService {
 	 * @return 令牌
 	 */
 	public void createToken(User user) {
-		String token = MessageFormat.format(TOKEN_FORMAT, CryptoUtils.UUID(), user.getUserId(),
+		String token = MessageFormat.format(TOKEN_FORMAT, DigestTool.UUID(), user.getUserId(),
 				System.currentTimeMillis());
 		user.setToken(
 				config.getFilter().isJwtEnable()
-						? JwtUtils.buildToken(MapUtils.builder(Constants.JWT_TOKEN_KEY, token).build(),
+						? JwtUtils.buildToken(MapTool.builder(Constants.JWT_TOKEN_KEY, token).build(),
 								config.getToken().getSecret())
 						: token);
 		redisTemplate.opsForValue().set(getTokenKey(user.getUserId()), user, config.getToken().getExpireTime(),

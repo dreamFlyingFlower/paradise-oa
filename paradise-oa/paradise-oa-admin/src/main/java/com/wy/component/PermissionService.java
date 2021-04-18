@@ -7,16 +7,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import com.wy.collection.ListTool;
 import com.wy.common.Constants;
 import com.wy.enums.Permission;
 import com.wy.enums.TipEnum;
 import com.wy.exception.AuthException;
+import com.wy.lang.StrTool;
 import com.wy.model.Role;
 import com.wy.model.User;
 import com.wy.model.vo.PermissionVo;
 import com.wy.util.SecurityUtils;
-import com.wy.utils.ListUtils;
-import com.wy.utils.StrUtils;
 
 /**
  * 利用{@link PreAuthorize}的SpringEl表达式自定义权限实现
@@ -37,7 +37,7 @@ public class PermissionService {
 	 * @return 用户信息
 	 */
 	private User getLoginUser(String... param) {
-		if (StrUtils.isBlank(param)) {
+		if (StrTool.isBlank(param)) {
 			return null;
 		}
 		User loginUser = SecurityUtils.getLoginUser();
@@ -54,7 +54,7 @@ public class PermissionService {
 	 * @return true or false
 	 */
 	private boolean assertAdmin(List<Role> roles) {
-		if (ListUtils.isBlank(roles)) {
+		if (ListTool.isEmpty(roles)) {
 			throw new AuthException(TipEnum.TIP_USER_NOT_DISTRIBUTE_ROLE);
 		}
 		for (Role role : roles) {
@@ -101,7 +101,7 @@ public class PermissionService {
 			return true;
 		}
 		List<PermissionVo> permissionVos = loginUser.getPermissions();
-		if (ListUtils.isBlank(permissionVos)) {
+		if (ListTool.isEmpty(permissionVos)) {
 			return false;
 		}
 		for (String permission : permissions) {
@@ -121,10 +121,10 @@ public class PermissionService {
 	 */
 	private boolean hasPermissions(List<PermissionVo> permissions, String permission) {
 		String[] roleAndPermissions = permission.split(":");
-		if (StrUtils.isBlank(roleAndPermissions) || roleAndPermissions.length != 2) {
+		if (StrTool.isBlank(roleAndPermissions) || roleAndPermissions.length != 2) {
 			return false;
 		}
-		if (StrUtils.isBlank(roleAndPermissions[0]) || StrUtils.isBlank(roleAndPermissions[1])) {
+		if (StrTool.isBlank(roleAndPermissions[0]) || StrTool.isBlank(roleAndPermissions[1])) {
 			return false;
 		}
 		// 权限数组

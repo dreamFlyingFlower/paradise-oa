@@ -13,23 +13,23 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.wy.collection.ListTool;
+import com.wy.collection.MapTool;
 import com.wy.database.Pid;
 import com.wy.database.Pri;
 import com.wy.enums.TipEnum;
-import com.wy.excel.ExcelModelUtils;
+import com.wy.excel.ExcelModelTools;
+import com.wy.lang.NumberTool;
+import com.wy.lang.StrTool;
 import com.wy.result.Result;
 import com.wy.result.ResultException;
-import com.wy.utils.ListUtils;
-import com.wy.utils.MapUtils;
-import com.wy.utils.StrUtils;
+import com.wy.util.ArrayTool;
 
 /**
  * 基础service层,通用service查询方法
@@ -74,9 +74,9 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	public Page<Object> startPage(AbstractPager pager) {
 		String pageDirection = pager.getPageDirection();
 		if (pager.hasPager()) {
-			if (StrUtils.isNotBlank(pager.getPageOrder())) {
+			if (StrTool.isNotBlank(pager.getPageOrder())) {
 				return PageHelper.startPage(pager.getPageIndex(), pager.getPageSize(),
-						pager.getPageOrder() + " " + (StrUtils.isBlank(pageDirection) ? " desc " : pageDirection));
+						pager.getPageOrder() + " " + (StrTool.isBlank(pageDirection) ? " desc " : pageDirection));
 			} else {
 				return PageHelper.startPage(pager.getPageIndex(), pager.getPageSize());
 			}
@@ -133,12 +133,12 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	@Override
 	public Map<ID, List<T>> getLeaf(Map<String, Object> params) {
 		Field[] declaredFields = clazz.getDeclaredFields();
-		if (ArrayUtils.isEmpty(declaredFields)) {
+		if (ArrayTool.isEmpty(declaredFields)) {
 			throw new ResultException("this class does not have nothing");
 		}
 		Map<String, Field> priAndPidField = handlerPriAndPidField(declaredFields);
 		List<T> entitys = getTreeAll(params, priAndPidField);
-		if (ListUtils.isBlank(entitys)) {
+		if (ListTool.isEmpty(entitys)) {
 			return null;
 		}
 		Field priField = priAndPidField.get("priField");
@@ -158,7 +158,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	 */
 	public List<T> getTreeAll(Map<String, Object> params, Map<String, Field> priAndPidField) {
 		List<T> entitys = null;
-		if (MapUtils.isBlank(params)) {
+		if (MapTool.isEmpty(params)) {
 			entitys = baseMapper.selectEntitys(null);
 		} else {
 			T param = JSON.parseObject(JSON.toJSONString(params), clazz);
@@ -166,7 +166,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 		}
 		// 添加根数据,不在数据库中存在,如字典表,所有字典的pid为0,数据库中没有,需要手动添加到其中
 		entitys.add(JSON.parseObject(JSON.toJSONString(
-				MapUtils.builder("treeId", 0).put("treeName", "ROOT").put(priAndPidField.get("priField").getName(), 0)
+				MapTool.builder("treeId", 0).put("treeName", "ROOT").put(priAndPidField.get("priField").getName(), 0)
 						.put(priAndPidField.get("pidField").getName(), -1).build()),
 				clazz));
 		return entitys;
@@ -211,7 +211,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 				// 检查是否存在本级集合数据
 				ID priVal = (ID) priField.get(t);
 				List<T> priList = result.get(priVal);
-				if (ListUtils.isBlank(priList)) {
+				if (ListTool.isEmpty(priList)) {
 					priList = new ArrayList<>();
 					result.put(priVal, priList);
 				}
@@ -236,7 +236,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	 * @param params 全部符合的数据
 	 */
 	public void getLeaf(List<T> trees, Map<ID, List<T>> params) {
-		if (ListUtils.isBlank(trees)) {
+		if (ListTool.isEmpty(trees)) {
 			return;
 		}
 		for (T t : trees) {
@@ -244,7 +244,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 				throw new ResultException("this class does not extends Tree");
 			}
 			Tree<T, ID> tree = (Tree<T, ID>) t;
-			if (ListUtils.isNotBlank(params.get(tree.getTreeId()))) {
+			if (ListTool.isNotEmpty(params.get(tree.getTreeId()))) {
 				getLeaf(params.get(tree.getTreeId()), params);
 				tree.setChildren(params.get(tree.getTreeId()));
 			}
@@ -281,7 +281,7 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	}
 
 	public void getRecursionLeaf(List<T> trees, Map<String, Object> params) {
-		if (ListUtils.isBlank(trees)) {
+		if (ListTool.isEmpty(trees)) {
 			return;
 		}
 		for (T t : trees) {
@@ -311,9 +311,9 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 	@Override
 	public void getExport(T t, HttpServletRequest request, HttpServletResponse response) {
 		Result<List<T>> entitys = getEntitys(t);
-		String excelName = StrUtils.isBlank(request.getParameter("excelName")) ? "数据导出"
+		String excelName = StrTool.isBlank(request.getParameter("excelName")) ? "数据导出"
 				: request.getParameter("excelName");
-		ExcelModelUtils.getInstance().exportExcel(entitys.getData(), response, excelName);
+		ExcelModelTools.getInstance().exportExcel(entitys.getData(), response, excelName);
 	}
 
 	@Override
@@ -321,16 +321,16 @@ public abstract class AbstractQueryService<T, ID> implements BaseService<T, ID> 
 		if (params == null) {
 			return Result.ok(baseMapper.selectLists(new HashMap<>()));
 		}
-		if (params.get("pageIndex") == null || NumberUtils.toInt(params.get("pageIndex").toString()) < 0) {
+		if (params.get("pageIndex") == null || NumberTool.toInt(params.get("pageIndex").toString()) < 0) {
 			return Result.ok(baseMapper.selectLists(params));
 		}
 		int pageSize = 0;
-		if (params.get("pageSize") == null || NumberUtils.toInt(params.get("pageSize").toString()) <= 0) {
+		if (params.get("pageSize") == null || NumberTool.toInt(params.get("pageSize").toString()) <= 0) {
 			pageSize = 10;
 		} else {
-			pageSize = NumberUtils.toInt(params.get("pageSize").toString());
+			pageSize = NumberTool.toInt(params.get("pageSize").toString());
 		}
-		PageHelper.startPage(NumberUtils.toInt(params.get("pageIndex").toString()), pageSize);
+		PageHelper.startPage(NumberTool.toInt(params.get("pageIndex").toString()), pageSize);
 		List<Map<String, Object>> lists = baseMapper.selectLists(params);
 		PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(lists);
 		return Result.page(lists, pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal());

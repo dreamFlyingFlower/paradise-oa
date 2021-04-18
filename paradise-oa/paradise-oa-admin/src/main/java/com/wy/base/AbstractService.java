@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alibaba.fastjson.JSON;
 import com.wy.database.Sort;
 import com.wy.database.Unique;
+import com.wy.lang.NumberTool;
+import com.wy.lang.StrTool;
 import com.wy.result.ResultException;
-import com.wy.utils.StrUtils;
 
 /**
  * 基础service层,通用service的DML方法
@@ -71,8 +71,8 @@ public abstract class AbstractService<T, ID> extends AbstractQueryService<T, ID>
 						// 当更新时,检查原始值和新值是否相同,若相同,不用再查数据库,且需要将实体类中的该字段值置空
 						Unique unique = field.getAnnotation(Unique.class);
 						String oriName = unique.oriName();
-						if (StrUtils.isBlank(oriName)) {
-							oriName = "ori" + StrUtils.upperFirst(field.getName());
+						if (StrTool.isBlank(oriName)) {
+							oriName = "ori" + StrTool.firstUpper(field.getName());
 						}
 						Field actualField = clazz.getDeclaredField(oriName);
 						actualField.setAccessible(true);
@@ -117,7 +117,7 @@ public abstract class AbstractService<T, ID> extends AbstractQueryService<T, ID>
 		try {
 			Object value = field.get(model);
 			if (Objects.nonNull(value)) {
-				Long number = NumberUtils.toLong(field.get(model).toString());
+				Long number = NumberTool.toLong(field.get(model).toString());
 				if (number > 0) {
 					return number;
 				}
@@ -127,7 +127,7 @@ public abstract class AbstractService<T, ID> extends AbstractQueryService<T, ID>
 			return -1l;
 		}
 		Sort sort = field.getAnnotation(Sort.class);
-		return baseMapper.getMaxValue(StrUtils.isBlank(sort.value()) ? field.getName() : sort.value());
+		return baseMapper.getMaxValue(StrTool.isBlank(sort.value()) ? field.getName() : sort.value());
 	}
 
 	@Override

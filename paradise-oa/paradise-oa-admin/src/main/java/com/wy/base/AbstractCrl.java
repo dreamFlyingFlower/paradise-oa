@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.wy.collection.ListTool;
 import com.wy.result.Result;
-import com.wy.utils.ListUtils;
-import com.wy.valid.ValidInserts;
 import com.wy.valid.ValidEdits;
+import com.wy.valid.ValidInserts;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiOperation;
  * @author ParadiseWY
  * @date 2020年4月2日 下午4:34:17
  */
-public abstract class AbstractCrl<T,ID> extends QueryCrl<T,ID> {
+public abstract class AbstractCrl<T, ID> extends QueryCrl<T, ID> {
 
 	/**
 	 * 通用单条数据新增,null数据不新增,暂时不考虑权限,每个权限不一样,需要重新设计
@@ -61,7 +61,7 @@ public abstract class AbstractCrl<T,ID> extends QueryCrl<T,ID> {
 	@ApiOperation("根据主键批量删除表中数据,主键类型是数字类型")
 	@PostMapping("removes")
 	public Result<?> removes(@RequestBody List<ID> ids) {
-		if (ListUtils.isBlank(ids)) {
+		if (ListTool.isEmpty(ids)) {
 			return Result.error("集合数据为空");
 		}
 		return Result.ok(baseService.deletes(ids));

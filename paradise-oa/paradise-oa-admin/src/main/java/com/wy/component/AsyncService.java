@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.wy.lang.StrTool;
 import com.wy.model.LoginLog;
 import com.wy.model.OperateLog;
 import com.wy.properties.ConfigProperties;
@@ -11,7 +12,6 @@ import com.wy.service.LoginLogService;
 import com.wy.service.OperateLogService;
 import com.wy.util.IpUtils;
 import com.wy.util.ServletUtils;
-import com.wy.utils.StrUtils;
 
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class AsyncService {
 	public void recordLoginLog(String username, int state, String message) {
 		String ip = IpUtils.getIpByRequest(ServletUtils.getHttpServletRequest());
 		String address = IpUtils.getAddressByIp(ip, config.getCommon().isAddressOpt());
-		log.info(StrUtils.formatBuilder("::", ip, address, username, state, message));
+		log.info(StrTool.formatBuilder("::", ip, address, username, state, message));
 		UserAgent userAgent = UserAgent
 				.parseUserAgentString(ServletUtils.getHttpServletRequest().getHeader("User-Agent"));
 		LoginLog logininfor = LoginLog.builder().username(username).loginIp(ip).loginPlace(address)
